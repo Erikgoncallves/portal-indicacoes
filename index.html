@@ -437,11 +437,10 @@ function init() {
   });
 
   // Verifica se script está configurado
-  if (CONFIG.scriptURL === 'https://script.google.com/macros/s/AKfycbyzrSIVcWzI3u7W7wRXAuPor1C53ioNsXmGN48qZnExf3LVrJt3StfoikY8EpHnjvLX9A/exec') {
-    document.getElementById('banner-form').style.display = 'block';
-    // Carrega dados de exemplo para demonstração
-    indicacoes = dadosDemo();
-  }
+  if (!CONFIG.scriptURL || CONFIG.scriptURL === 'SEU_SCRIPT_URL_AQUI') {
+  document.getElementById('banner-form').style.display = 'block';
+  indicacoes = dadosDemo();
+}
 
   renderConsultoresList();
 }
@@ -479,7 +478,14 @@ async function enviarIndicacao() {
 
   if (CONFIG.scriptURL !== 'SEU_SCRIPT_URL_AQUI') {
     try {
-      await fetch(CONFIG.scriptURL, { method:'POST', body: JSON.stringify(payload) });
+      await fetch(CONFIG.scriptURL, {
+  method: 'POST',
+  mode: 'no-cors',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(payload)
+});
     } catch(e) { console.warn('Erro ao salvar:', e); }
   } else {
     // Demo: salva em memória
@@ -683,7 +689,14 @@ async function salvarEdicao() {
 
   if (CONFIG.scriptURL !== 'SEU_SCRIPT_URL_AQUI') {
     try {
-      await fetch(CONFIG.scriptURL, { method:'POST', body: JSON.stringify({ action:'update', ...ind }) });
+      await fetch(CONFIG.scriptURL, {
+  method: 'POST',
+  mode: 'no-cors',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ action:'update', ...ind })
+});
     } catch(e) { console.warn('Erro ao salvar'); }
   }
 
