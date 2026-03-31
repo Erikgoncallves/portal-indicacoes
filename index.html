@@ -380,7 +380,7 @@
 // ═══════════════════════════════════════════════════════
 const CONFIG = {
   // Cole aqui a URL do seu Google Apps Script (veja instruções no README)
-  scriptURL: 'SEU_SCRIPT_URL_AQUI',
+  scriptURL: 'https://script.google.com/macros/s/AKfycbyzrSIVcWzI3u7W7wRXAuPor1C53ioNsXmGN48qZnExf3LVrJt3StfoikY8EpHnjvLX9A/exec',
 
   // Liste os consultores da sua corretora
   consultores: [
@@ -437,7 +437,7 @@ function init() {
   });
 
   // Verifica se script está configurado
-  if (CONFIG.scriptURL === 'SEU_SCRIPT_URL_AQUI') {
+  if (CONFIG.scriptURL === 'https://script.google.com/macros/s/AKfycbyzrSIVcWzI3u7W7wRXAuPor1C53ioNsXmGN48qZnExf3LVrJt3StfoikY8EpHnjvLX9A/exec') {
     document.getElementById('banner-form').style.display = 'block';
     // Carrega dados de exemplo para demonstração
     indicacoes = dadosDemo();
