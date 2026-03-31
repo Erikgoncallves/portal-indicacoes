@@ -256,7 +256,7 @@
     <div class="page-title">Nova indicação</div>
     <div class="page-sub">Preencha os dados de quem você quer indicar</div>
 
-    <div class="config-banner" id="banner-form" style="display:none">
+    <div class="config-banner" id="banner-form" style="display:none; display:none !important;">
       <strong>⚙️ Configuração necessária</strong>
       Substitua <code>https://script.google.com/a/macros/masterprimeseguros.com.br/s/AKfycbyzrSIVcWzI3u7W7wRXAuPor1C53ioNsXmGN48qZnExf3LVrJt3StfoikY8EpHnjvLX9A/exec</code> no código pelo ID do seu Google Apps Script para salvar os dados.
     </div>
@@ -437,10 +437,8 @@ function init() {
   });
 
   // Verifica se script está configurado
-  if (!CONFIG.scriptURL || CONFIG.scriptURL === 'SEU_SCRIPT_URL_AQUI') {
-  document.getElementById('banner-form').style.display = 'block';
-  indicacoes = dadosDemo();
-}
+ // Sempre inicia vazio (sem demo)
+indicacoes = [];
 
   renderConsultoresList();
 }
@@ -476,7 +474,7 @@ async function enviarIndicacao() {
     status: 'new', admin: '', updated: new Date().toLocaleDateString('pt-BR'),
     id: Date.now().toString() };
 
-  if (CONFIG.scriptURL !== 'SEU_SCRIPT_URL_AQUI') {
+  if (CONFIG.scriptURL) {
     try {
       await fetch(CONFIG.scriptURL, {
   method: 'POST',
@@ -529,7 +527,7 @@ function selecionarConsultor(nome, el) {
 
 async function acessarConsultor() {
   if (!consultorAtivo) return;
-  if (CONFIG.scriptURL !== 'SEU_SCRIPT_URL_AQUI') {
+  if (CONFIG.scriptURL) {
     try {
       const res = await fetch(`${CONFIG.scriptURL}?action=get&consultor=${encodeURIComponent(consultorAtivo)}`);
       const data = await res.json();
