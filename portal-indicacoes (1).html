@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal de Indicações</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1a56db;
+    --blue-light: #e8f0fe;
+    --blue-mid: #b3caf7;
+    --green: #0e9f6e;
+    --green-light: #def7ec;
+    --amber: #c27803;
+    --amber-light: #fdf6b2;
+    --red: #c81e1e;
+    --red-light: #fde8e8;
+    --purple: #6c2bd9;
+    --purple-light: #edebfe;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; }
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: block; }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--gray-900); letter-spacing: -0.3px; }
+  .logo em { color: var(--blue); font-style: normal; }
+  .mode-tag { font-size: 11px; background: var(--blue-light); color: var(--blue); padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+
+  /* ── PAGES ── */
+  .page { max-width: 520px; margin: 0 auto; padding: 32px 20px 60px; }
+  .page-wide { max-width: 720px; margin: 0 auto; padding: 28px 20px 60px; }
+  .page-title { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--gray-900); margin-bottom: 6px; line-height: 1.2; }
+  .page-sub { font-size: 14px; color: var(--gray-400); margin-bottom: 28px; }
+
+  /* ── CARD ── */
+  .card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .card-title { font-size: 11px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+
+  /* ── FORM ── */
+  .form-group { margin-bottom: 18px; }
+  .form-group:last-child { margin-bottom: 0; }
+  label { font-size: 13px; font-weight: 500; color: var(--gray-600); display: block; margin-bottom: 7px; }
+  input, select, textarea {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius);
+    font-size: 14px; font-family: 'DM Sans', sans-serif;
+    color: var(--gray-900); background: #fff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(26,86,219,0.08);
+  }
+  textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+  select { cursor: pointer; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 11px 20px; border-radius: var(--radius);
+    font-size: 14px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; border: none; transition: all 0.15s;
+  }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: #1447b8; }
+  .btn-secondary { background: #fff; color: var(--gray-800); border: 1.5px solid var(--gray-200); }
+  .btn-secondary:hover { background: var(--gray-50); }
+  .btn-success { background: var(--green); color: #fff; }
+  .btn-success:hover { background: #057a55; }
+  .btn-full { width: 100%; }
+  .btn-sm { padding: 7px 14px; font-size: 12px; }
+  .back-btn { background: none; border: none; color: var(--blue); font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 22px; padding: 0; font-weight: 500; }
+  .back-btn:hover { opacity: 0.75; }
+
+  /* ── HOME SWITCHER ── */
+  .switcher {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px;
+  }
+  .sw-card {
+    background: #fff; border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg); padding: 22px 18px;
+    cursor: pointer; transition: all 0.18s; text-align: center;
+  }
+  .sw-card:hover { border-color: var(--blue-mid); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .sw-card.selected { border-color: var(--blue); background: var(--blue-light); }
+  .sw-icon { font-size: 28px; margin-bottom: 10px; }
+  .sw-title { font-size: 14px; font-weight: 600; color: var(--gray-800); margin-bottom: 4px; }
+  .sw-desc { font-size: 12px; color: var(--gray-400); line-height: 1.5; }
+
+  /* ── BADGES ── */
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+  .badge-new      { background: var(--amber-light); color: var(--amber); }
+  .badge-contact  { background: var(--blue-light);  color: var(--blue); }
+  .badge-proposal { background: var(--purple-light); color: var(--purple); }
+  .badge-closed   { background: var(--green-light);  color: var(--green); }
+  .badge-lost     { background: var(--red-light);    color: var(--red); }
+
+  /* ── METRICS ── */
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+  .metric { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 16px; text-align: center; box-shadow: var(--shadow); }
+  .metric-val { font-size: 26px; font-weight: 600; margin-bottom: 3px; }
+  .metric-lbl { font-size: 11px; color: var(--gray-400); font-weight: 500; }
+
+  /* ── LIST ── */
+  .filter-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1.5px solid var(--gray-200); background: #fff; color: var(--gray-600); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.12s; }
+  .filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  .ind-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px; border-bottom: 1px solid var(--gray-100);
+    cursor: pointer; transition: background 0.1s; gap: 12px;
+  }
+  .ind-item:last-child { border-bottom: none; }
+  .ind-item:hover { background: var(--gray-50); }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+  .ind-name { font-size: 14px; font-weight: 500; color: var(--gray-900); margin-bottom: 2px; }
+  .ind-meta { font-size: 12px; color: var(--gray-400); }
+
+  /* ── DETAIL ── */
+  .field-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--gray-100); font-size: 13px; gap: 12px; }
+  .field-row:last-child { border-bottom: none; }
+  .field-key { color: var(--gray-400); min-width: 120px; flex-shrink: 0; }
+  .field-val { color: var(--gray-900); font-weight: 500; text-align: right; }
+
+  /* ── STEPS ── */
+  .steps { display: flex; gap: 0; margin-bottom: 8px; }
+  .step { flex: 1; text-align: center; position: relative; }
+  .step-line { position: absolute; top: 11px; left: 50%; right: -50%; height: 2px; background: var(--gray-200); }
+  .step-line.done { background: var(--blue); }
+  .step:last-child .step-line { display: none; }
+  .step-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--gray-200); background: #fff; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: var(--gray-400); position: relative; z-index: 1; }
+  .step-dot.done { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .step-dot.current { border-color: var(--blue); color: var(--blue); }
+  .step-lbl { font-size: 10px; color: var(--gray-400); line-height: 1.3; }
+  .step-lbl.current { color: var(--blue); font-weight: 600; }
+
+  /* ── SUCCESS ── */
+  .success-wrap { text-align: center; padding: 48px 24px; }
+  .success-circle { width: 64px; height: 64px; border-radius: 50%; background: var(--green-light); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+
+  /* ── HOME ── */
+  .home-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 20px; }
+  .home-logo { font-family: 'DM Serif Display', serif; font-size: 36px; color: var(--gray-900); text-align: center; margin-bottom: 8px; }
+  .home-logo em { color: var(--blue); font-style: normal; }
+  .home-tagline { font-size: 14px; color: var(--gray-400); text-align: center; margin-bottom: 40px; }
+
+  /* ── CONSULTOR SELECT ── */
+  .cons-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .cons-opt {
+    background: #fff; border: 2px solid var(--gray-200);
+    border-radius: var(--radius); padding: 14px 18px;
+    cursor: pointer; display: flex; align-items: center; gap: 14px;
+    transition: all 0.15s;
+  }
+  .cons-opt:hover { border-color: var(--blue-mid); }
+  .cons-opt.selected { border-color: var(--blue); background: var(--blue-light); }
+  .cons-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+  .cons-name { font-size: 14px; font-weight: 500; color: var(--gray-800); }
+  .cons-count { font-size: 12px; color: var(--gray-400); margin-top: 1px; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--gray-900); color: #fff; padding: 12px 22px;
+    border-radius: var(--radius); font-size: 13px; font-weight: 500;
+    transition: transform 0.3s; z-index: 999; white-space: nowrap;
+    box-shadow: var(--shadow-md);
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── CONFIG BANNER ── */
+  .config-banner {
+    background: #fffbeb; border: 1px solid #fcd34d; border-radius: var(--radius);
+    padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #92400e; line-height: 1.5;
+  }
+  .config-banner strong { display: block; margin-bottom: 2px; }
+
+  @media (max-width: 480px) {
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .page-title { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- ════════════════════════════════════
+     HOME — escolha o fluxo
+════════════════════════════════════ -->
+<div class="screen active" id="s-home">
+  <div class="home-wrap">
+    <div class="home-logo">Portal de <em>Indicações</em></div>
+    <div class="home-tagline">Selecione como deseja acessar</div>
+    <div style="width:100%;max-width:440px;">
+      <div class="switcher">
+        <div class="sw-card" onclick="go('s-form')">
+          <div class="sw-icon">🤝</div>
+          <div class="sw-title">Quero indicar</div>
+          <div class="sw-desc">Indique um conhecido para um de nossos consultores</div>
+        </div>
+        <div class="sw-card" onclick="go('s-consultor-select')">
+          <div class="sw-icon">📊</div>
+          <div class="sw-title">Sou consultor</div>
+          <div class="sw-desc">Acesse e gerencie suas indicações recebidas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     FORMULÁRIO DE INDICAÇÃO
+════════════════════════════════════ -->
+<div class="screen" id="s-form">
+  <div class="topbar">
+    <div class="logo">Portal de <em>Indicações</em></div>
+    <span class="mode-tag">Indicar</span>
+  </div>
+  <div class="page">
+    <button class="back-btn" onclick="go('s-home')">← Voltar</button>
+    <div class="page-title">Nova indicação</div>
+    <div class="page-sub">Preencha os dados de quem você quer indicar</div>
+
+    <div class="config-banner" id="banner-form" style="display:none">
+      <strong>⚙️ Configuração necessária</strong>
+      Substitua <code>SEU_SCRIPT_ID</code> no código pelo ID do seu Google Apps Script para salvar os dados.
+    </div>
+
+    <div class="card">
+      <div class="form-group">
+        <label>Seu nome (quem está indicando) *</label>
+        <input type="text" id="f-indicador" placeholder="Seu nome completo">
+      </div>
+      <div class="form-group">
+        <label>Para qual consultor? *</label>
+        <select id="f-consultor">
+          <option value="">Selecione o consultor...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nome do indicado *</label>
+        <input type="text" id="f-nome" placeholder="Ex: Roberto Silva">
+      </div>
+      <div class="form-group">
+        <label>Telefone / WhatsApp *</label>
+        <input type="tel" id="f-tel" placeholder="(11) 99999-9999">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Observação (opcional)</label>
+        <textarea id="f-nota" placeholder="Produto de interesse, contexto útil..."></textarea>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" id="btn-enviar" onclick="enviarIndicacao()">Enviar indicação</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SUCESSO
+════════════════════════════════════ -->
+<div class="screen" id="s-sucesso">
+  <div class="topbar">
+    <div class="logo">Portal de <em>Indicações</em></div>
+  </div>
+  <div class="page">
+    <div class="success-wrap">
+      <div class="success-circle">✓</div>
+      <div class="page-title" style="margin-bottom:10px;">Indicação enviada!</div>
+      <p style="font-size:14px;color:var(--gray-400);line-height:1.7;margin-bottom:32px;">
+        O consultor <strong id="conf-consultor" style="color:var(--gray-800)"></strong> receberá os dados<br>
+        e entrará em contato com <strong id="conf-nome" style="color:var(--gray-800)"></strong> em breve.
+      </p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="go('s-form')">Fazer outra indicação</button>
+        <button class="btn btn-secondary" onclick="go('s-home')">Voltar ao início</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     CONSULTOR — selecionar nome
+════════════════════════════════════ -->
+<div class="screen" id="s-consultor-select">
+  <div class="topbar">
+    <div class="logo">Portal de <em>Indicações</em></div>
+    <span class="mode-tag">Consultores</span>
+  </div>
+  <div class="page">
+    <button class="back-btn" onclick="go('s-home')">← Voltar</button>
+    <div class="page-title">Quem é você?</div>
+    <div class="page-sub">Selecione seu nome para ver suas indicações</div>
+    <div class="cons-list" id="cons-list"></div>
+    <button class="btn btn-primary btn-full" id="btn-acessar" onclick="acessarConsultor()" style="display:none;">Acessar meu painel →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     PAINEL DO CONSULTOR
+════════════════════════════════════ -->
+<div class="screen" id="s-painel">
+  <div class="topbar">
+    <div class="logo">Portal de <em>Indicações</em></div>
+    <button class="btn btn-secondary btn-sm" onclick="go('s-consultor-select')" style="font-size:12px;">Trocar consultor</button>
+  </div>
+  <div class="page-wide">
+    <div style="margin-bottom:24px;">
+      <div class="page-title" id="painel-titulo">Minhas indicações</div>
+      <div class="page-sub" id="painel-sub"></div>
+    </div>
+
+    <div class="metrics" id="painel-metrics"></div>
+
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="filtrar('todos',this)">Todas</button>
+      <button class="filter-btn" onclick="filtrar('new',this)">Novas</button>
+      <button class="filter-btn" onclick="filtrar('contact',this)">Em contato</button>
+      <button class="filter-btn" onclick="filtrar('proposal',this)">Proposta</button>
+      <button class="filter-btn" onclick="filtrar('closed',this)">Fechadas</button>
+      <button class="filter-btn" onclick="filtrar('lost',this)">Perdidas</button>
+    </div>
+
+    <div class="card" style="padding:0;" id="lista-card">
+      <div id="lista-indicacoes"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     DETALHE / EDIÇÃO
+════════════════════════════════════ -->
+<div class="screen" id="s-detalhe">
+  <div class="topbar">
+    <div class="logo">Portal de <em>Indicações</em></div>
+  </div>
+  <div class="page">
+    <button class="back-btn" onclick="go('s-painel')">← Indicações</button>
+    <div id="detalhe-content"></div>
+  </div>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIGURAÇÃO — edite aqui
+// ═══════════════════════════════════════════════════════
+const CONFIG = {
+  // Cole aqui a URL do seu Google Apps Script (veja instruções no README)
+  scriptURL: 'SEU_SCRIPT_URL_AQUI',
+
+  // Liste os consultores da sua corretora
+  consultores: [
+    { nome: 'Paulo Henrique',  cor: '#dbeafe', tc: '#1e40af' },
+    { nome: 'Fernanda Rocha',  cor: '#fce7f3', tc: '#9d174d' },
+    { nome: 'Carlos Melo',     cor: '#d1fae5', tc: '#065f46' },
+    { nome: 'Ana Beatriz',     cor: '#ede9fe', tc: '#5b21b6' },
+    { nome: 'Ricardo Torres',  cor: '#fef3c7', tc: '#92400e' },
+  ]
+};
+// ═══════════════════════════════════════════════════════
+
+
+// ── Estado ──
+let consultorAtivo = null;
+let filtroAtivo = 'todos';
+let editandoId = null;
+let indicacoes = [];
+
+const statusMap = {
+  new:      { label: 'Nova',           cls: 'badge-new',      step: 0 },
+  contact:  { label: 'Em contato',     cls: 'badge-contact',  step: 1 },
+  proposal: { label: 'Proposta',       cls: 'badge-proposal', step: 2 },
+  closed:   { label: 'Fechado',        cls: 'badge-closed',   step: 3 },
+  lost:     { label: 'Perdido',        cls: 'badge-lost',     step: -1 },
+};
+
+const steps = ['Contato','Levantamento','Proposta','Fechamento'];
+
+// ── Navegação ──
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── Toast ──
+function toast(msg, dur = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── Inicialização ──
+function init() {
+  // Popula selects de consultores
+  const sel = document.getElementById('f-consultor');
+  CONFIG.consultores.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.nome;
+    o.textContent = c.nome;
+    sel.appendChild(o);
+  });
+
+  // Verifica se script está configurado
+  if (CONFIG.scriptURL === 'SEU_SCRIPT_URL_AQUI') {
+    document.getElementById('banner-form').style.display = 'block';
+    // Carrega dados de exemplo para demonstração
+    indicacoes = dadosDemo();
+  }
+
+  renderConsultoresList();
+}
+
+// ── Dados de exemplo (enquanto não configurar o Google Sheets) ──
+function dadosDemo() {
+  return [
+    { id:'1', nome:'João Pedro Alves', tel:'(11) 98765-4321', consultor:'Paulo Henrique', indicador:'Maria Silva', status:'proposal', nota:'Interessado em seguro auto', admin:'Seguradora ABC', updated:'12/03/2026' },
+    { id:'2', nome:'Ana Costa',        tel:'(11) 91234-5678', consultor:'Paulo Henrique', indicador:'Carlos Souza', status:'closed',   nota:'Fechou seguro de vida',  admin:'Seguradora XYZ', updated:'20/03/2026' },
+    { id:'3', nome:'Roberto Lima',     tel:'(11) 97654-3210', consultor:'Paulo Henrique', indicador:'Patrícia M.',  status:'new',      nota:'Previdência privada',    admin:'',               updated:'25/02/2026' },
+    { id:'4', nome:'Carla Fernandes',  tel:'(11) 99988-7766', consultor:'Fernanda Rocha', indicador:'José A.',      status:'contact',  nota:'Plano de saúde família', admin:'Amil',           updated:'18/02/2026' },
+    { id:'5', nome:'Thiago Moura',     tel:'(11) 95544-3322', consultor:'Paulo Henrique', indicador:'Ana B.',       status:'lost',     nota:'Achou caro, desistiu',   admin:'—',              updated:'10/02/2026' },
+    { id:'6', nome:'Lucia Barros',     tel:'(11) 93322-1100', consultor:'Carlos Melo',    indicador:'Pedro L.',     status:'proposal', nota:'Seguro residencial',     admin:'Porto Seguro',   updated:'28/03/2026' },
+  ];
+}
+
+// ── Formulário de indicação ──
+async function enviarIndicacao() {
+  const indicador = document.getElementById('f-indicador').value.trim();
+  const consultor = document.getElementById('f-consultor').value;
+  const nome      = document.getElementById('f-nome').value.trim();
+  const tel       = document.getElementById('f-tel').value.trim();
+  const nota      = document.getElementById('f-nota').value.trim();
+
+  if (!indicador || !consultor || !nome || !tel) {
+    toast('⚠️ Preencha todos os campos obrigatórios'); return;
+  }
+
+  const btn = document.getElementById('btn-enviar');
+  btn.textContent = 'Enviando...'; btn.disabled = true;
+
+  const payload = { action: 'add', indicador, consultor, nome, tel, nota,
+    status: 'new', admin: '', updated: new Date().toLocaleDateString('pt-BR'),
+    id: Date.now().toString() };
+
+  if (CONFIG.scriptURL !== 'SEU_SCRIPT_URL_AQUI') {
+    try {
+      await fetch(CONFIG.scriptURL, { method:'POST', body: JSON.stringify(payload) });
+    } catch(e) { console.warn('Erro ao salvar:', e); }
+  } else {
+    // Demo: salva em memória
+    indicacoes.push({ ...payload });
+    toast('(Demo) Salvo localmente');
+  }
+
+  document.getElementById('conf-consultor').textContent = consultor;
+  document.getElementById('conf-nome').textContent = nome;
+  document.getElementById('f-indicador').value = '';
+  document.getElementById('f-consultor').value = '';
+  document.getElementById('f-nome').value = '';
+  document.getElementById('f-tel').value = '';
+  document.getElementById('f-nota').value = '';
+  btn.textContent = 'Enviar indicação'; btn.disabled = false;
+  go('s-sucesso');
+}
+
+// ── Lista de consultores ──
+function renderConsultoresList() {
+  const el = document.getElementById('cons-list');
+  el.innerHTML = CONFIG.consultores.map(c => {
+    const ini = c.nome.split(' ').slice(0,2).map(p=>p[0]).join('');
+    const count = indicacoes.filter(i => i.consultor === c.nome).length;
+    return `<div class="cons-opt" onclick="selecionarConsultor('${c.nome}',this)">
+      <div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
+      <div>
+        <div class="cons-name">${c.nome}</div>
+        <div class="cons-count">${count} indicaç${count===1?'ão':'ões'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selecionarConsultor(nome, el) {
+  document.querySelectorAll('.cons-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  consultorAtivo = nome;
+  document.getElementById('btn-acessar').style.display = 'flex';
+}
+
+async function acessarConsultor() {
+  if (!consultorAtivo) return;
+  if (CONFIG.scriptURL !== 'SEU_SCRIPT_URL_AQUI') {
+    try {
+      const res = await fetch(`${CONFIG.scriptURL}?action=get&consultor=${encodeURIComponent(consultorAtivo)}`);
+      const data = await res.json();
+      indicacoes = indicacoes.filter(i => i.consultor !== consultorAtivo).concat(data);
+    } catch(e) { console.warn('Usando dados locais'); }
+  }
+  filtroAtivo = 'todos';
+  document.getElementById('painel-titulo').textContent = consultorAtivo;
+  document.getElementById('painel-sub').textContent = 'Suas indicações recebidas';
+  renderMetrics();
+  renderLista();
+  go('s-painel');
+}
+
+// ── Métricas ──
+function renderMetrics() {
+  const mine = indicacoes.filter(i => i.consultor === consultorAtivo);
+  const counts = [
+    { val: mine.length,                                          lbl: 'Total',        color: '#1a56db' },
+    { val: mine.filter(i=>['new','contact','proposal'].includes(i.status)).length, lbl: 'Em andamento', color: '#c27803' },
+    { val: mine.filter(i=>i.status==='closed').length,           lbl: 'Fechados',     color: '#0e9f6e' },
+  ];
+  document.getElementById('painel-metrics').innerHTML = counts.map(m =>
+    `<div class="metric">
+      <div class="metric-val" style="color:${m.color};">${m.val}</div>
+      <div class="metric-lbl">${m.lbl}</div>
+    </div>`
+  ).join('');
+}
+
+// ── Lista ──
+function filtrar(f, el) {
+  filtroAtivo = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderLista();
+}
+
+function renderLista() {
+  let items = indicacoes.filter(i => i.consultor === consultorAtivo);
+  if (filtroAtivo !== 'todos') items = items.filter(i => i.status === filtroAtivo);
+  const el = document.getElementById('lista-indicacoes');
+  if (!items.length) {
+    el.innerHTML = '<div style="padding:32px;text-align:center;font-size:13px;color:var(--gray-400);">Nenhuma indicação neste filtro</div>';
+    return;
+  }
+  const c = CONFIG.consultores.find(x => x.nome === consultorAtivo) || { cor:'#dbeafe', tc:'#1e40af' };
+  el.innerHTML = items.map(ind => {
+    const s = statusMap[ind.status] || statusMap.new;
+    const ini = ind.nome.split(' ').slice(0,2).map(p=>p[0]).join('');
+    return `<div class="ind-item" onclick="abrirDetalhe('${ind.id}')">
+      <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+        <div class="avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
+        <div style="min-width:0;">
+          <div class="ind-name">${ind.nome}</div>
+          <div class="ind-meta">${ind.tel} · Indicado por ${ind.indicador||'—'} · ${ind.updated}</div>
+        </div>
+      </div>
+      <span class="badge ${s.cls}" style="flex-shrink:0;">${s.label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Detalhe ──
+function abrirDetalhe(id) {
+  editandoId = id;
+  renderDetalhe();
+  go('s-detalhe');
+}
+
+function renderDetalhe() {
+  const ind = indicacoes.find(i => i.id === editandoId);
+  if (!ind) return;
+  const s = statusMap[ind.status] || statusMap.new;
+  const c = CONFIG.consultores.find(x => x.nome === ind.consultor) || { cor:'#dbeafe', tc:'#1e40af' };
+  const ini = ind.nome.split(' ').slice(0,2).map(p=>p[0]).join('');
+
+  // Steps
+  const stepIdx = s.step;
+  const stepsHTML = steps.map((lbl, i) => {
+    const done = stepIdx > i;
+    const curr = stepIdx === i;
+    return `<div class="step">
+      <div class="step-line ${done?'done':''}"></div>
+      <div class="step-dot ${done?'done':curr?'current':''}">${done?'✓':i+1}</div>
+      <div class="step-lbl ${curr?'current':''}">${lbl}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('detalhe-content').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--gray-200);">
+      <div class="avatar" style="width:46px;height:46px;font-size:15px;background:${c.cor};color:${c.tc};">${ini}</div>
+      <div>
+        <div style="font-size:17px;font-weight:600;">${ind.nome}</div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Indicado por ${ind.indicador||'—'} · <span class="badge ${s.cls}">${s.label}</span></div>
+      </div>
+    </div>
+
+    ${ind.status !== 'lost' ? `
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title">Etapa da venda</div>
+      <div class="steps">${stepsHTML}</div>
+    </div>` : ''}
+
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title">Dados recebidos</div>
+      <div class="field-row"><span class="field-key">Nome</span><span class="field-val">${ind.nome}</span></div>
+      <div class="field-row"><span class="field-key">Telefone</span><span class="field-val">${ind.tel}</span></div>
+      ${ind.nota ? `<div class="field-row"><span class="field-key">Observação</span><span class="field-val" style="font-weight:400;color:var(--gray-600);max-width:200px;text-align:right;font-style:italic;">${ind.nota}</span></div>` : ''}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Atualizar</div>
+      <div class="form-group">
+        <label>Nome</label>
+        <input id="ed-nome" value="${ind.nome}">
+      </div>
+      <div class="form-group">
+        <label>Telefone</label>
+        <input id="ed-tel" value="${ind.tel}">
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="ed-status">
+          ${Object.entries(statusMap).map(([k,v])=>`<option value="${k}" ${ind.status===k?'selected':''}>${v.label}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nota / Observação</label>
+        <textarea id="ed-nota">${ind.nota||''}</textarea>
+      </div>
+      <div class="form-group">
+        <label>Administradora</label>
+        <input id="ed-admin" value="${ind.admin||''}" placeholder="Ex: Seguradora XYZ">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Data da atualização</label>
+        <input id="ed-data" value="${ind.updated||''}" placeholder="DD/MM/AAAA">
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" id="btn-salvar" onclick="salvarEdicao()">Salvar alterações</button>
+  `;
+}
+
+async function salvarEdicao() {
+  const ind = indicacoes.find(i => i.id === editandoId);
+  if (!ind) return;
+  ind.nome    = document.getElementById('ed-nome').value;
+  ind.tel     = document.getElementById('ed-tel').value;
+  ind.status  = document.getElementById('ed-status').value;
+  ind.nota    = document.getElementById('ed-nota').value;
+  ind.admin   = document.getElementById('ed-admin').value;
+  ind.updated = document.getElementById('ed-data').value;
+
+  const btn = document.getElementById('btn-salvar');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+
+  if (CONFIG.scriptURL !== 'SEU_SCRIPT_URL_AQUI') {
+    try {
+      await fetch(CONFIG.scriptURL, { method:'POST', body: JSON.stringify({ action:'update', ...ind }) });
+    } catch(e) { console.warn('Erro ao salvar'); }
+  }
+
+  renderLista();
+  renderMetrics();
+  renderDetalhe();
+  toast('✓ Alterações salvas');
+  btn.textContent = 'Salvar alterações'; btn.disabled = false;
+}
+
+init();
+</script>
+</body>
+</html>
