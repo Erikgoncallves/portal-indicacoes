@@ -68,6 +68,51 @@
   .step-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #e5e7eb; background: #fff; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 9px; }
   .step-dot.done { background: #1a56db; border-color: #1a56db; color: #fff; }
   .step-lbl { font-size: 10px; color: #9ca3af; }
+  
+  /* Modal de senha */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal.active {
+    display: flex;
+  }
+  .modal-content {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 380px;
+    width: 90%;
+    text-align: center;
+  }
+  .modal-content h3 {
+    margin-bottom: 20px;
+    font-size: 20px;
+  }
+  .modal-content input {
+    margin-bottom: 20px;
+  }
+  .modal-content .btn {
+    width: 100%;
+  }
+  .error-senha {
+    color: #c81e1e;
+    font-size: 12px;
+    margin-top: 10px;
+    display: none;
+  }
+  .error-senha.show {
+    display: block;
+  }
+  
   @media (max-width: 480px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
@@ -75,6 +120,19 @@
 
 <div id="toast"></div>
 
+<!-- MODAL DE SENHA -->
+<div id="modal-senha" class="modal">
+  <div class="modal-content">
+    <h3>🔐 Acesso Restrito</h3>
+    <p style="color: #6b7280; margin-bottom: 20px;">Digite a senha para acessar a área de consultores</p>
+    <input type="password" id="senha-input" placeholder="Digite a senha" style="width: 100%;">
+    <button class="btn btn-primary" onclick="verificarSenha()">Acessar</button>
+    <button class="btn btn-secondary" onclick="fecharModalSenha()" style="margin-top: 10px;">Cancelar</button>
+    <div id="erro-senha" class="error-senha">❌ Senha incorreta. Tente novamente.</div>
+  </div>
+</div>
+
+<!-- HOME -->
 <div class="screen active" id="s-home">
   <div class="home-wrap">
     <div class="home-logo">Portal de <em>Indicações</em></div>
@@ -82,12 +140,13 @@
     <div style="width:100%;max-width:440px;">
       <div class="switcher">
         <div class="sw-card" onclick="go('s-form')"><div class="sw-icon">🤝</div><div>Quero indicar</div><div style="font-size:12px;color:#9ca3af;">Indique um conhecido</div></div>
-        <div class="sw-card" onclick="go('s-consultor-select')"><div class="sw-icon">📊</div><div>Sou consultor</div><div style="font-size:12px;color:#9ca3af;">Gerencie indicações</div></div>
+        <div class="sw-card" id="btn-consultor" onclick="abrirModalSenha()"><div class="sw-icon">📊</div><div>Sou consultor</div><div style="font-size:12px;color:#9ca3af;">Gerencie indicações</div></div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- FORMULÁRIO DE INDICAÇÃO -->
 <div class="screen" id="s-form">
   <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><span class="mode-tag">Indicar</span></div>
   <div class="page">
@@ -104,6 +163,7 @@
   </div>
 </div>
 
+<!-- SUCESSO -->
 <div class="screen" id="s-sucesso">
   <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div></div>
   <div class="page">
@@ -117,6 +177,7 @@
   </div>
 </div>
 
+<!-- CONSULTOR — selecionar nome -->
 <div class="screen" id="s-consultor-select">
   <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><span class="mode-tag">Consultores</span></div>
   <div class="page">
@@ -127,6 +188,7 @@
   </div>
 </div>
 
+<!-- PAINEL DO CONSULTOR -->
 <div class="screen" id="s-painel">
   <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><button class="btn btn-secondary btn-sm" onclick="go('s-consultor-select')">Trocar</button></div>
   <div class="page-wide">
@@ -144,6 +206,7 @@
   </div>
 </div>
 
+<!-- DETALHE / EDIÇÃO -->
 <div class="screen" id="s-detalhe">
   <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div></div>
   <div class="page">
@@ -153,8 +216,11 @@
 </div>
 
 <script>
-// ⚠️ COLOQUE A NOVA URL DO SEU APPS SCRIPT AQUI ⚠️
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBHUP6cqZt9LVsUQYuAMKeMIry-TPFiIQiyA3C0kDsUEaG_k4PcRVnHQzPTuWSNjii/exec';
+// ⚠️ COLOQUE A URL DO SEU APPS SCRIPT AQUI ⚠️
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzT2WHB7gVHqb6hPziIhaVl82mLMpRlY9UHlPgvHx4nfXCEm1piqlOTvPpW3B5rwMBM/exec';
+
+// SENHA PARA ACESSO DOS CONSULTORES
+const SENHA_CONSULTORES = 'Cortina6';
 
 const CONSULTORES = [
   { nome: 'Renato Benedetti', cor: '#dbeafe', tc: '#1e40af' },
@@ -191,6 +257,35 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+// Modal de senha
+function abrirModalSenha() {
+  document.getElementById('modal-senha').classList.add('active');
+  document.getElementById('senha-input').value = '';
+  document.getElementById('erro-senha').classList.remove('show');
+}
+
+function fecharModalSenha() {
+  document.getElementById('modal-senha').classList.remove('active');
+}
+
+function verificarSenha() {
+  const senha = document.getElementById('senha-input').value;
+  if (senha === SENHA_CONSULTORES) {
+    fecharModalSenha();
+    go('s-consultor-select');
+    carregarDados();
+  } else {
+    document.getElementById('erro-senha').classList.add('show');
+  }
+}
+
+// Fechar modal com ESC
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    fecharModalSenha();
+  }
+});
+
 function fetchAPI(url, callback) {
   fetch(url)
     .then(res => res.json())
@@ -216,7 +311,6 @@ function init() {
     o.textContent = c.nome;
     sel.appendChild(o);
   });
-  carregarDados();
 }
 
 function carregarDados() {
