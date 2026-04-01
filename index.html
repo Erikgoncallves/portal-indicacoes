@@ -336,16 +336,11 @@
 
 <script>
 
-  
 // ═══════════════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ═══════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════
-// CONFIGURAÇÃO - CORRIGIDA
-// ═══════════════════════════════════════════════════════
 const CONFIG = {
-  // Use a URL CORRETA do seu Google Apps Script
-    scriptURL:'https://script.google.com/macros/s/AKfycbyXVIJezJpDZUlNBu94S91iFI8obukEIcAvP-dL_xMFlSAMCi2iqdmDU1HOp-7sstGA/exec',
+  scriptURL: 'https://script.google.com/macros/s/AKfycbyXVIJezJpDZUlNBu94S91iFI8obukEIcAvP-dL_xMFlSAMCi2iqdmDU1HOp-7sstGA/exec',
   consultores: [
     { nome: 'Renato Benedetti',  cor: '#dbeafe', tc: '#1e40af' },
     { nome: 'Vagner Santos',     cor: '#fce7f3', tc: '#9d174d' },
@@ -357,22 +352,23 @@ const CONFIG = {
   ]
 };
 
-// Estado
+// Estado global
 let consultorAtivo = null;
 let filtroAtivo = 'todos';
 let editandoId = null;
 let indicacoes = [];
 
 const statusMap = {
-  new:      { label: 'Nova',           cls: 'badge-new',      step: 0 },
-  contact:  { label: 'Em contato',     cls: 'badge-contact',  step: 1 },
-  proposal: { label: 'Proposta',       cls: 'badge-proposal', step: 2 },
-  closed:   { label: 'Fechado',        cls: 'badge-closed',   step: 3 },
-  lost:     { label: 'Perdido',        cls: 'badge-lost',     step: -1 }
+  new:      { label: 'Nova',        cls: 'badge-new',      step: 0 },
+  contact:  { label: 'Em contato',  cls: 'badge-contact',  step: 1 },
+  proposal: { label: 'Proposta',    cls: 'badge-proposal', step: 2 },
+  closed:   { label: 'Fechado',     cls: 'badge-closed',   step: 3 },
+  lost:     { label: 'Perdido',     cls: 'badge-lost',     step: -1 }
 };
 
-const steps = ['Contato','Levantamento','Proposta','Fechamento'];
+const steps = ['Contato', 'Levantamento', 'Proposta', 'Fechamento'];
 
+// ── Navegação ──────────────────────────────────────────
 function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -386,49 +382,37 @@ function toast(msg, dur = 2500) {
   setTimeout(() => t.classList.remove('show'), dur);
 }
 
-async function carregarDados() {
-  try {
-    const response = await fetch(CONFIG.scriptURL);
-    const data = await response.json();
-    
-    if (data.error) {
-      console.error('Erro do servidor:', data.error);
-      toast('⚠️ ' + data.error);
-      return false;
-    }
-    
-    indicacoes = Array.isArray(data) ? data : [];
-    console.log(`Carregadas ${indicacoes.length} indicações`);
-    renderConsultoresList();
-    return true;
-  } catch(e) {
-    console.error('Erro ao carregar dados:', e);
-    toast('⚠️ Erro ao carregar dados do servidor');
-    return false;
-  }
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
-async function carregarDadosConsultor(consultor) {
-  try {
-    const url = `${CONFIG.scriptURL}?consultor=${encodeURIComponent(consultor)}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    
-    if (data.error) {
-      console.error('Erro do servidor:', data.error);
-      return [];
-    }
-    
-    return Array.isArray(data) ? data : [];
-  } catch(e) {
-    console.error('Erro ao carregar dados do consultor:', e);
-    return [];
-  }
+// ── Fetch helpers ──────────────────────────────────────
+// FIX: usa text/plain para evitar CORS preflight no Apps Script
+async function postScript(payload) {
+  const response = await fetch(CONFIG.scriptURL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' }, // ← CORREÇÃO CORS
+    body: JSON.stringify(payload)
+  });
+  return response.json();
 }
 
+async function getScript(params) {
+  let url = CONFIG.scriptURL;
+  if (params) {
+    const qs = new URLSearchParams(params).toString();
+    url += '?' + qs;
+  }
+  const response = await fetch(url);
+  return response.json();
+}
+
+// ── Inicialização ──────────────────────────────────────
 function init() {
-  console.log('Inicializando aplicação...');
-  
+  // Popula select de consultores no formulário
   const sel = document.getElementById('f-consultor');
   if (sel) {
     CONFIG.consultores.forEach(c => {
@@ -438,33 +422,73 @@ function init() {
       sel.appendChild(o);
     });
   }
-  
+
+  // Carrega dados gerais para exibir contagens na lista de consultores
   carregarDados();
 }
 
+async function carregarDados() {
+  try {
+    const data = await getScript();
+
+    if (data && data.error) {
+      console.error('Erro do servidor:', data.error);
+      toast('⚠️ ' + data.error);
+      renderConsultoresList(); // renderiza mesmo sem dados
+      return false;
+    }
+
+    indicacoes = Array.isArray(data) ? data : [];
+    renderConsultoresList();
+    return true;
+  } catch (e) {
+    console.error('Erro ao carregar dados:', e);
+    toast('⚠️ Erro ao carregar dados do servidor');
+    renderConsultoresList();
+    return false;
+  }
+}
+
+async function carregarDadosConsultor(consultor) {
+  try {
+    const data = await getScript({ consultor });
+
+    if (data && data.error) {
+      console.error('Erro do servidor:', data.error);
+      return [];
+    }
+
+    return Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.error('Erro ao carregar dados do consultor:', e);
+    return [];
+  }
+}
+
+// ── Enviar indicação ───────────────────────────────────
 async function enviarIndicacao() {
   const indicador = document.getElementById('f-indicador').value.trim();
-  const consultor = document.getElementById('f-consultor').value;
-  const nome = document.getElementById('f-nome').value.trim();
-  const tel = document.getElementById('f-tel').value.trim();
-  const nota = document.getElementById('f-nota').value.trim();
+  const consultor  = document.getElementById('f-consultor').value;
+  const nome       = document.getElementById('f-nome').value.trim();
+  const tel        = document.getElementById('f-tel').value.trim();
+  const nota       = document.getElementById('f-nota').value.trim();
 
   if (!indicador || !consultor || !nome || !tel) {
-    toast('⚠️ Preencha todos os campos obrigatórios'); 
+    toast('⚠️ Preencha todos os campos obrigatórios');
     return;
   }
 
   const btn = document.getElementById('btn-enviar');
-  btn.textContent = 'Enviando...'; 
+  btn.textContent = 'Enviando…';
   btn.disabled = true;
 
   const payload = {
     action: 'add',
     id: Date.now().toString(),
-    indicador, 
-    consultor, 
-    nome, 
-    tel, 
+    indicador,
+    consultor,
+    nome,
+    tel,
     nota: nota || '',
     status: 'new',
     admin: '',
@@ -472,50 +496,45 @@ async function enviarIndicacao() {
   };
 
   try {
-    const response = await fetch(CONFIG.scriptURL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    
-    const result = await response.json();
-    
-    if (result.success) {
+    const result = await postScript(payload); // ← usa helper corrigido
+
+    if (result && result.success) {
       indicacoes.push(payload);
       document.getElementById('conf-consultor').textContent = consultor;
       document.getElementById('conf-nome').textContent = nome;
-      document.getElementById('f-indicador').value = '';
+      // Limpa formulário
+      ['f-indicador', 'f-nome', 'f-tel', 'f-nota'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
       document.getElementById('f-consultor').value = '';
-      document.getElementById('f-nome').value = '';
-      document.getElementById('f-tel').value = '';
-      document.getElementById('f-nota').value = '';
       renderConsultoresList();
       toast('✓ Indicação enviada com sucesso!');
       go('s-sucesso');
     } else {
-      throw new Error(result.error || 'Erro desconhecido');
+      throw new Error((result && result.error) || 'Erro desconhecido');
     }
-  } catch(e) {
+  } catch (e) {
     console.error('Erro ao enviar:', e);
-    toast(`⚠️ Erro: ${e.message}`);
+    toast('⚠️ Erro: ' + e.message);
   } finally {
-    btn.textContent = 'Enviar indicação'; 
+    btn.textContent = 'Enviar indicação';
     btn.disabled = false;
   }
 }
 
+// ── Lista de consultores ───────────────────────────────
 function renderConsultoresList() {
   const el = document.getElementById('cons-list');
   if (!el) return;
-  
+
   el.innerHTML = CONFIG.consultores.map(c => {
-    const ini = c.nome.split(' ').slice(0,2).map(p=>p[0]).join('');
+    const ini   = c.nome.split(' ').slice(0, 2).map(p => p[0]).join('');
     const count = indicacoes.filter(i => i.consultor === c.nome).length;
     return `<div class="cons-opt" onclick="selecionarConsultor('${c.nome}',this)">
       <div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
       <div>
         <div class="cons-name">${c.nome}</div>
-        <div class="cons-count">${count} indicaç${count===1?'ão':'ões'}</div>
+        <div class="cons-count">${count} indicaç${count === 1 ? 'ão' : 'ões'}</div>
       </div>
     </div>`;
   }).join('');
@@ -532,29 +551,30 @@ async function acessarConsultor() {
   if (!consultorAtivo) return;
 
   const btn = document.getElementById('btn-acessar');
-  btn.textContent = 'Carregando...'; 
+  btn.textContent = 'Carregando…';
   btn.disabled = true;
 
   const dadosConsultor = await carregarDadosConsultor(consultorAtivo);
   indicacoes = dadosConsultor;
-  
-  btn.textContent = 'Acessar meu painel →'; 
+
+  btn.textContent = 'Acessar meu painel →';
   btn.disabled = false;
 
   filtroAtivo = 'todos';
   document.getElementById('painel-titulo').textContent = consultorAtivo;
   document.getElementById('painel-sub').textContent = 'Suas indicações recebidas';
-  
+
   renderMetrics();
   renderLista();
   go('s-painel');
 }
 
+// ── Painel ─────────────────────────────────────────────
 function renderMetrics() {
   const counts = [
     { val: indicacoes.length, lbl: 'Total', color: '#1a56db' },
-    { val: indicacoes.filter(i=>['new','contact','proposal'].includes(i.status)).length, lbl: 'Em andamento', color: '#c27803' },
-    { val: indicacoes.filter(i=>i.status==='closed').length, lbl: 'Fechados', color: '#0e9f6e' }
+    { val: indicacoes.filter(i => ['new', 'contact', 'proposal'].includes(i.status)).length, lbl: 'Em andamento', color: '#c27803' },
+    { val: indicacoes.filter(i => i.status === 'closed').length, lbl: 'Fechados', color: '#0e9f6e' }
   ];
   document.getElementById('painel-metrics').innerHTML = counts.map(m =>
     `<div class="metric">
@@ -574,23 +594,23 @@ function filtrar(f, el) {
 function renderLista() {
   let items = indicacoes;
   if (filtroAtivo !== 'todos') items = items.filter(i => i.status === filtroAtivo);
-  
+
   const el = document.getElementById('lista-indicacoes');
   if (!items.length) {
     el.innerHTML = '<div style="padding:32px;text-align:center;font-size:13px;color:var(--gray-400);">Nenhuma indicação neste filtro</div>';
     return;
   }
-  
-  const c = CONFIG.consultores.find(x => x.nome === consultorAtivo) || { cor:'#dbeafe', tc:'#1e40af' };
+
+  const c = CONFIG.consultores.find(x => x.nome === consultorAtivo) || { cor: '#dbeafe', tc: '#1e40af' };
   el.innerHTML = items.map(ind => {
-    const s = statusMap[ind.status] || statusMap.new;
-    const ini = ind.nome.split(' ').slice(0,2).map(p=>p[0]).join('');
+    const s   = statusMap[ind.status] || statusMap.new;
+    const ini = ind.nome.split(' ').slice(0, 2).map(p => p[0]).join('');
     return `<div class="ind-item" onclick="abrirDetalhe('${ind.id}')">
       <div style="display:flex;align-items:center;gap:12px;min-width:0;">
         <div class="avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
         <div style="min-width:0;">
           <div class="ind-name">${escapeHtml(ind.nome)}</div>
-          <div class="ind-meta">${escapeHtml(ind.tel)} · Indicado por ${escapeHtml(ind.indicador||'—')} · ${ind.updated}</div>
+          <div class="ind-meta">${escapeHtml(ind.tel)} · Indicado por ${escapeHtml(ind.indicador || '—')} · ${ind.updated || ''}</div>
         </div>
       </div>
       <span class="badge ${s.cls}" style="flex-shrink:0;">${s.label}</span>
@@ -598,13 +618,7 @@ function renderLista() {
   }).join('');
 }
 
-function escapeHtml(text) {
-  if (!text) return '';
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
+// ── Detalhe / Edição ───────────────────────────────────
 function abrirDetalhe(id) {
   editandoId = id;
   renderDetalhe();
@@ -614,19 +628,19 @@ function abrirDetalhe(id) {
 function renderDetalhe() {
   const ind = indicacoes.find(i => i.id === editandoId);
   if (!ind) return;
-  
-  const s = statusMap[ind.status] || statusMap.new;
-  const c = CONFIG.consultores.find(x => x.nome === ind.consultor) || { cor:'#dbeafe', tc:'#1e40af' };
-  const ini = ind.nome.split(' ').slice(0,2).map(p=>p[0]).join('');
 
-  const stepIdx = s.step;
+  const s   = statusMap[ind.status] || statusMap.new;
+  const c   = CONFIG.consultores.find(x => x.nome === ind.consultor) || { cor: '#dbeafe', tc: '#1e40af' };
+  const ini = ind.nome.split(' ').slice(0, 2).map(p => p[0]).join('');
+
+  const stepIdx  = s.step;
   const stepsHTML = steps.map((lbl, i) => {
     const done = stepIdx > i;
     const curr = stepIdx === i;
     return `<div class="step">
-      <div class="step-line ${done?'done':''}"></div>
-      <div class="step-dot ${done?'done':curr?'current':''}">${done?'✓':i+1}</div>
-      <div class="step-lbl ${curr?'current':''}">${lbl}</div>
+      <div class="step-line ${done ? 'done' : ''}"></div>
+      <div class="step-dot ${done ? 'done' : curr ? 'current' : ''}">${done ? '✓' : i + 1}</div>
+      <div class="step-lbl ${curr ? 'current' : ''}">${lbl}</div>
     </div>`;
   }).join('');
 
@@ -635,7 +649,9 @@ function renderDetalhe() {
       <div class="avatar" style="width:46px;height:46px;font-size:15px;background:${c.cor};color:${c.tc};">${ini}</div>
       <div>
         <div style="font-size:17px;font-weight:600;">${escapeHtml(ind.nome)}</div>
-        <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Indicado por ${escapeHtml(ind.indicador||'—')} · <span class="badge ${s.cls}">${s.label}</span></div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">
+          Indicado por ${escapeHtml(ind.indicador || '—')} · <span class="badge ${s.cls}">${s.label}</span>
+        </div>
       </div>
     </div>
 
@@ -665,20 +681,22 @@ function renderDetalhe() {
       <div class="form-group">
         <label>Status</label>
         <select id="ed-status">
-          ${Object.entries(statusMap).map(([k,v])=>`<option value="${k}" ${ind.status===k?'selected':''}>${v.label}</option>`).join('')}
+          ${Object.entries(statusMap).map(([k, v]) =>
+            `<option value="${k}" ${ind.status === k ? 'selected' : ''}>${v.label}</option>`
+          ).join('')}
         </select>
       </div>
       <div class="form-group">
         <label>Nota / Observação</label>
-        <textarea id="ed-nota">${escapeHtml(ind.nota||'')}</textarea>
+        <textarea id="ed-nota">${escapeHtml(ind.nota || '')}</textarea>
       </div>
       <div class="form-group">
         <label>Administradora</label>
-        <input id="ed-admin" value="${escapeHtml(ind.admin||'')}" placeholder="Ex: Seguradora XYZ">
+        <input id="ed-admin" value="${escapeHtml(ind.admin || '')}" placeholder="Ex: Seguradora XYZ">
       </div>
       <div class="form-group" style="margin-bottom:0;">
         <label>Data da atualização</label>
-        <input id="ed-data" value="${ind.updated||''}" placeholder="DD/MM/AAAA">
+        <input id="ed-data" value="${escapeHtml(ind.updated || '')}" placeholder="DD/MM/AAAA">
       </div>
     </div>
     <button class="btn btn-primary btn-full" id="btn-salvar" onclick="salvarEdicao()">Salvar alterações</button>
@@ -688,44 +706,39 @@ function renderDetalhe() {
 async function salvarEdicao() {
   const ind = indicacoes.find(i => i.id === editandoId);
   if (!ind) return;
-  
-  ind.nome = document.getElementById('ed-nome').value;
-  ind.tel = document.getElementById('ed-tel').value;
-  ind.status = document.getElementById('ed-status').value;
-  ind.nota = document.getElementById('ed-nota').value;
-  ind.admin = document.getElementById('ed-admin').value;
+
+  ind.nome    = document.getElementById('ed-nome').value;
+  ind.tel     = document.getElementById('ed-tel').value;
+  ind.status  = document.getElementById('ed-status').value;
+  ind.nota    = document.getElementById('ed-nota').value;
+  ind.admin   = document.getElementById('ed-admin').value;
   ind.updated = document.getElementById('ed-data').value || new Date().toLocaleDateString('pt-BR');
 
   const btn = document.getElementById('btn-salvar');
-  btn.textContent = 'Salvando...'; 
+  btn.textContent = 'Salvando…';
   btn.disabled = true;
 
   try {
-    const response = await fetch(CONFIG.scriptURL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'update', ...ind })
-    });
-    
-    const result = await response.json();
-    
-    if (result.success) {
+    const result = await postScript({ action: 'update', ...ind }); // ← usa helper corrigido
+
+    if (result && result.success) {
       toast('✓ Alterações salvas');
       renderLista();
       renderMetrics();
       renderDetalhe();
     } else {
-      throw new Error(result.error || 'Erro ao salvar');
+      throw new Error((result && result.error) || 'Erro ao salvar');
     }
-  } catch(e) {
-    console.warn('Erro ao salvar:', e);
+  } catch (e) {
+    console.error('Erro ao salvar:', e);
     toast('⚠️ Erro ao salvar. Tente novamente.');
   } finally {
-    btn.textContent = 'Salvar alterações'; 
+    btn.textContent = 'Salvar alterações';
     btn.disabled = false;
   }
 }
 
+// ── Start ──────────────────────────────────────────────
 init();
 </script>
 </body>
