@@ -1,3 +1,8 @@
+O problema é que a função `carregarDados()` está sendo chamada antes de você acessar a área de consultores. Vou corrigir o código para garantir que os dados sejam carregados corretamente após a autenticação.
+
+Aqui está o código corrigido:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -24,16 +29,18 @@
   label { font-size: 13px; font-weight: 500; color: #4b5563; display: block; margin-bottom: 7px; }
   input, select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; }
   input:focus, select:focus, textarea:focus { border-color: #1a56db; }
-  .btn { display: inline-flex; padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; }
+  .btn { display: inline-flex; padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
   .btn-primary { background: #1a56db; color: #fff; }
   .btn-primary:hover { background: #1447b8; }
   .btn-secondary { background: #fff; color: #1f2937; border: 1.5px solid #e5e7eb; }
+  .btn-secondary:hover { background: #f9fafb; }
   .btn-full { width: 100%; }
   .btn-sm { padding: 7px 14px; font-size: 12px; }
-  .back-btn { background: none; border: none; color: #1a56db; font-size: 13px; cursor: pointer; margin-bottom: 22px; }
+  .back-btn { background: none; border: none; color: #1a56db; font-size: 13px; cursor: pointer; margin-bottom: 22px; display: flex; align-items: center; gap: 5px; }
+  .back-btn:hover { opacity: 0.8; }
   .switcher { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
-  .sw-card { background: #fff; border: 2px solid #e5e7eb; border-radius: 16px; padding: 22px 18px; cursor: pointer; text-align: center; }
-  .sw-card:hover { border-color: #b3caf7; }
+  .sw-card { background: #fff; border: 2px solid #e5e7eb; border-radius: 16px; padding: 22px 18px; cursor: pointer; text-align: center; transition: all 0.2s; }
+  .sw-card:hover { border-color: #b3caf7; transform: translateY(-2px); }
   .sw-icon { font-size: 28px; margin-bottom: 10px; }
   .badge { display: inline-flex; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
   .badge-new { background: #fdf6b2; color: #c27803; }
@@ -45,21 +52,22 @@
   .metric { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; text-align: center; }
   .metric-val { font-size: 26px; font-weight: 600; }
   .filter-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; border: 1.5px solid #e5e7eb; background: #fff; cursor: pointer; }
+  .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; border: 1.5px solid #e5e7eb; background: #fff; cursor: pointer; transition: all 0.2s; }
   .filter-btn.active { background: #1a56db; color: #fff; border-color: #1a56db; }
-  .ind-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid #f3f4f6; cursor: pointer; }
+  .ind-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid #f3f4f6; cursor: pointer; transition: background 0.2s; }
   .ind-item:hover { background: #f9fafb; }
-  .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
   .cons-list { display: flex; flex-direction: column; gap: 10px; }
-  .cons-opt { background: #fff; border: 2px solid #e5e7eb; border-radius: 10px; padding: 14px 18px; cursor: pointer; display: flex; align-items: center; gap: 14px; }
+  .cons-opt { background: #fff; border: 2px solid #e5e7eb; border-radius: 10px; padding: 14px 18px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: all 0.2s; }
+  .cons-opt:hover { border-color: #b3caf7; }
   .cons-opt.selected { border-color: #1a56db; background: #e8f0fe; }
-  .cons-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
+  .cons-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
   .success-wrap { text-align: center; padding: 48px 24px; }
   .success-circle { width: 64px; height: 64px; border-radius: 50%; background: #def7ec; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 26px; }
   .home-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 20px; }
   .home-logo { font-family: 'DM Serif Display', serif; font-size: 36px; text-align: center; }
   .home-logo em { color: #1a56db; font-style: normal; }
-  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #111827; color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 13px; z-index: 999; display: none; }
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #111827; color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 13px; z-index: 999; display: none; white-space: nowrap; }
   #toast.show { display: block; }
   .loading { text-align: center; padding: 32px; color: #9ca3af; }
   .field-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
@@ -113,7 +121,10 @@
     display: block;
   }
   
-  @media (max-width: 480px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { 
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    #toast { white-space: normal; max-width: 90%; text-align: center; }
+  }
 </style>
 </head>
 <body>
@@ -170,7 +181,7 @@
     <div class="success-wrap">
       <div class="success-circle">✓</div>
       <div class="page-title">Indicação enviada!</div>
-      <p style="margin:20px 0; color:#9ca3af;">O consultor <strong id="conf-consultor"></strong> receberá os dados</p>
+      <p style="margin:20px 0; color:#9ca3af;">O consultor <strong id="conf-consultor"></strong> receberá os dados e entrará em contato em breve.</p>
       <button class="btn btn-primary" onclick="go('s-form')">Nova indicação</button>
       <button class="btn btn-secondary" onclick="go('s-home')">Início</button>
     </div>
@@ -183,26 +194,30 @@
   <div class="page">
     <button class="back-btn" onclick="go('s-home')">← Voltar</button>
     <div class="page-title">Quem é você?</div>
-    <div class="cons-list" id="cons-list"></div>
+    <div class="page-sub">Selecione seu nome para ver suas indicações</div>
+    <div class="cons-list" id="cons-list"><div class="loading">Carregando lista de consultores...</div></div>
     <button class="btn btn-primary btn-full" id="btn-acessar" onclick="acessarConsultor()" style="display:none;">Acessar painel →</button>
   </div>
 </div>
 
 <!-- PAINEL DO CONSULTOR -->
 <div class="screen" id="s-painel">
-  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><button class="btn btn-secondary btn-sm" onclick="go('s-consultor-select')">Trocar</button></div>
+  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><button class="btn btn-secondary btn-sm" onclick="go('s-consultor-select')">Trocar consultor</button></div>
   <div class="page-wide">
-    <div class="page-title" id="painel-titulo">Minhas indicações</div>
+    <div style="margin-bottom: 24px;">
+      <div class="page-title" id="painel-titulo">Minhas indicações</div>
+      <div class="page-sub" id="painel-sub"></div>
+    </div>
     <div class="metrics" id="painel-metrics"></div>
     <div class="filter-row">
       <button class="filter-btn active" onclick="filtrar('todos',this)">Todas</button>
       <button class="filter-btn" onclick="filtrar('new',this)">Novas</button>
-      <button class="filter-btn" onclick="filtrar('contact',this)">Contato</button>
+      <button class="filter-btn" onclick="filtrar('contact',this)">Em contato</button>
       <button class="filter-btn" onclick="filtrar('proposal',this)">Proposta</button>
       <button class="filter-btn" onclick="filtrar('closed',this)">Fechadas</button>
       <button class="filter-btn" onclick="filtrar('lost',this)">Perdidas</button>
     </div>
-    <div class="card" style="padding:0;"><div id="lista-indicacoes"></div></div>
+    <div class="card" style="padding:0;"><div id="lista-indicacoes"><div class="loading">Carregando indicações...</div></div></div>
   </div>
 </div>
 
@@ -210,7 +225,7 @@
 <div class="screen" id="s-detalhe">
   <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div></div>
   <div class="page">
-    <button class="back-btn" onclick="go('s-painel')">← Voltar</button>
+    <button class="back-btn" onclick="go('s-painel')">← Voltar para indicações</button>
     <div id="detalhe-content"></div>
   </div>
 </div>
@@ -229,13 +244,15 @@ const CONSULTORES = [
   { nome: 'Arnaldo', cor: '#ede9fe', tc: '#5b21b6' },
   { nome: 'Rodrigues Silva', cor: '#fef3c7', tc: '#92400e' },
   { nome: 'Vlamir Santos', cor: '#e0f2fe', tc: '#0369a1' },
-  { nome: 'Erik Carvalho', cor: '#fee2e2', tc: '#991b1b' }
+  { nome: 'Erik Carvalho', cor: '#fee2e2', tc: '#991b1b' },
+  { nome: 'Cassio Machado', cor: '#fee2e2', tc: '#991b1b' }
 ];
 
 let consultorAtivo = null;
 let filtroAtivo = 'todos';
 let editandoId = null;
 let indicacoes = [];
+let dadosCarregados = false;
 
 const statusMap = {
   new: { label: 'Nova', cls: 'badge-new', step: 0 },
@@ -245,9 +262,12 @@ const statusMap = {
   lost: { label: 'Perdido', cls: 'badge-lost', step: -1 }
 };
 
+const steps = ['Contato', 'Levantamento', 'Proposta', 'Fechamento'];
+
 function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
 }
 
 function toast(msg) {
@@ -255,6 +275,13 @@ function toast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 // Modal de senha
@@ -272,6 +299,11 @@ function verificarSenha() {
   const senha = document.getElementById('senha-input').value;
   if (senha === SENHA_CONSULTORES) {
     fecharModalSenha();
+    // Limpar dados anteriores
+    consultorAtivo = null;
+    indicacoes = [];
+    dadosCarregados = false;
+    // Ir para tela de seleção de consultor e carregar dados
     go('s-consultor-select');
     carregarDados();
   } else {
@@ -286,49 +318,105 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-function fetchAPI(url, callback) {
-  fetch(url)
-    .then(res => res.json())
-    .then(data => callback(data))
-    .catch(err => callback({ error: err.message }));
+// Funções de API
+async function fetchAPI(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Erro na requisição');
+    return await response.json();
+  } catch (error) {
+    console.error('Erro fetchAPI:', error);
+    return { error: error.message };
+  }
 }
 
-function postAPI(data, callback) {
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  }).then(() => callback({ success: true }))
-    .catch(() => callback({ success: false }));
+async function postAPI(data) {
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Erro postAPI:', error);
+    return { success: false };
+  }
 }
 
-function init() {
-  const sel = document.getElementById('f-consultor');
-  CONSULTORES.forEach(c => {
-    const o = document.createElement('option');
-    o.value = c.nome;
-    o.textContent = c.nome;
-    sel.appendChild(o);
-  });
-}
-
-function carregarDados() {
-  fetchAPI(SCRIPT_URL, (data) => {
-    if (data && !data.error) indicacoes = Array.isArray(data) ? data : [];
+// Carregar todas as indicações para contar por consultor
+async function carregarDados() {
+  const el = document.getElementById('cons-list');
+  if (el) el.innerHTML = '<div class="loading">🔄 Carregando dados...</div>';
+  
+  try {
+    const data = await fetchAPI(SCRIPT_URL);
+    
+    if (data && !data.error) {
+      indicacoes = Array.isArray(data) ? data : [];
+      dadosCarregados = true;
+    } else {
+      indicacoes = [];
+      dadosCarregados = true;
+      if (data?.error) toast('⚠️ ' + data.error);
+    }
+    
     renderConsultoresList();
-  });
+  } catch (error) {
+    console.error('Erro carregarDados:', error);
+    toast('⚠️ Erro ao carregar dados');
+    dadosCarregados = true;
+    renderConsultoresList();
+  }
+}
+
+// Carregar indicações de um consultor específico
+async function carregarIndicacoesConsultor(consultor) {
+  const el = document.getElementById('lista-indicacoes');
+  if (el) el.innerHTML = '<div class="loading">🔄 Carregando suas indicações...</div>';
+  
+  try {
+    const data = await fetchAPI(SCRIPT_URL + '?consultor=' + encodeURIComponent(consultor));
+    
+    if (data && !data.error) {
+      indicacoes = Array.isArray(data) ? data : [];
+    } else {
+      indicacoes = [];
+      if (data?.error) toast('⚠️ ' + data.error);
+    }
+    
+    renderMetrics();
+    renderLista();
+  } catch (error) {
+    console.error('Erro carregarIndicacoesConsultor:', error);
+    toast('⚠️ Erro ao carregar suas indicações');
+    indicacoes = [];
+    renderMetrics();
+    renderLista();
+  }
 }
 
 function renderConsultoresList() {
   const el = document.getElementById('cons-list');
   if (!el) return;
+  
+  if (!dadosCarregados) {
+    el.innerHTML = '<div class="loading">Carregando...</div>';
+    return;
+  }
+  
+  if (!CONSULTORES.length) {
+    el.innerHTML = '<div class="loading">Nenhum consultor cadastrado</div>';
+    return;
+  }
+  
   el.innerHTML = CONSULTORES.map(c => {
     const ini = c.nome.split(' ').slice(0,2).map(p=>p[0]).join('');
     const count = indicacoes.filter(i => i.consultor === c.nome).length;
-    return `<div class="cons-opt" onclick="selecionarConsultor('${c.nome}',this)">
+    return `<div class="cons-opt" onclick="selecionarConsultor('${c.nome.replace(/'/g, "\\'")}', this)">
       <div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
-      <div><strong>${c.nome}</strong><br><small>${count} indicaç${count===1?'ão':'ões'}</small></div>
+      <div><strong>${c.nome}</strong><br><small>${count} indicaç${count === 1 ? 'ão' : 'ões'}</small></div>
     </div>`;
   }).join('');
 }
@@ -340,128 +428,170 @@ function selecionarConsultor(nome, el) {
   document.getElementById('btn-acessar').style.display = 'flex';
 }
 
-function acessarConsultor() {
+async function acessarConsultor() {
   if (!consultorAtivo) return;
-  fetchAPI(SCRIPT_URL + '?consultor=' + encodeURIComponent(consultorAtivo), (data) => {
-    indicacoes = Array.isArray(data) ? data : [];
-    document.getElementById('painel-titulo').textContent = consultorAtivo;
-    renderMetrics();
-    renderLista();
-    go('s-painel');
-  });
+  
+  const btn = document.getElementById('btn-acessar');
+  const textoOriginal = btn.textContent;
+  btn.textContent = 'Carregando...';
+  btn.disabled = true;
+  
+  await carregarIndicacoesConsultor(consultorAtivo);
+  
+  document.getElementById('painel-titulo').textContent = consultorAtivo;
+  document.getElementById('painel-sub').textContent = 'Suas indicações recebidas';
+  
+  btn.textContent = textoOriginal;
+  btn.disabled = false;
+  
+  go('s-painel');
 }
 
 function renderMetrics() {
   const total = indicacoes.length;
   const andamento = indicacoes.filter(i => ['new','contact','proposal'].includes(i.status)).length;
   const fechados = indicacoes.filter(i => i.status === 'closed').length;
-  document.getElementById('painel-metrics').innerHTML = `
-    <div class="metric"><div class="metric-val">${total}</div><div>Total</div></div>
-    <div class="metric"><div class="metric-val">${andamento}</div><div>Andamento</div></div>
-    <div class="metric"><div class="metric-val">${fechados}</div><div>Fechados</div></div>
-  `;
+  
+  const metricsEl = document.getElementById('painel-metrics');
+  if (metricsEl) {
+    metricsEl.innerHTML = `
+      <div class="metric"><div class="metric-val" style="color:#1a56db;">${total}</div><div>Total</div></div>
+      <div class="metric"><div class="metric-val" style="color:#c27803;">${andamento}</div><div>Em andamento</div></div>
+      <div class="metric"><div class="metric-val" style="color:#0e9f6e;">${fechados}</div><div>Fechados</div></div>
+    `;
+  }
 }
 
 function filtrar(f, el) {
   filtroAtivo = f;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
+  if (el) el.classList.add('active');
   renderLista();
 }
 
 function renderLista() {
-  let items = indicacoes.filter(i => filtroAtivo === 'todos' ? true : i.status === filtroAtivo);
+  let items = indicacoes;
+  if (filtroAtivo !== 'todos') {
+    items = items.filter(i => i.status === filtroAtivo);
+  }
+  
   const el = document.getElementById('lista-indicacoes');
+  if (!el) return;
+  
   if (!items.length) {
-    el.innerHTML = '<div style="padding:32px;text-align:center;color:#9ca3af;">Nenhuma indicação</div>';
+    const msg = filtroAtivo === 'todos' ? 'Nenhuma indicação recebida ainda' : `Nenhuma indicação com status "${filtroAtivo}"`;
+    el.innerHTML = `<div style="padding:32px;text-align:center;color:#9ca3af;">📭 ${msg}</div>`;
     return;
   }
+  
   const c = CONSULTORES.find(x => x.nome === consultorAtivo) || CONSULTORES[0];
   el.innerHTML = items.map(ind => {
     const s = statusMap[ind.status] || statusMap.new;
     const ini = (ind.nome || '?').split(' ').slice(0,2).map(p=>p[0]).join('');
     return `<div class="ind-item" onclick="abrirDetalhe('${ind.id}')">
-      <div style="display:flex;gap:12px;"><div class="avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
-      <div><div><strong>${escapeHtml(ind.nome)}</strong></div><div style="font-size:12px;color:#9ca3af;">${escapeHtml(ind.tel)}</div></div></div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div class="avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
+        <div>
+          <div><strong>${escapeHtml(ind.nome)}</strong></div>
+          <div style="font-size:12px;color:#9ca3af;">${escapeHtml(ind.tel)} · Indicado por ${escapeHtml(ind.indicador || '—')}</div>
+        </div>
+      </div>
       <span class="badge ${s.cls}">${s.label}</span>
     </div>`;
   }).join('');
 }
 
-function escapeHtml(text) { return text ? String(text).replace(/[&<>]/g, function(m){if(m==='&')return '&amp;';if(m==='<')return '&lt;';if(m==='>')return '&gt;';return m;}) : ''; }
-
-function abrirDetalhe(id) { editandoId = id; renderDetalhe(); go('s-detalhe'); }
+function abrirDetalhe(id) {
+  editandoId = id;
+  renderDetalhe();
+  go('s-detalhe');
+}
 
 function renderDetalhe() {
   const ind = indicacoes.find(i => i.id === editandoId);
   if (!ind) return;
+  
   const s = statusMap[ind.status] || statusMap.new;
   const c = CONSULTORES.find(x => x.nome === ind.consultor) || CONSULTORES[0];
   const ini = (ind.nome || '?').split(' ').slice(0,2).map(p=>p[0]).join('');
-  document.getElementById('detalhe-content').innerHTML = `
-    <div style="display:flex;gap:14px;margin-bottom:22px;">
-      <div class="avatar" style="width:46px;height:46px;background:${c.cor};color:${c.tc};">${ini}</div>
-      <div><div style="font-size:18px;font-weight:600;">${escapeHtml(ind.nome)}</div>
-      <div>Indicado por ${escapeHtml(ind.indicador)} · <span class="badge ${s.cls}">${s.label}</span></div></div>
+  
+  const stepIdx = s.step;
+  const stepsHTML = steps.map((lbl, i) => {
+    const done = stepIdx > i;
+    const curr = stepIdx === i;
+    return `<div class="step">
+      <div class="step-dot ${done ? 'done' : curr ? 'current' : ''}">${done ? '✓' : i+1}</div>
+      <div class="step-lbl ${curr ? 'current' : ''}">${lbl}</div>
+    </div>`;
+  }).join('');
+  
+  const detalheContent = document.getElementById('detalhe-content');
+  if (!detalheContent) return;
+  
+  detalheContent.innerHTML = `
+    <div style="display:flex;gap:14px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #e5e7eb;">
+      <div class="avatar" style="width:46px;height:46px;background:${c.cor};color:${c.tc};font-size:16px;">${ini}</div>
+      <div>
+        <div style="font-size:18px;font-weight:600;">${escapeHtml(ind.nome)}</div>
+        <div style="font-size:13px;color:#6b7280;margin-top:4px;">Indicado por ${escapeHtml(ind.indicador || '—')} · <span class="badge ${s.cls}">${s.label}</span></div>
+      </div>
     </div>
-    <div class="card"><div class="card-title">Dados</div>
-      <div class="field-row"><span>Telefone</span><span><strong>${escapeHtml(ind.tel)}</strong></span></div>
-      ${ind.nota ? `<div class="field-row"><span>Observação</span><span>${escapeHtml(ind.nota)}</span></div>` : ''}
+    
+    ${ind.status !== 'lost' ? `
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title">📌 Etapa da venda</div>
+      <div style="display:flex;gap:8px;">${stepsHTML}</div>
+    </div>` : ''}
+    
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title">📞 Dados do indicado</div>
+      <div class="field-row"><span style="color:#6b7280;">Telefone</span><span><strong>${escapeHtml(ind.tel)}</strong></span></div>
+      ${ind.nota ? `<div class="field-row"><span style="color:#6b7280;">Observação</span><span>${escapeHtml(ind.nota)}</span></div>` : ''}
+      <div class="field-row"><span style="color:#6b7280;">Data</span><span>${ind.updated || '—'}</span></div>
     </div>
-    <div class="card"><div class="card-title">Atualizar</div>
+    
+    <div class="card">
+      <div class="card-title">✏️ Atualizar indicação</div>
       <div class="form-group"><label>Nome</label><input id="ed-nome" value="${escapeHtml(ind.nome)}"></div>
       <div class="form-group"><label>Telefone</label><input id="ed-tel" value="${escapeHtml(ind.tel)}"></div>
       <div class="form-group"><label>Status</label><select id="ed-status">${Object.entries(statusMap).map(([k,v])=>`<option value="${k}" ${ind.status===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
-      <div class="form-group"><label>Observação</label><textarea id="ed-nota">${escapeHtml(ind.nota||'')}</textarea></div>
+      <div class="form-group"><label>Observação</label><textarea id="ed-nota" rows="2">${escapeHtml(ind.nota || '')}</textarea></div>
+      <div class="form-group"><label>Administradora</label><input id="ed-admin" value="${escapeHtml(ind.admin || '')}" placeholder="Ex: Seguradora XYZ"></div>
+      <div class="form-group"><label>Data atualização</label><input id="ed-data" value="${escapeHtml(ind.updated || '')}" placeholder="DD/MM/AAAA"></div>
     </div>
-    <button class="btn btn-primary btn-full" onclick="salvarEdicao()">Salvar alterações</button>
+    <button class="btn btn-primary btn-full" onclick="salvarEdicao()">💾 Salvar alterações</button>
   `;
 }
 
-function salvarEdicao() {
+async function salvarEdicao() {
   const ind = indicacoes.find(i => i.id === editandoId);
   if (!ind) return;
+  
   ind.nome = document.getElementById('ed-nome').value;
   ind.tel = document.getElementById('ed-tel').value;
   ind.status = document.getElementById('ed-status').value;
   ind.nota = document.getElementById('ed-nota').value;
-  ind.updated = new Date().toLocaleDateString('pt-BR');
-  postAPI({ action: 'update', ...ind }, () => {
-    toast('✓ Salvo!');
+  ind.admin = document.getElementById('ed-admin').value;
+  ind.updated = document.getElementById('ed-data').value || new Date().toLocaleDateString('pt-BR');
+  
+  const btn = document.querySelector('#detalhe-content .btn-primary');
+  const textoOriginal = btn.textContent;
+  btn.textContent = 'Salvando...';
+  btn.disabled = true;
+  
+  const result = await postAPI({ action: 'update', ...ind });
+  
+  if (result.success) {
+    toast('✓ Alterações salvas com sucesso!');
     renderLista();
     renderMetrics();
     renderDetalhe();
-  });
+  } else {
+    toast('⚠️ Erro ao salvar. Tente novamente.');
+  }
+  
+  btn.textContent = textoOriginal;
+  btn.disabled = false;
 }
 
-function enviarIndicacao() {
-  const indicador = document.getElementById('f-indicador').value.trim();
-  const consultor = document.getElementById('f-consultor').value;
-  const nome = document.getElementById('f-nome').value.trim();
-  const tel = document.getElementById('f-tel').value.trim();
-  const nota = document.getElementById('f-nota').value.trim();
-  if (!indicador || !consultor || !nome || !tel) return toast('⚠️ Preencha todos os campos');
-  const payload = {
-    action: 'add',
-    id: Date.now().toString(),
-    indicador, consultor, nome, tel, nota: nota || '',
-    status: 'new', admin: '',
-    updated: new Date().toLocaleDateString('pt-BR')
-  };
-  postAPI(payload, () => {
-    document.getElementById('conf-consultor').textContent = consultor;
-    document.getElementById('f-indicador').value = '';
-    document.getElementById('f-nome').value = '';
-    document.getElementById('f-tel').value = '';
-    document.getElementById('f-nota').value = '';
-    document.getElementById('f-consultor').value = '';
-    toast('✓ Indicação enviada!');
-    go('s-sucesso');
-    carregarDados();
-  });
-}
-
-init();
-</script>
-</body>
-</html>
+async function enviarIndicacao() {
