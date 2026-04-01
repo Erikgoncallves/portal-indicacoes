@@ -420,9 +420,13 @@ async function enviarIndicacao() {
 
   try {
     await fetch(CONFIG.scriptURL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
+  method: 'POST',
+  mode: 'no-cors',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(payload)
+});
     // Salva em memória também para refletir na lista local
     indicacoes.push({ ...payload });
   } catch(e) {
@@ -473,7 +477,11 @@ async function acessarConsultor() {
   btn.textContent = 'Carregando...'; btn.disabled = true;
 
   try {
-    const res = await fetch(`${CONFIG.scriptURL}?action=get&consultor=${encodeURIComponent(consultorAtivo)}`);
+    const res = await fetch(CONFIG.scriptURL);
+const data = await res.json();
+
+// filtra no frontend
+indicacoes = data.filter(i => i.consultor === consultorAtivo);
     const data = await res.json();
     // Substitui os dados deste consultor pelos vindos do servidor
     indicacoes = indicacoes.filter(i => i.consultor !== consultorAtivo).concat(data);
@@ -644,6 +652,28 @@ async function salvarEdicao() {
     console.warn('Erro ao salvar');
     toast('⚠️ Erro ao salvar. Tente novamente.');
   }
+ function doGet() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const data = sheet.getDataRange().getValues();
+
+  const headers = data.shift();
+
+  const json = data.map(row => ({
+    id: row[0],
+    nome: row[1],
+    tel: row[2],
+    consultor: row[3],
+    indicador: row[4],
+    status: row[5],
+    nota: row[6],
+    admin: row[7],
+    updated: row[8]
+  }));
+
+  return ContentService
+    .createTextOutput(JSON.stringify(json))
+    .setMimeType(ContentService.MimeType.JSON);
+} 
 
   renderLista();
   renderMetrics();
