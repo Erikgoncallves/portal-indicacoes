@@ -478,11 +478,10 @@ async function acessarConsultor() {
 
   try {
     const res = await fetch(CONFIG.scriptURL);
-const data = await res.json();
-
-// filtra no frontend
-indicacoes = data.filter(i => i.consultor === consultorAtivo);
     const data = await res.json();
+
+// filtra apenas do consultor
+indicacoes = data.filter(i => i.consultor === consultorAtivo);
     // Substitui os dados deste consultor pelos vindos do servidor
     indicacoes = indicacoes.filter(i => i.consultor !== consultorAtivo).concat(data);
   } catch(e) {
@@ -644,16 +643,19 @@ async function salvarEdicao() {
 
   try {
     await fetch(CONFIG.scriptURL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'update', ...ind })
-    });
+  method: 'POST',
+  mode: 'no-cors',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ action: 'update', ...ind })
+});
     toast('✓ Alterações salvas');
   } catch(e) {
     console.warn('Erro ao salvar');
     toast('⚠️ Erro ao salvar. Tente novamente.');
   }
- function doGet() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
   const data = sheet.getDataRange().getValues();
 
   const headers = data.shift();
