@@ -334,15 +334,12 @@
   </div>
 </div>
 
-
 <script>
 // ═══════════════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ═══════════════════════════════════════════════════════
 const CONFIG = {
-  // URL do Google Apps Script — já configurada
   scriptURL: 'https://script.google.com/macros/s/AKfycbzyEpzhnP4L9eAOygzVyj_863KKidWX9CpfEsgr87wNm8Fctk_eCdKiLA4r5Zi0t_4Vkw/exec',
-
   consultores: [
     { nome: 'Renato Benedetti',  cor: '#dbeafe', tc: '#1e40af' },
     { nome: 'Vagner Santos',     cor: '#fce7f3', tc: '#9d174d' },
@@ -353,7 +350,6 @@ const CONFIG = {
     { nome: 'Erik Carvalho',     cor: '#fee2e2', tc: '#991b1b' },
   ]
 };
-// ═══════════════════════════════════════════════════════
 
 // Estado
 let consultorAtivo = null;
@@ -384,7 +380,22 @@ function toast(msg, dur = 2500) {
   setTimeout(() => t.classList.remove('show'), dur);
 }
 
+// Carregar dados do servidor
+async function carregarDados() {
+  try {
+    const response = await fetch(CONFIG.scriptURL);
+    const data = await response.json();
+    indicacoes = data;
+    return true;
+  } catch(e) {
+    console.warn('Erro ao carregar dados:', e);
+    toast('⚠️ Não foi possível carregar dados do servidor');
+    return false;
+  }
+}
+
 function init() {
+  // Preencher select de consultores
   const sel = document.getElementById('f-consultor');
   CONFIG.consultores.forEach(c => {
     const o = document.createElement('option');
@@ -393,6 +404,7 @@ function init() {
     sel.appendChild(o);
   });
   renderConsultoresList();
+  carregarDados(); // Carregar dados iniciais
 }
 
 // ── Formulário de indicação ──
@@ -404,47 +416,57 @@ async function enviarIndicacao() {
   const nota      = document.getElementById('f-nota').value.trim();
 
   if (!indicador || !consultor || !nome || !tel) {
-    toast('⚠️ Preencha todos os campos obrigatórios'); return;
+    toast('⚠️ Preencha todos os campos obrigatórios'); 
+    return;
   }
 
   const btn = document.getElementById('btn-enviar');
-  btn.textContent = 'Enviando...'; btn.disabled = true;
+  btn.textContent = 'Enviando...'; 
+  btn.disabled = true;
 
   const payload = {
     action: 'add',
-    indicador, consultor, nome, tel, nota,
-    status: 'new', admin: '',
-    updated: new Date().toLocaleDateString('pt-BR'),
-    id: Date.now().toString()
+    id: Date.now().toString(),
+    indicador, 
+    consultor, 
+    nome, 
+    tel, 
+    nota,
+    status: 'new',
+    admin: '',
+    updated: new Date().toLocaleDateString('pt-BR')
   };
 
   try {
     await fetch(CONFIG.scriptURL, {
-  method: 'POST',
-  mode: 'no-cors',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(payload)
-});
-    // Salva em memória também para refletir na lista local
-    indicacoes.push({ ...payload });
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    // Adicionar localmente
+    indicacoes.push(payload);
+    
+    document.getElementById('conf-consultor').textContent = consultor;
+    document.getElementById('conf-nome').textContent = nome;
+    
+    // Limpar formulário
+    document.getElementById('f-indicador').value = '';
+    document.getElementById('f-consultor').value = '';
+    document.getElementById('f-nome').value = '';
+    document.getElementById('f-tel').value = '';
+    document.getElementById('f-nota').value = '';
+    
+    toast('✓ Indicação enviada com sucesso!');
+    go('s-sucesso');
   } catch(e) {
-    console.warn('Erro ao salvar no servidor:', e);
+    console.warn('Erro ao enviar:', e);
     toast('⚠️ Erro ao enviar. Verifique sua conexão.');
-    btn.textContent = 'Enviar indicação'; btn.disabled = false;
-    return;
+  } finally {
+    btn.textContent = 'Enviar indicação'; 
+    btn.disabled = false;
   }
-
-  document.getElementById('conf-consultor').textContent = consultor;
-  document.getElementById('conf-nome').textContent = nome;
-  document.getElementById('f-indicador').value = '';
-  document.getElementById('f-consultor').value = '';
-  document.getElementById('f-nome').value = '';
-  document.getElementById('f-tel').value = '';
-  document.getElementById('f-nota').value = '';
-  btn.textContent = 'Enviar indicação'; btn.disabled = false;
-  go('s-sucesso');
 }
 
 // ── Lista de consultores ──
@@ -474,26 +496,18 @@ async function acessarConsultor() {
   if (!consultorAtivo) return;
 
   const btn = document.getElementById('btn-acessar');
-  btn.textContent = 'Carregando...'; btn.disabled = true;
+  btn.textContent = 'Carregando...'; 
+  btn.disabled = true;
 
-  try {
-    const res = await fetch(CONFIG.scriptURL);
-    const data = await res.json();
-
-// filtra apenas do consultor
-indicacoes = data.filter(i => i.consultor === consultorAtivo);
-    // Substitui os dados deste consultor pelos vindos do servidor
-    indicacoes = indicacoes.filter(i => i.consultor !== consultorAtivo).concat(data);
-  } catch(e) {
-    console.warn('Erro ao buscar dados do servidor, usando dados locais:', e);
-    toast('⚠️ Não foi possível carregar do servidor');
-  }
-
-  btn.textContent = 'Acessar meu painel →'; btn.disabled = false;
+  await carregarDados(); // Recarregar dados do servidor
+  
+  btn.textContent = 'Acessar meu painel →'; 
+  btn.disabled = false;
 
   filtroAtivo = 'todos';
   document.getElementById('painel-titulo').textContent = consultorAtivo;
   document.getElementById('painel-sub').textContent = 'Suas indicações recebidas';
+  
   renderMetrics();
   renderLista();
   go('s-painel');
@@ -503,9 +517,9 @@ indicacoes = data.filter(i => i.consultor === consultorAtivo);
 function renderMetrics() {
   const mine = indicacoes.filter(i => i.consultor === consultorAtivo);
   const counts = [
-    { val: mine.length,                                                              lbl: 'Total',        color: '#1a56db' },
-    { val: mine.filter(i=>['new','contact','proposal'].includes(i.status)).length,   lbl: 'Em andamento', color: '#c27803' },
-    { val: mine.filter(i=>i.status==='closed').length,                               lbl: 'Fechados',     color: '#0e9f6e' },
+    { val: mine.length, lbl: 'Total', color: '#1a56db' },
+    { val: mine.filter(i=>['new','contact','proposal'].includes(i.status)).length, lbl: 'Em andamento', color: '#c27803' },
+    { val: mine.filter(i=>i.status==='closed').length, lbl: 'Fechados', color: '#0e9f6e' },
   ];
   document.getElementById('painel-metrics').innerHTML = counts.map(m =>
     `<div class="metric">
@@ -526,11 +540,13 @@ function filtrar(f, el) {
 function renderLista() {
   let items = indicacoes.filter(i => i.consultor === consultorAtivo);
   if (filtroAtivo !== 'todos') items = items.filter(i => i.status === filtroAtivo);
+  
   const el = document.getElementById('lista-indicacoes');
   if (!items.length) {
     el.innerHTML = '<div style="padding:32px;text-align:center;font-size:13px;color:var(--gray-400);">Nenhuma indicação neste filtro</div>';
     return;
   }
+  
   const c = CONFIG.consultores.find(x => x.nome === consultorAtivo) || { cor:'#dbeafe', tc:'#1e40af' };
   el.innerHTML = items.map(ind => {
     const s = statusMap[ind.status] || statusMap.new;
@@ -558,6 +574,7 @@ function abrirDetalhe(id) {
 function renderDetalhe() {
   const ind = indicacoes.find(i => i.id === editandoId);
   if (!ind) return;
+  
   const s = statusMap[ind.status] || statusMap.new;
   const c = CONFIG.consultores.find(x => x.nome === ind.consultor) || { cor:'#dbeafe', tc:'#1e40af' };
   const ini = ind.nome.split(' ').slice(0,2).map(p=>p[0]).join('');
@@ -599,11 +616,11 @@ function renderDetalhe() {
       <div class="card-title">Atualizar</div>
       <div class="form-group">
         <label>Nome</label>
-        <input id="ed-nome" value="${ind.nome}">
+        <input id="ed-nome" value="${ind.nome.replace(/"/g, '&quot;')}">
       </div>
       <div class="form-group">
         <label>Telefone</label>
-        <input id="ed-tel" value="${ind.tel}">
+        <input id="ed-tel" value="${ind.tel.replace(/"/g, '&quot;')}">
       </div>
       <div class="form-group">
         <label>Status</label>
@@ -631,6 +648,7 @@ function renderDetalhe() {
 async function salvarEdicao() {
   const ind = indicacoes.find(i => i.id === editandoId);
   if (!ind) return;
+  
   ind.nome    = document.getElementById('ed-nome').value;
   ind.tel     = document.getElementById('ed-tel').value;
   ind.status  = document.getElementById('ed-status').value;
@@ -639,50 +657,30 @@ async function salvarEdicao() {
   ind.updated = document.getElementById('ed-data').value;
 
   const btn = document.getElementById('btn-salvar');
-  btn.textContent = 'Salvando...'; btn.disabled = true;
+  btn.textContent = 'Salvando...'; 
+  btn.disabled = true;
 
   try {
     await fetch(CONFIG.scriptURL, {
-  method: 'POST',
-  mode: 'no-cors',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ action: 'update', ...ind })
-});
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'update', ...ind })
+    });
     toast('✓ Alterações salvas');
+    renderLista();
+    renderMetrics();
+    renderDetalhe();
   } catch(e) {
-    console.warn('Erro ao salvar');
+    console.warn('Erro ao salvar:', e);
     toast('⚠️ Erro ao salvar. Tente novamente.');
+  } finally {
+    btn.textContent = 'Salvar alterações'; 
+    btn.disabled = false;
   }
-
-  const data = sheet.getDataRange().getValues();
-
-  const headers = data.shift();
-
-  const json = data.map(row => ({
-    id: row[0],
-    nome: row[1],
-    tel: row[2],
-    consultor: row[3],
-    indicador: row[4],
-    status: row[5],
-    nota: row[6],
-    admin: row[7],
-    updated: row[8]
-  }));
-
-  return ContentService
-    .createTextOutput(JSON.stringify(json))
-    .setMimeType(ContentService.MimeType.JSON);
-} 
-
-  renderLista();
-  renderMetrics();
-  renderDetalhe();
-  btn.textContent = 'Salvar alterações'; btn.disabled = false;
 }
 
+// Inicializar
 init();
 </script>
 </body>
