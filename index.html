@@ -187,9 +187,12 @@
   }
   #toast.show { transform: translateX(-50%) translateY(0); }
 
+  .loading { text-align: center; padding: 32px; color: var(--gray-400); font-size: 14px; }
+
   @media (max-width: 480px) {
     .metrics { grid-template-columns: repeat(2, 1fr); }
     .page-title { font-size: 22px; }
+    #toast { white-space: normal; max-width: 90%; text-align: center; }
   }
 </style>
 </head>
@@ -337,12 +340,11 @@
 <script>
 
 // ═══════════════════════════════════════════════════════
-// CONFIGURAÇÃO
+// CONFIGURAÇÃO - ATUALIZE COM SUA URL DO APPS SCRIPT
 // ═══════════════════════════════════════════════════════
 const CONFIG = {
- const CONFIG = {
-  scriptURL: 'https://script.google.com/macros/s/AKfycbyU33cqLx500XQ0MO4gbEp9GM25m3UVdqSFkIPOcE_5STlF7gruqu67_sfmu9YvXV2d/exec',
-   
+  scriptURL: 'https://script.google.com/macros/s/AKfycbzT2WHB7gVHqb6hPziIhaVl82mLMpRlY9UHlPgvHx4nfXCEm1piqlOTvPpW3B5rwMBM/exec',
+  consultores: [
     { nome: 'Renato Benedetti',  cor: '#dbeafe', tc: '#1e40af' },
     { nome: 'Vagner Santos',     cor: '#fce7f3', tc: '#9d174d' },
     { nome: 'Fabricio Araujo',   cor: '#d1fae5', tc: '#065f46' },
@@ -358,6 +360,7 @@ let consultorAtivo = null;
 let filtroAtivo = 'todos';
 let editandoId = null;
 let indicacoes = [];
+let dadosCarregados = false;
 
 const statusMap = {
   new:      { label: 'Nova',        cls: 'badge-new',      step: 0 },
@@ -376,7 +379,7 @@ function go(id) {
   window.scrollTo(0, 0);
 }
 
-function toast(msg, dur = 2500) {
+function toast(msg, dur = 3000) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
@@ -390,15 +393,41 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// ── Fetch helpers ──────────────────────────────────────
-// FIX: usa text/plain para evitar CORS preflight no Apps Script
+// ── Fetch com timeout ──────────────────────────────────
+async function fetchWithTimeout(url, options, timeout = 10000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+}
+
 async function postScript(payload) {
-  const response = await fetch(CONFIG.scriptURL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' }, // ← CORREÇÃO CORS
-    body: JSON.stringify(payload)
-  });
-  return response.json();
+  try {
+    const response = await fetchWithTimeout(CONFIG.scriptURL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Erro no postScript:', error);
+    throw new Error('Erro de conexão com o servidor');
+  }
 }
 
 async function getScript(params) {
@@ -407,13 +436,23 @@ async function getScript(params) {
     const qs = new URLSearchParams(params).toString();
     url += '?' + qs;
   }
-  const response = await fetch(url);
-  return response.json();
+  
+  try {
+    const response = await fetchWithTimeout(url, { method: 'GET' });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Erro no getScript:', error);
+    throw new Error('Erro de conexão com o servidor');
+  }
 }
 
 // ── Inicialização ──────────────────────────────────────
 function init() {
-  // Popula select de consultores no formulário
   const sel = document.getElementById('f-consultor');
   if (sel) {
     CONFIG.consultores.forEach(c => {
@@ -423,28 +462,30 @@ function init() {
       sel.appendChild(o);
     });
   }
-
-  // Carrega dados gerais para exibir contagens na lista de consultores
   carregarDados();
 }
 
 async function carregarDados() {
+  const el = document.getElementById('cons-list');
+  if (el) el.innerHTML = '<div class="loading">Carregando dados...</div>';
+  
   try {
     const data = await getScript();
 
     if (data && data.error) {
       console.error('Erro do servidor:', data.error);
       toast('⚠️ ' + data.error);
-      renderConsultoresList(); // renderiza mesmo sem dados
+      renderConsultoresList();
       return false;
     }
 
     indicacoes = Array.isArray(data) ? data : [];
+    dadosCarregados = true;
     renderConsultoresList();
     return true;
   } catch (e) {
     console.error('Erro ao carregar dados:', e);
-    toast('⚠️ Erro ao carregar dados do servidor');
+    toast('⚠️ Erro ao carregar dados. Verifique sua conexão.');
     renderConsultoresList();
     return false;
   }
@@ -456,12 +497,14 @@ async function carregarDadosConsultor(consultor) {
 
     if (data && data.error) {
       console.error('Erro do servidor:', data.error);
+      toast('⚠️ ' + data.error);
       return [];
     }
 
     return Array.isArray(data) ? data : [];
   } catch (e) {
     console.error('Erro ao carregar dados do consultor:', e);
+    toast('⚠️ Erro ao carregar suas indicações');
     return [];
   }
 }
@@ -480,6 +523,7 @@ async function enviarIndicacao() {
   }
 
   const btn = document.getElementById('btn-enviar');
+  const textoOriginal = btn.textContent;
   btn.textContent = 'Enviando…';
   btn.disabled = true;
 
@@ -497,20 +541,21 @@ async function enviarIndicacao() {
   };
 
   try {
-    const result = await postScript(payload); // ← usa helper corrigido
+    const result = await postScript(payload);
 
     if (result && result.success) {
-      indicacoes.push(payload);
       document.getElementById('conf-consultor').textContent = consultor;
       document.getElementById('conf-nome').textContent = nome;
-      // Limpa formulário
-      ['f-indicador', 'f-nome', 'f-tel', 'f-nota'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
+      
+      document.getElementById('f-indicador').value = '';
+      document.getElementById('f-nome').value = '';
+      document.getElementById('f-tel').value = '';
+      document.getElementById('f-nota').value = '';
       document.getElementById('f-consultor').value = '';
-      renderConsultoresList();
+      
       toast('✓ Indicação enviada com sucesso!');
       go('s-sucesso');
+      carregarDados();
     } else {
       throw new Error((result && result.error) || 'Erro desconhecido');
     }
@@ -518,7 +563,7 @@ async function enviarIndicacao() {
     console.error('Erro ao enviar:', e);
     toast('⚠️ Erro: ' + e.message);
   } finally {
-    btn.textContent = 'Enviar indicação';
+    btn.textContent = textoOriginal;
     btn.disabled = false;
   }
 }
@@ -528,13 +573,18 @@ function renderConsultoresList() {
   const el = document.getElementById('cons-list');
   if (!el) return;
 
+  if (!dadosCarregados) {
+    el.innerHTML = '<div class="loading">Carregando dados...</div>';
+    return;
+  }
+
   el.innerHTML = CONFIG.consultores.map(c => {
     const ini   = c.nome.split(' ').slice(0, 2).map(p => p[0]).join('');
     const count = indicacoes.filter(i => i.consultor === c.nome).length;
-    return `<div class="cons-opt" onclick="selecionarConsultor('${c.nome}',this)">
+    return `<div class="cons-opt" onclick="selecionarConsultor('${c.nome.replace(/'/g, "\\'")}',this)">
       <div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
       <div>
-        <div class="cons-name">${c.nome}</div>
+        <div class="cons-name">${escapeHtml(c.nome)}</div>
         <div class="cons-count">${count} indicaç${count === 1 ? 'ão' : 'ões'}</div>
       </div>
     </div>`;
@@ -552,13 +602,14 @@ async function acessarConsultor() {
   if (!consultorAtivo) return;
 
   const btn = document.getElementById('btn-acessar');
+  const textoOriginal = btn.textContent;
   btn.textContent = 'Carregando…';
   btn.disabled = true;
 
   const dadosConsultor = await carregarDadosConsultor(consultorAtivo);
   indicacoes = dadosConsultor;
 
-  btn.textContent = 'Acessar meu painel →';
+  btn.textContent = textoOriginal;
   btn.disabled = false;
 
   filtroAtivo = 'todos';
@@ -572,23 +623,30 @@ async function acessarConsultor() {
 
 // ── Painel ─────────────────────────────────────────────
 function renderMetrics() {
+  const emAndamento = indicacoes.filter(i => ['new', 'contact', 'proposal'].includes(i.status)).length;
+  const fechados = indicacoes.filter(i => i.status === 'closed').length;
+  
   const counts = [
     { val: indicacoes.length, lbl: 'Total', color: '#1a56db' },
-    { val: indicacoes.filter(i => ['new', 'contact', 'proposal'].includes(i.status)).length, lbl: 'Em andamento', color: '#c27803' },
-    { val: indicacoes.filter(i => i.status === 'closed').length, lbl: 'Fechados', color: '#0e9f6e' }
+    { val: emAndamento, lbl: 'Em andamento', color: '#c27803' },
+    { val: fechados, lbl: 'Fechados', color: '#0e9f6e' }
   ];
-  document.getElementById('painel-metrics').innerHTML = counts.map(m =>
-    `<div class="metric">
-      <div class="metric-val" style="color:${m.color};">${m.val}</div>
-      <div class="metric-lbl">${m.lbl}</div>
-    </div>`
-  ).join('');
+  
+  const metricsEl = document.getElementById('painel-metrics');
+  if (metricsEl) {
+    metricsEl.innerHTML = counts.map(m =>
+      `<div class="metric">
+        <div class="metric-val" style="color:${m.color};">${m.val}</div>
+        <div class="metric-lbl">${m.lbl}</div>
+      </div>`
+    ).join('');
+  }
 }
 
 function filtrar(f, el) {
   filtroAtivo = f;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
+  if (el) el.classList.add('active');
   renderLista();
 }
 
@@ -597,6 +655,8 @@ function renderLista() {
   if (filtroAtivo !== 'todos') items = items.filter(i => i.status === filtroAtivo);
 
   const el = document.getElementById('lista-indicacoes');
+  if (!el) return;
+  
   if (!items.length) {
     el.innerHTML = '<div style="padding:32px;text-align:center;font-size:13px;color:var(--gray-400);">Nenhuma indicação neste filtro</div>';
     return;
@@ -605,13 +665,13 @@ function renderLista() {
   const c = CONFIG.consultores.find(x => x.nome === consultorAtivo) || { cor: '#dbeafe', tc: '#1e40af' };
   el.innerHTML = items.map(ind => {
     const s   = statusMap[ind.status] || statusMap.new;
-    const ini = ind.nome.split(' ').slice(0, 2).map(p => p[0]).join('');
+    const ini = (ind.nome || '?').split(' ').slice(0, 2).map(p => p[0]).join('');
     return `<div class="ind-item" onclick="abrirDetalhe('${ind.id}')">
       <div style="display:flex;align-items:center;gap:12px;min-width:0;">
         <div class="avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
         <div style="min-width:0;">
-          <div class="ind-name">${escapeHtml(ind.nome)}</div>
-          <div class="ind-meta">${escapeHtml(ind.tel)} · Indicado por ${escapeHtml(ind.indicador || '—')} · ${ind.updated || ''}</div>
+          <div class="ind-name">${escapeHtml(ind.nome || '—')}</div>
+          <div class="ind-meta">${escapeHtml(ind.tel || '—')} · Indicado por ${escapeHtml(ind.indicador || '—')} · ${ind.updated || ''}</div>
         </div>
       </div>
       <span class="badge ${s.cls}" style="flex-shrink:0;">${s.label}</span>
@@ -632,7 +692,7 @@ function renderDetalhe() {
 
   const s   = statusMap[ind.status] || statusMap.new;
   const c   = CONFIG.consultores.find(x => x.nome === ind.consultor) || { cor: '#dbeafe', tc: '#1e40af' };
-  const ini = ind.nome.split(' ').slice(0, 2).map(p => p[0]).join('');
+  const ini = (ind.nome || '?').split(' ').slice(0, 2).map(p => p[0]).join('');
 
   const stepIdx  = s.step;
   const stepsHTML = steps.map((lbl, i) => {
@@ -645,7 +705,10 @@ function renderDetalhe() {
     </div>`;
   }).join('');
 
-  document.getElementById('detalhe-content').innerHTML = `
+  const detalheContent = document.getElementById('detalhe-content');
+  if (!detalheContent) return;
+  
+  detalheContent.innerHTML = `
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--gray-200);">
       <div class="avatar" style="width:46px;height:46px;font-size:15px;background:${c.cor};color:${c.tc};">${ini}</div>
       <div>
@@ -716,11 +779,12 @@ async function salvarEdicao() {
   ind.updated = document.getElementById('ed-data').value || new Date().toLocaleDateString('pt-BR');
 
   const btn = document.getElementById('btn-salvar');
+  const textoOriginal = btn.textContent;
   btn.textContent = 'Salvando…';
   btn.disabled = true;
 
   try {
-    const result = await postScript({ action: 'update', ...ind }); // ← usa helper corrigido
+    const result = await postScript({ action: 'update', ...ind });
 
     if (result && result.success) {
       toast('✓ Alterações salvas');
@@ -734,7 +798,7 @@ async function salvarEdicao() {
     console.error('Erro ao salvar:', e);
     toast('⚠️ Erro ao salvar. Tente novamente.');
   } finally {
-    btn.textContent = 'Salvar alterações';
+    btn.textContent = textoOriginal;
     btn.disabled = false;
   }
 }
