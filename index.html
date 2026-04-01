@@ -74,7 +74,6 @@
   .step-lbl { font-size: 10px; color: #9ca3af; }
   .step-lbl.current { color: #1a56db; font-weight: 600; }
   
-  /* Modal de senha */
   .modal {
     display: none;
     position: fixed;
@@ -87,36 +86,13 @@
     align-items: center;
     justify-content: center;
   }
-  .modal.active {
-    display: flex;
-  }
-  .modal-content {
-    background: #fff;
-    border-radius: 16px;
-    padding: 32px;
-    max-width: 380px;
-    width: 90%;
-    text-align: center;
-  }
-  .modal-content h3 {
-    margin-bottom: 20px;
-    font-size: 20px;
-  }
-  .modal-content input {
-    margin-bottom: 20px;
-  }
-  .modal-content .btn {
-    width: 100%;
-  }
-  .error-senha {
-    color: #c81e1e;
-    font-size: 12px;
-    margin-top: 10px;
-    display: none;
-  }
-  .error-senha.show {
-    display: block;
-  }
+  .modal.active { display: flex; }
+  .modal-content { background: #fff; border-radius: 16px; padding: 32px; max-width: 380px; width: 90%; text-align: center; }
+  .modal-content h3 { margin-bottom: 20px; font-size: 20px; }
+  .modal-content input { margin-bottom: 20px; }
+  .modal-content .btn { width: 100%; }
+  .error-senha { color: #c81e1e; font-size: 12px; margin-top: 10px; display: none; }
+  .error-senha.show { display: block; }
   
   @media (max-width: 480px) { 
     .metrics { grid-template-columns: repeat(2, 1fr); }
@@ -148,7 +124,7 @@
     <div style="width:100%;max-width:440px;">
       <div class="switcher">
         <div class="sw-card" onclick="go('s-form')"><div class="sw-icon">🤝</div><div>Quero indicar</div><div style="font-size:12px;color:#9ca3af;">Indique um conhecido</div></div>
-        <div class="sw-card" id="btn-consultor" onclick="abrirModalSenha()"><div class="sw-icon">📊</div><div>Sou consultor</div><div style="font-size:12px;color:#9ca3af;">Gerencie indicações</div></div>
+        <div class="sw-card" onclick="abrirModalSenha()"><div class="sw-icon">📊</div><div>Sou consultor</div><div style="font-size:12px;color:#9ca3af;">Gerencie indicações</div></div>
       </div>
     </div>
   </div>
@@ -228,13 +204,10 @@
 </div>
 
 <script>
-// ⚠️ COLOQUE A URL DO SEU APPS SCRIPT AQUI ⚠️
+// ⚠️ COLOQUE A NOVA URL DO SEU APPS SCRIPT AQUI ⚠️
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzT2WHB7gVHqb6hPziIhaVl82mLMpRlY9UHlPgvHx4nfXCEm1piqlOTvPpW3B5rwMBM/exec';
-
-// SENHA PARA ACESSO DOS CONSULTORES
 const SENHA_CONSULTORES = 'Cortina6';
 
-// Lista de consultores com suporte para nomes parciais (para compatibilidade)
 const CONSULTORES = [
   { nome: 'Renato Benedetti', nomeBusca: ['Renato Benedetti', 'Renato Benedet', 'Renato'], cor: '#dbeafe', tc: '#1e40af' },
   { nome: 'Vagner Santos', nomeBusca: ['Vagner Santos', 'Vagner'], cor: '#fce7f3', tc: '#9d174d' },
@@ -281,7 +254,6 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// Modal de senha
 function abrirModalSenha() {
   document.getElementById('modal-senha').classList.add('active');
   document.getElementById('senha-input').value = '';
@@ -292,79 +264,77 @@ function fecharModalSenha() {
   document.getElementById('modal-senha').classList.remove('active');
 }
 
-function verificarSenha() {
-  const senha = document.getElementById('senha-input').value;
-  if (senha === SENHA_CONSULTORES) {
-    fecharModalSenha();
-    consultorAtivo = null;
-    go('s-consultor-select');
-    carregarTodasIndicacoes();
-  } else {
-    document.getElementById('erro-senha').classList.add('show');
-  }
-}
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    fecharModalSenha();
-  }
-});
-
-// Função para normalizar o nome do consultor (busca flexível)
-function normalizarNomeConsultor(nomePlanilha) {
-  if (!nomePlanilha) return '';
+// JSONP - SOLUÇÃO DEFINITIVA PARA CORS
+function jsonpRequest(url, callback) {
+  const callbackName = 'jsonp_callback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
   
-  for (const cons of CONSULTORES) {
-    if (cons.nomeBusca.some(busca => nomePlanilha.includes(busca) || busca.includes(nomePlanilha))) {
-      return cons.nome;
+  window[callbackName] = function(data) {
+    delete window[callbackName];
+    document.body.removeChild(script);
+    callback(data);
+  };
+  
+  const script = document.createElement('script');
+  const separator = url.includes('?') ? '&' : '?';
+  script.src = url + separator + 'callback=' + callbackName;
+  script.onerror = function() {
+    delete window[callbackName];
+    document.body.removeChild(script);
+    callback({ error: 'Erro de conexão' });
+  };
+  document.body.appendChild(script);
+  
+  setTimeout(() => {
+    if (window[callbackName]) {
+      delete window[callbackName];
+      if (script.parentNode) document.body.removeChild(script);
+      callback({ error: 'Timeout' });
     }
-  }
-  return nomePlanilha;
+  }, 15000);
 }
 
-// Carregar todas as indicações
-async function carregarTodasIndicacoes() {
+function carregarTodasIndicacoes() {
   const el = document.getElementById('cons-list');
   if (el) el.innerHTML = '<div class="loading">🔄 Carregando dados...</div>';
   
-  try {
-    const response = await fetch(SCRIPT_URL);
-    const data = await response.json();
-    
+  jsonpRequest(SCRIPT_URL, function(data) {
     if (data && !data.error) {
       todasIndicacoes = Array.isArray(data) ? data : [];
-      // Normalizar os nomes dos consultores nas indicações
-      todasIndicacoes = todasIndicacoes.map(ind => ({
-        ...ind,
-        consultorOriginal: ind.consultor,
-        consultor: normalizarNomeConsultor(ind.consultor)
-      }));
+      // Normalizar nomes
+      todasIndicacoes = todasIndicacoes.map(ind => {
+        let nomeNormalizado = ind.consultor;
+        for (const cons of CONSULTORES) {
+          if (cons.nomeBusca.some(busca => ind.consultor && ind.consultor.includes(busca))) {
+            nomeNormalizado = cons.nome;
+            break;
+          }
+        }
+        return { ...ind, consultorOriginal: ind.consultor, consultor: nomeNormalizado };
+      });
     } else {
       todasIndicacoes = [];
       if (data?.error) toast('⚠️ ' + data.error);
     }
-    
     renderConsultoresList();
-  } catch (error) {
-    console.error('Erro carregarTodasIndicacoes:', error);
-    toast('⚠️ Erro ao carregar dados');
-    todasIndicacoes = [];
-    renderConsultoresList();
-  }
+  });
+}
+
+function carregarIndicacoesConsultor(consultor, callback) {
+  jsonpRequest(SCRIPT_URL + '?consultor=' + encodeURIComponent(consultor), function(data) {
+    if (data && !data.error) {
+      callback(Array.isArray(data) ? data : []);
+    } else {
+      callback([]);
+    }
+  });
 }
 
 function renderConsultoresList() {
   const el = document.getElementById('cons-list');
   if (!el) return;
   
-  if (!todasIndicacoes) {
-    el.innerHTML = '<div class="loading">Carregando...</div>';
-    return;
-  }
-  
   el.innerHTML = CONSULTORES.map(c => {
     const ini = c.nome.split(' ').slice(0,2).map(p=>p[0]).join('');
-    // Contar indicações para este consultor (considerando nomes normalizados)
     const count = todasIndicacoes.filter(i => i.consultor === c.nome).length;
     return `<div class="cons-opt" onclick="selecionarConsultor('${c.nome.replace(/'/g, "\\'")}', this)">
       <div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
@@ -380,26 +350,35 @@ function selecionarConsultor(nome, el) {
   document.getElementById('btn-acessar').style.display = 'flex';
 }
 
-async function acessarConsultor() {
+function acessarConsultor() {
   if (!consultorAtivo) return;
   
   const btn = document.getElementById('btn-acessar');
-  const textoOriginal = btn.textContent;
   btn.textContent = 'Carregando...';
   btn.disabled = true;
   
-  // Filtrar indicações do consultor selecionado
-  indicacoesFiltradas = todasIndicacoes.filter(i => i.consultor === consultorAtivo);
-  
-  document.getElementById('painel-titulo').textContent = consultorAtivo;
-  document.getElementById('painel-sub').textContent = `${indicacoesFiltradas.length} indicação${indicacoesFiltradas.length !== 1 ? 'ões' : ''} recebida${indicacoesFiltradas.length !== 1 ? 's' : ''}`;
-  
-  btn.textContent = textoOriginal;
-  btn.disabled = false;
-  
-  renderMetrics();
-  renderLista();
-  go('s-painel');
+  carregarIndicacoesConsultor(consultorAtivo, function(data) {
+    indicacoesFiltradas = data.map(ind => {
+      let nomeNormalizado = ind.consultor;
+      for (const cons of CONSULTORES) {
+        if (cons.nomeBusca.some(busca => ind.consultor && ind.consultor.includes(busca))) {
+          nomeNormalizado = cons.nome;
+          break;
+        }
+      }
+      return { ...ind, consultor: nomeNormalizado };
+    });
+    
+    document.getElementById('painel-titulo').textContent = consultorAtivo;
+    document.getElementById('painel-sub').textContent = `${indicacoesFiltradas.length} indicação${indicacoesFiltradas.length !== 1 ? 'ões' : ''} recebida${indicacoesFiltradas.length !== 1 ? 's' : ''}`;
+    
+    btn.textContent = 'Acessar painel →';
+    btn.disabled = false;
+    
+    renderMetrics();
+    renderLista();
+    go('s-painel');
+  });
 }
 
 function renderMetrics() {
@@ -544,9 +523,7 @@ async function salvarEdicao() {
     renderLista();
     renderMetrics();
     renderDetalhe();
-    
-    // Recarregar dados para atualizar contagens
-    await carregarTodasIndicacoes();
+    carregarTodasIndicacoes();
   } catch (error) {
     console.error('Erro salvar:', error);
     toast('⚠️ Erro ao salvar. Tente novamente.');
@@ -556,7 +533,7 @@ async function salvarEdicao() {
   btn.disabled = false;
 }
 
-async function enviarIndicacao() {
+function enviarIndicacao() {
   const indicador = document.getElementById('f-indicador').value.trim();
   const consultor = document.getElementById('f-consultor').value;
   const nome = document.getElementById('f-nome').value.trim();
@@ -586,14 +563,12 @@ async function enviarIndicacao() {
     updated: new Date().toLocaleDateString('pt-BR')
   };
   
-  try {
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(() => {
     document.getElementById('conf-consultor').textContent = consultor;
     document.getElementById('f-indicador').value = '';
     document.getElementById('f-nome').value = '';
@@ -603,19 +578,27 @@ async function enviarIndicacao() {
     
     toast('✓ Indicação enviada com sucesso!');
     go('s-sucesso');
-    
-    // Recarregar dados
-    await carregarTodasIndicacoes();
-  } catch (error) {
-    console.error('Erro enviar:', error);
+    carregarTodasIndicacoes();
+  }).catch(() => {
     toast('⚠️ Erro ao enviar. Tente novamente.');
-  }
-  
-  btn.textContent = textoOriginal;
-  btn.disabled = false;
+  }).finally(() => {
+    btn.textContent = textoOriginal;
+    btn.disabled = false;
+  });
 }
 
-// Inicialização
+function verificarSenha() {
+  const senha = document.getElementById('senha-input').value;
+  if (senha === SENHA_CONSULTORES) {
+    fecharModalSenha();
+    consultorAtivo = null;
+    go('s-consultor-select');
+    carregarTodasIndicacoes();
+  } else {
+    document.getElementById('erro-senha').classList.add('show');
+  }
+}
+
 function init() {
   const sel = document.getElementById('f-consultor');
   CONSULTORES.forEach(c => {
