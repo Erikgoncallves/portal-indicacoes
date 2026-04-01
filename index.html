@@ -22,20 +22,21 @@
   .card-title { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.5px; }
   .form-group { margin-bottom: 18px; }
   label { font-size: 13px; font-weight: 500; color: #4b5563; display: block; margin-bottom: 7px; }
-  input, select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; }
+  input, select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; color: #111827; background: #fff; }
   input:focus, select:focus, textarea:focus { border-color: #1a56db; box-shadow: 0 0 0 3px rgba(26,86,219,0.1); }
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
   .btn-primary { background: #1a56db; color: #fff; }
   .btn-primary:hover { background: #1447b8; }
   .btn-secondary { background: #fff; color: #1f2937; border: 1.5px solid #e5e7eb; }
   .btn-secondary:hover { background: #f9fafb; }
   .btn-full { width: 100%; }
   .btn-sm { padding: 7px 14px; font-size: 12px; }
-  .back-btn { background: none; border: none; color: #1a56db; font-size: 13px; cursor: pointer; margin-bottom: 22px; display: inline-flex; align-items: center; gap: 5px; font-weight: 500; }
+  .back-btn { background: none; border: none; color: #1a56db; font-size: 13px; cursor: pointer; margin-bottom: 22px; display: inline-flex; align-items: center; gap: 5px; font-weight: 500; font-family: 'DM Sans', sans-serif; }
   .back-btn:hover { opacity: 0.8; }
   .switcher { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
   .sw-card { background: #fff; border: 2px solid #e5e7eb; border-radius: 16px; padding: 22px 18px; cursor: pointer; text-align: center; transition: all 0.2s; }
-  .sw-card:hover { border-color: #b3caf7; transform: translateY(-2px); }
+  .sw-card:hover { border-color: #b3caf7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
   .sw-icon { font-size: 32px; margin-bottom: 10px; }
   .badge { display: inline-flex; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
   .badge-new { background: #fdf6b2; color: #c27803; }
@@ -46,13 +47,15 @@
   .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
   .metric { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center; }
   .metric-val { font-size: 28px; font-weight: 700; }
+  .metric-lbl { font-size: 12px; color: #9ca3af; margin-top: 2px; }
   .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-  .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1.5px solid #e5e7eb; background: #fff; cursor: pointer; }
+  .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1.5px solid #e5e7eb; background: #fff; cursor: pointer; font-family: 'DM Sans', sans-serif; }
   .filter-btn.active { background: #1a56db; color: #fff; border-color: #1a56db; }
-  .ind-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid #f3f4f6; cursor: pointer; transition: background 0.2s; }
+  .ind-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid #f3f4f6; cursor: pointer; transition: background 0.2s; gap: 12px; }
+  .ind-item:last-child { border-bottom: none; }
   .ind-item:hover { background: #f9fafb; }
   .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
-  .cons-list { display: flex; flex-direction: column; gap: 10px; }
+  .cons-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
   .cons-opt { background: #fff; border: 2px solid #e5e7eb; border-radius: 12px; padding: 14px 18px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: all 0.2s; }
   .cons-opt:hover { border-color: #b3caf7; }
   .cons-opt.selected { border-color: #1a56db; background: #e8f0fe; }
@@ -62,10 +65,11 @@
   .home-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 20px; }
   .home-logo { font-family: 'DM Serif Display', serif; font-size: 42px; text-align: center; }
   .home-logo em { color: #1a56db; font-style: normal; }
-  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #111827; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 999; display: none; }
-  #toast.show { display: block; }
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #111827; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 999; transition: transform 0.3s; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  #toast.show { transform: translateX(-50%) translateY(0); }
   .loading { text-align: center; padding: 40px; color: #9ca3af; }
-  .field-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+  .field-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; gap: 12px; }
+  .field-row:last-child { border-bottom: none; }
   .steps { display: flex; gap: 12px; margin-top: 8px; }
   .step { flex: 1; text-align: center; }
   .step-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #e5e7eb; background: #fff; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
@@ -73,29 +77,14 @@
   .step-dot.current { border-color: #1a56db; color: #1a56db; background: #e8f0fe; }
   .step-lbl { font-size: 11px; color: #9ca3af; }
   .step-lbl.current { color: #1a56db; font-weight: 600; }
-  
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
   .modal.active { display: flex; }
   .modal-content { background: #fff; border-radius: 24px; padding: 32px; max-width: 380px; width: 90%; text-align: center; }
-  .modal-content h3 { margin-bottom: 16px; }
-  .error-senha { color: #c81e1e; font-size: 12px; margin-top: 12px; display: none; }
+  .modal-content h3 { margin-bottom: 12px; font-size: 18px; }
+  .modal-content p { color: #6b7280; margin-bottom: 20px; font-size: 14px; }
+  .error-senha { color: #c81e1e; font-size: 13px; margin-top: 12px; display: none; }
   .error-senha.show { display: block; }
-  
-  @media (max-width: 480px) { 
-    .metrics { grid-template-columns: repeat(2, 1fr); }
-    .steps { gap: 6px; }
-  }
+  @media (max-width: 480px) { .metrics { grid-template-columns: repeat(2, 1fr); } .steps { gap: 6px; } }
 </style>
 </head>
 <body>
@@ -106,10 +95,10 @@
 <div id="modal-senha" class="modal">
   <div class="modal-content">
     <h3>🔐 Acesso Restrito</h3>
-    <p style="color: #6b7280; margin-bottom: 20px;">Digite a senha para acessar a área de consultores</p>
-    <input type="password" id="senha-input" style="width: 100%;">
-    <button class="btn btn-primary" onclick="verificarSenha()" style="width: 100%;">Acessar</button>
-    <button class="btn btn-secondary" onclick="fecharModalSenha()" style="margin-top: 12px; width: 100%;">Cancelar</button>
+    <p>Digite a senha para acessar a área de consultores</p>
+    <input type="password" id="senha-input" placeholder="Senha" style="margin-bottom:12px;">
+    <button class="btn btn-primary btn-full" onclick="verificarSenha()">Acessar</button>
+    <button class="btn btn-secondary btn-full" onclick="fecharModalSenha()" style="margin-top:10px;">Cancelar</button>
     <div id="erro-senha" class="error-senha">❌ Senha incorreta. Tente novamente.</div>
   </div>
 </div>
@@ -118,11 +107,19 @@
 <div class="screen active" id="s-home">
   <div class="home-wrap">
     <div class="home-logo">Portal de <em>Indicações</em></div>
-    <div class="home-tagline" style="margin: 12px 0 48px; color: #9ca3af;">Selecione como deseja acessar</div>
+    <div style="margin: 12px 0 48px; color: #9ca3af; font-size:14px;">Selecione como deseja acessar</div>
     <div style="width:100%;max-width:400px;">
       <div class="switcher">
-        <div class="sw-card" onclick="go('s-form')"><div class="sw-icon">🤝</div><div style="font-weight: 600;">Quero indicar</div></div>
-        <div class="sw-card" onclick="abrirModalSenha()"><div class="sw-icon">📊</div><div style="font-weight: 600;">Sou consultor</div></div>
+        <div class="sw-card" onclick="go('s-form')">
+          <div class="sw-icon">🤝</div>
+          <div style="font-weight:600;font-size:14px;">Quero indicar</div>
+          <div style="font-size:12px;color:#9ca3af;margin-top:4px;">Indique um conhecido</div>
+        </div>
+        <div class="sw-card" onclick="abrirModalSenha()">
+          <div class="sw-icon">📊</div>
+          <div style="font-weight:600;font-size:14px;">Sou consultor</div>
+          <div style="font-size:12px;color:#9ca3af;margin-top:4px;">Gerencie indicações</div>
+        </div>
       </div>
     </div>
   </div>
@@ -130,18 +127,22 @@
 
 <!-- FORMULÁRIO DE INDICAÇÃO -->
 <div class="screen" id="s-form">
-  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><span class="mode-tag">Indicar</span></div>
+  <div class="topbar">
+    <div class="logo">Portal de <em>Indicações</em></div>
+    <span class="mode-tag">Indicar</span>
+  </div>
   <div class="page">
     <button class="back-btn" onclick="go('s-home')">← Voltar</button>
     <div class="page-title">Nova indicação</div>
+    <div class="page-sub">Preencha os dados de quem você quer indicar</div>
     <div class="card">
       <div class="form-group"><label>Seu nome *</label><input type="text" id="f-indicador" placeholder="Seu nome completo"></div>
       <div class="form-group"><label>Consultor *</label><select id="f-consultor"><option value="">Selecione...</option></select></div>
       <div class="form-group"><label>Nome do indicado *</label><input type="text" id="f-nome" placeholder="Nome completo"></div>
       <div class="form-group"><label>Telefone *</label><input type="tel" id="f-tel" placeholder="(11) 99999-9999"></div>
-      <div class="form-group"><label>Observação</label><textarea id="f-nota" rows="3"></textarea></div>
+      <div class="form-group" style="margin-bottom:0;"><label>Observação</label><textarea id="f-nota" placeholder="Produto de interesse, contexto..."></textarea></div>
     </div>
-    <button class="btn btn-primary btn-full" onclick="enviarIndicacao()">Enviar indicação</button>
+    <button class="btn btn-primary btn-full" id="btn-enviar" onclick="enviarIndicacao()">Enviar indicação</button>
   </div>
 </div>
 
@@ -151,20 +152,28 @@
   <div class="page">
     <div class="success-wrap">
       <div class="success-circle">✓</div>
-      <div class="page-title">Indicação enviada!</div>
-      <p style="margin:20px 0; color:#6b7280;">O consultor <strong id="conf-consultor"></strong> receberá os dados</p>
-      <button class="btn btn-primary" onclick="go('s-form')">Nova indicação</button>
-      <button class="btn btn-secondary" onclick="go('s-home')">Início</button>
+      <div class="page-title" style="margin-bottom:12px;">Indicação enviada!</div>
+      <p style="color:#6b7280;font-size:14px;line-height:1.7;margin-bottom:28px;">
+        O consultor <strong id="conf-consultor" style="color:#111827;"></strong> receberá os dados e entrará em contato em breve.
+      </p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="go('s-form')">Nova indicação</button>
+        <button class="btn btn-secondary" onclick="go('s-home')">Início</button>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- CONSULTOR — selecionar nome -->
 <div class="screen" id="s-consultor-select">
-  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><span class="mode-tag">Consultores</span></div>
+  <div class="topbar">
+    <div class="logo">Portal de <em>Indicações</em></div>
+    <span class="mode-tag">Consultores</span>
+  </div>
   <div class="page">
     <button class="back-btn" onclick="go('s-home')">← Voltar</button>
     <div class="page-title">Quem é você?</div>
+    <div class="page-sub">Selecione seu nome para ver suas indicações</div>
     <div class="cons-list" id="cons-list"><div class="loading">Carregando...</div></div>
     <button class="btn btn-primary btn-full" id="btn-acessar" onclick="acessarConsultor()" style="display:none;">Acessar painel →</button>
   </div>
@@ -172,9 +181,15 @@
 
 <!-- PAINEL DO CONSULTOR -->
 <div class="screen" id="s-painel">
-  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><button class="btn btn-secondary btn-sm" onclick="go('s-consultor-select')">Trocar</button></div>
+  <div class="topbar">
+    <div class="logo">Portal de <em>Indicações</em></div>
+    <button class="btn btn-secondary btn-sm" onclick="go('s-consultor-select')">Trocar</button>
+  </div>
   <div class="page-wide">
-    <div class="page-title" id="painel-titulo">Minhas indicações</div>
+    <div style="margin-bottom:24px;">
+      <div class="page-title" id="painel-titulo">Minhas indicações</div>
+      <div class="page-sub" id="painel-sub"></div>
+    </div>
     <div class="metrics" id="painel-metrics"></div>
     <div class="filter-row">
       <button class="filter-btn active" onclick="filtrar('todos',this)">Todas</button>
@@ -184,7 +199,9 @@
       <button class="filter-btn" onclick="filtrar('closed',this)">Fechadas</button>
       <button class="filter-btn" onclick="filtrar('lost',this)">Perdidas</button>
     </div>
-    <div class="card" style="padding:0;"><div id="lista-indicacoes"><div class="loading">Carregando...</div></div></div>
+    <div class="card" style="padding:0;">
+      <div id="lista-indicacoes"><div class="loading">Carregando...</div></div>
+    </div>
   </div>
 </div>
 
@@ -192,40 +209,48 @@
 <div class="screen" id="s-detalhe">
   <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div></div>
   <div class="page">
-    <button class="back-btn" onclick="go('s-painel')">← Voltar</button>
+    <button class="back-btn" onclick="go('s-painel')">← Indicações</button>
     <div id="detalhe-content"></div>
   </div>
 </div>
 
 <script>
+// ═══════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzT2WHB7gVHqb6hPziIhaVl82mLMpRlY9UHlPgvHx4nfXCEm1piqlOTvPpW3B5rwMBM/exec';
 const SENHA_CONSULTORES = 'Cortina6';
 
 const CONSULTORES = [
   { nome: 'Renato Benedetti', nomeBusca: ['Renato Benedetti', 'Renato Benedet', 'Renato'], cor: '#dbeafe', tc: '#1e40af' },
-  { nome: 'Vagner Santos', nomeBusca: ['Vagner Santos', 'Vagner'], cor: '#fce7f3', tc: '#9d174d' },
-  { nome: 'Fabricio Araujo', nomeBusca: ['Fabricio Araujo', 'Fabricio'], cor: '#d1fae5', tc: '#065f46' },
-  { nome: 'Arnaldo', nomeBusca: ['Arnaldo'], cor: '#ede9fe', tc: '#5b21b6' },
-  { nome: 'Rodrigues Silva', nomeBusca: ['Rodrigues Silva', 'Rodrigues'], cor: '#fef3c7', tc: '#92400e' },
-  { nome: 'Vlamir Santos', nomeBusca: ['Vlamir Santos', 'Vlamir'], cor: '#e0f2fe', tc: '#0369a1' },
-  { nome: 'Erik Carvalho', nomeBusca: ['Erik Carvalho', 'Erik'], cor: '#fee2e2', tc: '#991b1b' }
+  { nome: 'Vagner Santos',    nomeBusca: ['Vagner Santos', 'Vagner'],                       cor: '#fce7f3', tc: '#9d174d' },
+  { nome: 'Fabricio Araujo', nomeBusca: ['Fabricio Araujo', 'Fabricio'],                   cor: '#d1fae5', tc: '#065f46' },
+  { nome: 'Arnaldo',         nomeBusca: ['Arnaldo'],                                        cor: '#ede9fe', tc: '#5b21b6' },
+  { nome: 'Rodrigues Silva', nomeBusca: ['Rodrigues Silva', 'Rodrigues'],                   cor: '#fef3c7', tc: '#92400e' },
+  { nome: 'Vlamir Santos',   nomeBusca: ['Vlamir Santos', 'Vlamir'],                        cor: '#e0f2fe', tc: '#0369a1' },
+  { nome: 'Erik Carvalho',   nomeBusca: ['Erik Carvalho', 'Erik'],                          cor: '#fee2e2', tc: '#991b1b' }
 ];
 
-let consultorAtivo = null;
-let filtroAtivo = 'todos';
-let todasIndicacoes = [];
-let indicacoesFiltradas = [];
-
 const statusMap = {
-  new: { label: 'Nova', cls: 'badge-new', step: 0 },
-  contact: { label: 'Em contato', cls: 'badge-contact', step: 1 },
-  proposal: { label: 'Proposta', cls: 'badge-proposal', step: 2 },
-  closed: { label: 'Fechado', cls: 'badge-closed', step: 3 },
-  lost: { label: 'Perdido', cls: 'badge-lost', step: -1 }
+  new:      { label: 'Nova',       cls: 'badge-new',      step: 0 },
+  contact:  { label: 'Em contato', cls: 'badge-contact',  step: 1 },
+  proposal: { label: 'Proposta',   cls: 'badge-proposal', step: 2 },
+  closed:   { label: 'Fechado',    cls: 'badge-closed',   step: 3 },
+  lost:     { label: 'Perdido',    cls: 'badge-lost',     step: -1 }
 };
 
-const steps = ['Contato', 'Levantamento', 'Proposta', 'Fechamento'];
+const STEPS = ['Contato', 'Levantamento', 'Proposta', 'Fechamento'];
 
+// ── Estado global ───────────────────────────────
+let consultorAtivo   = null;
+let filtroAtivo      = 'todos';
+let todasIndicacoes  = [];
+let indicacoesAtivas = [];
+
+// FIX PRINCIPAL: Map para lookup O(1) por ID — sem problema de tipo String vs Number
+let indicacoesMap = new Map();
+
+// ── Utilitários ─────────────────────────────────
 function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -240,318 +265,73 @@ function toast(msg) {
 }
 
 function escapeHtml(text) {
-  if (!text) return '';
+  if (text == null) return '';
   const div = document.createElement('div');
-  div.textContent = text;
+  div.textContent = String(text);
   return div.innerHTML;
 }
 
+function normalizarConsultor(nomeRaw) {
+  if (!nomeRaw) return nomeRaw;
+  for (const c of CONSULTORES) {
+    if (c.nomeBusca.some(busca => nomeRaw.includes(busca))) return c.nome;
+  }
+  return nomeRaw;
+}
+
+function normalizarArray(arr) {
+  return arr.map(ind => ({ ...ind, consultor: normalizarConsultor(ind.consultor) }));
+}
+
+// ── JSONP (GET sem CORS) ────────────────────────
+function jsonpRequest(url, callback) {
+  const cbName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  let script;
+
+  const cleanup = () => {
+    delete window[cbName];
+    if (script && script.parentNode) script.parentNode.removeChild(script);
+  };
+
+  const timer = setTimeout(() => {
+    cleanup();
+    callback({ error: 'Timeout' });
+  }, 15000);
+
+  window[cbName] = (data) => {
+    clearTimeout(timer);
+    cleanup();
+    callback(data);
+  };
+
+  script = document.createElement('script');
+  script.onerror = () => {
+    clearTimeout(timer);
+    cleanup();
+    callback({ error: 'Erro de conexão' });
+  };
+  script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
+  document.body.appendChild(script);
+}
+
+// ── Modal de senha ──────────────────────────────
 function abrirModalSenha() {
   document.getElementById('modal-senha').classList.add('active');
   document.getElementById('senha-input').value = '';
   document.getElementById('erro-senha').classList.remove('show');
+  setTimeout(() => document.getElementById('senha-input').focus(), 100);
 }
 
 function fecharModalSenha() {
   document.getElementById('modal-senha').classList.remove('active');
 }
 
-// JSONP para GET
-function jsonpRequest(url, callback) {
-  const callbackName = 'cb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-  window[callbackName] = function(data) {
-    delete window[callbackName];
-    if (script.parentNode) document.body.removeChild(script);
-    callback(data);
-  };
-  const script = document.createElement('script');
-  const separator = url.includes('?') ? '&' : '?';
-  script.src = url + separator + 'callback=' + callbackName;
-  script.onerror = () => {
-    delete window[callbackName];
-    if (script.parentNode) document.body.removeChild(script);
-    callback({ error: 'Erro de conexão' });
-  };
-  document.body.appendChild(script);
-  setTimeout(() => {
-    if (window[callbackName]) {
-      delete window[callbackName];
-      if (script.parentNode) document.body.removeChild(script);
-      callback({ error: 'Timeout' });
-    }
-  }, 15000);
-}
-
-function carregarTodasIndicacoes() {
-  const el = document.getElementById('cons-list');
-  if (el) el.innerHTML = '<div class="loading">Carregando...</div>';
-  jsonpRequest(SCRIPT_URL, function(data) {
-    if (data && !data.error) {
-      todasIndicacoes = Array.isArray(data) ? data : [];
-      todasIndicacoes = todasIndicacoes.map(ind => {
-        let nomeNormalizado = ind.consultor;
-        for (const cons of CONSULTORES) {
-          if (cons.nomeBusca.some(busca => ind.consultor && ind.consultor.includes(busca))) {
-            nomeNormalizado = cons.nome;
-            break;
-          }
-        }
-        return { ...ind, consultor: nomeNormalizado };
-      });
-    }
-    renderConsultoresList();
-  });
-}
-
-function carregarIndicacoesConsultor(consultorNome, callback) {
-  jsonpRequest(SCRIPT_URL + '?consultor=' + encodeURIComponent(consultorNome), function(data) {
-    if (data && !data.error) {
-      const dados = Array.isArray(data) ? data : [];
-      const normalizados = dados.map(ind => {
-        let nomeNormalizado = ind.consultor;
-        for (const cons of CONSULTORES) {
-          if (cons.nomeBusca.some(busca => ind.consultor && ind.consultor.includes(busca))) {
-            nomeNormalizado = cons.nome;
-            break;
-          }
-        }
-        return { ...ind, consultor: nomeNormalizado };
-      });
-      callback(normalizados);
-    } else {
-      callback([]);
-    }
-  });
-}
-
-function renderConsultoresList() {
-  const el = document.getElementById('cons-list');
-  if (!el) return;
-  el.innerHTML = CONSULTORES.map(c => {
-    const ini = c.nome.split(' ').slice(0,2).map(p=>p[0]).join('');
-    const count = todasIndicacoes.filter(i => i.consultor === c.nome).length;
-    return `<div class="cons-opt" onclick="selecionarConsultor('${c.nome.replace(/'/g, "\\'")}', this)">
-      <div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
-      <div><strong>${c.nome}</strong><br><small>${count} indicaç${count === 1 ? 'ão' : 'ões'}</small></div>
-    </div>`;
-  }).join('');
-}
-
-function selecionarConsultor(nome, el) {
-  document.querySelectorAll('.cons-opt').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  consultorAtivo = nome;
-  document.getElementById('btn-acessar').style.display = 'flex';
-}
-
-function acessarConsultor() {
-  if (!consultorAtivo) return;
-  const btn = document.getElementById('btn-acessar');
-  btn.textContent = 'Carregando...';
-  btn.disabled = true;
-  carregarIndicacoesConsultor(consultorAtivo, function(data) {
-    indicacoesFiltradas = data;
-    document.getElementById('painel-titulo').textContent = consultorAtivo;
-    document.getElementById('painel-sub').textContent = `${indicacoesFiltradas.length} indicação${indicacoesFiltradas.length !== 1 ? 'ões' : ''}`;
-    btn.textContent = 'Acessar painel →';
-    btn.disabled = false;
-    filtroAtivo = 'todos';
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    const primeiroBtn = document.querySelector('.filter-btn');
-    if (primeiroBtn) primeiroBtn.classList.add('active');
-    renderMetrics();
-    renderLista();
-    go('s-painel');
-  });
-}
-
-function renderMetrics() {
-  const total = indicacoesFiltradas.length;
-  const andamento = indicacoesFiltradas.filter(i => ['new','contact','proposal'].includes(i.status)).length;
-  const fechados = indicacoesFiltradas.filter(i => i.status === 'closed').length;
-  document.getElementById('painel-metrics').innerHTML = `
-    <div class="metric"><div class="metric-val" style="color:#1a56db;">${total}</div><div>Total</div></div>
-    <div class="metric"><div class="metric-val" style="color:#c27803;">${andamento}</div><div>Andamento</div></div>
-    <div class="metric"><div class="metric-val" style="color:#0e9f6e;">${fechados}</div><div>Fechados</div></div>
-  `;
-}
-
-function filtrar(f, el) {
-  filtroAtivo = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  if (el) el.classList.add('active');
-  renderLista();
-}
-
-function renderLista() {
-  let items = indicacoesFiltradas;
-  if (filtroAtivo !== 'todos') items = items.filter(i => i.status === filtroAtivo);
-  const el = document.getElementById('lista-indicacoes');
-  if (!items.length) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:#9ca3af;">Nenhuma indicação</div>';
-    return;
-  }
-  const c = CONSULTORES.find(x => x.nome === consultorAtivo) || CONSULTORES[0];
-  el.innerHTML = items.map(ind => {
-    const s = statusMap[ind.status] || statusMap.new;
-    const ini = (ind.nome || '?').split(' ').slice(0,2).map(p=>p[0]).join('');
-    const idEscapado = String(ind.id).replace(/'/g, "\\'");
-    return `<div class="ind-item" onclick="abrirDetalhe('${idEscapado}')">
-      <div style="display:flex;gap:12px;">
-        <div class="avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
-        <div><strong>${escapeHtml(ind.nome)}</strong><br><small style="color:#6b7280;">${escapeHtml(ind.tel)}</small></div>
-      </div>
-      <span class="badge ${s.cls}">${s.label}</span>
-    </div>`;
-  }).join('');
-}
-
-// FUNÇÃO CORRIGIDA - Abrir detalhe
-function abrirDetalhe(id) {
-  console.log('Abrindo detalhe do ID:', id);
-  console.log('Indicações disponíveis:', indicacoesFiltradas);
-  
-  const ind = indicacoesFiltradas.find(i => String(i.id) === String(id));
-  
-  if (!ind) {
-    console.error('Indicação não encontrada. ID:', id);
-    toast('⚠️ Indicação não encontrada');
-    return;
-  }
-  
-  console.log('Indicação encontrada:', ind);
-  renderDetalhe(ind);
-  go('s-detalhe');
-}
-
-function renderDetalhe(ind) {
-  const s = statusMap[ind.status] || statusMap.new;
-  const c = CONSULTORES.find(x => x.nome === ind.consultor) || CONSULTORES[0];
-  const ini = (ind.nome || '?').split(' ').slice(0,2).map(p=>p[0]).join('');
-  
-  const stepIdx = s.step;
-  const stepsHTML = steps.map((lbl, i) => {
-    const done = stepIdx > i;
-    const curr = stepIdx === i;
-    return `<div class="step">
-      <div class="step-dot ${done ? 'done' : curr ? 'current' : ''}">${done ? '✓' : i+1}</div>
-      <div class="step-lbl ${curr ? 'current' : ''}">${lbl}</div>
-    </div>`;
-  }).join('');
-  
-  const detalheContent = document.getElementById('detalhe-content');
-  detalheContent.innerHTML = `
-    <div style="display:flex;gap:16px;margin-bottom:24px;border-bottom:1px solid #e5e7eb;padding-bottom:20px;">
-      <div class="avatar" style="width:52px;height:52px;background:${c.cor};color:${c.tc};font-size:18px;">${ini}</div>
-      <div>
-        <div style="font-size:20px;font-weight:700;">${escapeHtml(ind.nome)}</div>
-        <div style="margin-top:6px;">Indicado por ${escapeHtml(ind.indicador || '—')} · <span class="badge ${s.cls}">${s.label}</span></div>
-      </div>
-    </div>
-    
-    ${ind.status !== 'lost' ? `
-    <div class="card">
-      <div class="card-title">Etapa da venda</div>
-      <div class="steps">${stepsHTML}</div>
-    </div>` : ''}
-    
-    <div class="card">
-      <div class="card-title">Dados</div>
-      <div class="field-row"><span>Telefone</span><span><strong>${escapeHtml(ind.tel)}</strong></span></div>
-      ${ind.nota ? `<div class="field-row"><span>Observação</span><span>${escapeHtml(ind.nota)}</span></div>` : ''}
-    </div>
-    
-    <div class="card">
-      <div class="card-title">Atualizar</div>
-      <div class="form-group"><label>Nome</label><input id="ed-nome" value="${escapeHtml(ind.nome)}"></div>
-      <div class="form-group"><label>Telefone</label><input id="ed-tel" value="${escapeHtml(ind.tel)}"></div>
-      <div class="form-group"><label>Status</label><select id="ed-status">${Object.entries(statusMap).map(([k,v])=>`<option value="${k}" ${ind.status===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
-      <div class="form-group"><label>Observação</label><textarea id="ed-nota">${escapeHtml(ind.nota || '')}</textarea></div>
-    </div>
-    <button class="btn btn-primary btn-full" onclick="salvarEdicao('${ind.id}')">Salvar alterações</button>
-  `;
-}
-
-async function salvarEdicao(id) {
-  const ind = indicacoesFiltradas.find(i => String(i.id) === String(id));
-  if (!ind) return;
-  
-  ind.nome = document.getElementById('ed-nome').value;
-  ind.tel = document.getElementById('ed-tel').value;
-  ind.status = document.getElementById('ed-status').value;
-  ind.nota = document.getElementById('ed-nota').value;
-  ind.updated = new Date().toLocaleDateString('pt-BR');
-  
-  const btn = document.querySelector('#detalhe-content .btn-primary');
-  const textoOriginal = btn.textContent;
-  btn.textContent = 'Salvando...';
-  btn.disabled = true;
-  
-  try {
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'update', ...ind })
-    });
-    toast('✓ Salvo!');
-    renderLista();
-    renderMetrics();
-    renderDetalhe(ind);
-  } catch (error) {
-    toast('⚠️ Erro ao salvar');
-  }
-  btn.textContent = textoOriginal;
-  btn.disabled = false;
-}
-
-function enviarIndicacao() {
-  const indicador = document.getElementById('f-indicador').value.trim();
-  const consultor = document.getElementById('f-consultor').value;
-  const nome = document.getElementById('f-nome').value.trim();
-  const tel = document.getElementById('f-tel').value.trim();
-  const nota = document.getElementById('f-nota').value.trim();
-  
-  if (!indicador || !consultor || !nome || !tel) {
-    toast('⚠️ Preencha todos os campos');
-    return;
-  }
-  
-  const btn = document.querySelector('#s-form .btn-primary');
-  btn.textContent = 'Enviando...';
-  btn.disabled = true;
-  
-  const payload = {
-    action: 'add',
-    id: Date.now().toString(),
-    indicador, consultor, nome, tel, nota: nota || '',
-    status: 'new', admin: '',
-    updated: new Date().toLocaleDateString('pt-BR')
-  };
-  
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).then(() => {
-    document.getElementById('conf-consultor').textContent = consultor;
-    document.getElementById('f-indicador').value = '';
-    document.getElementById('f-nome').value = '';
-    document.getElementById('f-tel').value = '';
-    document.getElementById('f-nota').value = '';
-    document.getElementById('f-consultor').value = '';
-    toast('✓ Indicação enviada!');
-    go('s-sucesso');
-    carregarTodasIndicacoes();
-  }).catch(() => toast('⚠️ Erro'));
-  btn.textContent = 'Enviar indicação';
-  btn.disabled = false;
-}
+document.getElementById('senha-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') verificarSenha();
+});
 
 function verificarSenha() {
-  const senha = document.getElementById('senha-input').value;
-  if (senha === SENHA_CONSULTORES) {
+  if (document.getElementById('senha-input').value === SENHA_CONSULTORES) {
     fecharModalSenha();
     go('s-consultor-select');
     carregarTodasIndicacoes();
@@ -560,6 +340,327 @@ function verificarSenha() {
   }
 }
 
+// ── Carregamento de dados ───────────────────────
+function carregarTodasIndicacoes() {
+  document.getElementById('cons-list').innerHTML = '<div class="loading">Carregando...</div>';
+  jsonpRequest(SCRIPT_URL, data => {
+    todasIndicacoes = (data && !data.error && Array.isArray(data))
+      ? normalizarArray(data) : [];
+    renderConsultoresList();
+  });
+}
+
+function carregarIndicacoesConsultor(nomeConsultor, callback) {
+  const url = SCRIPT_URL + '?consultor=' + encodeURIComponent(nomeConsultor);
+  jsonpRequest(url, data => {
+    const arr = (data && !data.error && Array.isArray(data))
+      ? normalizarArray(data) : [];
+    callback(arr);
+  });
+}
+
+// ── Lista de consultores ────────────────────────
+function renderConsultoresList() {
+  const el = document.getElementById('cons-list');
+  if (!el) return;
+
+  el.innerHTML = CONSULTORES.map(c => {
+    const ini   = c.nome.split(' ').slice(0, 2).map(p => p[0]).join('');
+    const count = todasIndicacoes.filter(i => i.consultor === c.nome).length;
+    // FIX: data-nome em vez de onclick com string interpolada
+    return `<div class="cons-opt" data-nome="${escapeHtml(c.nome)}">
+      <div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
+      <div>
+        <strong style="font-size:14px;">${escapeHtml(c.nome)}</strong><br>
+        <small style="color:#6b7280;">${count} indicaç${count === 1 ? 'ão' : 'ões'}</small>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Event delegation — um único listener, sem onclick inline
+  el.onclick = e => {
+    const opt = e.target.closest('.cons-opt');
+    if (!opt) return;
+    el.querySelectorAll('.cons-opt').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    consultorAtivo = opt.dataset.nome;
+    document.getElementById('btn-acessar').style.display = 'flex';
+  };
+}
+
+// ── Acessar painel ──────────────────────────────
+function acessarConsultor() {
+  if (!consultorAtivo) return;
+  const btn = document.getElementById('btn-acessar');
+  btn.textContent = 'Carregando…';
+  btn.disabled = true;
+
+  carregarIndicacoesConsultor(consultorAtivo, dados => {
+    indicacoesAtivas = dados;
+
+    // FIX: popula Map — chave é sempre String com trim() para evitar espaços ocultos
+    indicacoesMap = new Map(dados.map(ind => [String(ind.id).trim(), ind]));
+
+    btn.textContent = 'Acessar painel →';
+    btn.disabled = false;
+
+    document.getElementById('painel-titulo').textContent = consultorAtivo;
+    document.getElementById('painel-sub').textContent =
+      `${dados.length} indicaç${dados.length !== 1 ? 'ões' : 'ão'} recebida${dados.length !== 1 ? 's' : ''}`;
+
+    filtroAtivo = 'todos';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filter-btn').classList.add('active');
+
+    renderMetrics();
+    renderLista();
+    go('s-painel');
+  });
+}
+
+// ── Métricas ────────────────────────────────────
+function renderMetrics() {
+  const total     = indicacoesAtivas.length;
+  const andamento = indicacoesAtivas.filter(i => ['new','contact','proposal'].includes(i.status)).length;
+  const fechados  = indicacoesAtivas.filter(i => i.status === 'closed').length;
+  document.getElementById('painel-metrics').innerHTML = `
+    <div class="metric"><div class="metric-val" style="color:#1a56db;">${total}</div><div class="metric-lbl">Total</div></div>
+    <div class="metric"><div class="metric-val" style="color:#c27803;">${andamento}</div><div class="metric-lbl">Andamento</div></div>
+    <div class="metric"><div class="metric-val" style="color:#0e9f6e;">${fechados}</div><div class="metric-lbl">Fechados</div></div>
+  `;
+}
+
+// ── Filtros e lista ─────────────────────────────
+function filtrar(f, el) {
+  filtroAtivo = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderLista();
+}
+
+function renderLista() {
+  const items = filtroAtivo === 'todos'
+    ? indicacoesAtivas
+    : indicacoesAtivas.filter(i => i.status === filtroAtivo);
+
+  const el = document.getElementById('lista-indicacoes');
+
+  if (!items.length) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:#9ca3af;">Nenhuma indicação neste filtro</div>';
+    el.onclick = null;
+    return;
+  }
+
+  const c = CONSULTORES.find(x => x.nome === consultorAtivo) || CONSULTORES[0];
+
+  // FIX: data-id no elemento — sem onclick inline que pode quebrar com IDs especiais
+  el.innerHTML = items.map(ind => {
+    const s      = statusMap[ind.status] || statusMap.new;
+    const ini    = (ind.nome || '?').split(' ').slice(0, 2).map(p => p[0]).join('');
+    const idStr  = String(ind.id).trim();
+    return `<div class="ind-item" data-id="${escapeHtml(idStr)}">
+      <div style="display:flex;gap:12px;align-items:center;min-width:0;">
+        <div class="avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
+        <div style="min-width:0;">
+          <div style="font-weight:600;font-size:14px;">${escapeHtml(ind.nome)}</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:2px;">${escapeHtml(ind.tel)} · por ${escapeHtml(ind.indicador || '—')}</div>
+        </div>
+      </div>
+      <span class="badge ${s.cls}" style="flex-shrink:0;">${s.label}</span>
+    </div>`;
+  }).join('');
+
+  // FIX: event delegation — um único listener no container
+  el.onclick = e => {
+    const item = e.target.closest('.ind-item');
+    if (!item) return;
+    abrirDetalhe(item.dataset.id);
+  };
+}
+
+// ── Detalhe ─────────────────────────────────────
+function abrirDetalhe(id) {
+  // FIX: busca via Map — O(1) e sem problema de tipo
+  const ind = indicacoesMap.get(String(id).trim());
+
+  if (!ind) {
+    console.error('Indicação não encontrada. ID recebido:', JSON.stringify(id));
+    console.error('Chaves do Map:', [...indicacoesMap.keys()]);
+    toast('⚠️ Indicação não encontrada');
+    return;
+  }
+
+  renderDetalhe(ind);
+  go('s-detalhe');
+}
+
+function renderDetalhe(ind) {
+  const s   = statusMap[ind.status] || statusMap.new;
+  const c   = CONSULTORES.find(x => x.nome === ind.consultor) || CONSULTORES[0];
+  const ini = (ind.nome || '?').split(' ').slice(0, 2).map(p => p[0]).join('');
+  const idStr = String(ind.id).trim();
+
+  const stepsHTML = STEPS.map((lbl, i) => {
+    const done = s.step > i;
+    const curr = s.step === i;
+    return `<div class="step">
+      <div class="step-dot ${done ? 'done' : curr ? 'current' : ''}">${done ? '✓' : i + 1}</div>
+      <div class="step-lbl ${curr ? 'current' : ''}">${lbl}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('detalhe-content').innerHTML = `
+    <div style="display:flex;gap:16px;margin-bottom:24px;border-bottom:1px solid #e5e7eb;padding-bottom:20px;align-items:center;">
+      <div class="avatar" style="width:52px;height:52px;font-size:18px;flex-shrink:0;background:${c.cor};color:${c.tc};">${ini}</div>
+      <div>
+        <div style="font-size:20px;font-weight:700;">${escapeHtml(ind.nome)}</div>
+        <div style="margin-top:6px;font-size:13px;color:#6b7280;">
+          Indicado por ${escapeHtml(ind.indicador || '—')} ·
+          <span class="badge ${s.cls}">${s.label}</span>
+        </div>
+      </div>
+    </div>
+
+    ${ind.status !== 'lost' ? `
+    <div class="card">
+      <div class="card-title">Etapa da venda</div>
+      <div class="steps">${stepsHTML}</div>
+    </div>` : ''}
+
+    <div class="card">
+      <div class="card-title">Dados</div>
+      <div class="field-row">
+        <span style="color:#9ca3af;">Telefone</span>
+        <strong>${escapeHtml(ind.tel)}</strong>
+      </div>
+      ${ind.nota ? `<div class="field-row">
+        <span style="color:#9ca3af;">Observação</span>
+        <span style="text-align:right;max-width:60%;">${escapeHtml(ind.nota)}</span>
+      </div>` : ''}
+      ${ind.updated ? `<div class="field-row">
+        <span style="color:#9ca3af;">Atualizado</span>
+        <span>${escapeHtml(ind.updated)}</span>
+      </div>` : ''}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Atualizar</div>
+      <div class="form-group"><label>Nome</label><input id="ed-nome" value="${escapeHtml(ind.nome)}"></div>
+      <div class="form-group"><label>Telefone</label><input id="ed-tel" value="${escapeHtml(ind.tel)}"></div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="ed-status">
+          ${Object.entries(statusMap).map(([k, v]) =>
+            `<option value="${k}" ${ind.status === k ? 'selected' : ''}>${v.label}</option>`
+          ).join('')}
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Observação</label>
+        <textarea id="ed-nota">${escapeHtml(ind.nota || '')}</textarea>
+      </div>
+    </div>
+
+    <!-- FIX: data-id no botão, listener adicionado por JS -->
+    <button class="btn btn-primary btn-full" id="btn-salvar" data-id="${escapeHtml(idStr)}">
+      Salvar alterações
+    </button>
+  `;
+
+  // FIX: addEventListener em vez de onclick inline — evita problemas de escaping
+  document.getElementById('btn-salvar').addEventListener('click', function () {
+    salvarEdicao(this.dataset.id);
+  });
+}
+
+// ── Salvar edição ───────────────────────────────
+async function salvarEdicao(id) {
+  const ind = indicacoesMap.get(String(id).trim());
+  if (!ind) { toast('⚠️ Erro: indicação não encontrada'); return; }
+
+  ind.nome    = document.getElementById('ed-nome').value.trim();
+  ind.tel     = document.getElementById('ed-tel').value.trim();
+  ind.status  = document.getElementById('ed-status').value;
+  ind.nota    = document.getElementById('ed-nota').value.trim();
+  ind.updated = new Date().toLocaleDateString('pt-BR');
+
+  const btn = document.getElementById('btn-salvar');
+  btn.textContent = 'Salvando…';
+  btn.disabled = true;
+
+  try {
+    // mode: no-cors + text/plain: evita preflight CORS; Apps Script recebe via e.postData.contents
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'update', ...ind })
+    });
+    toast('✓ Salvo com sucesso!');
+    renderLista();
+    renderMetrics();
+    renderDetalhe(ind);
+  } catch (e) {
+    console.error('Erro ao salvar:', e);
+    toast('⚠️ Erro ao salvar. Tente novamente.');
+    btn.textContent = 'Salvar alterações';
+    btn.disabled = false;
+  }
+}
+
+// ── Enviar indicação ────────────────────────────
+async function enviarIndicacao() {
+  const indicador = document.getElementById('f-indicador').value.trim();
+  const consultor  = document.getElementById('f-consultor').value;
+  const nome       = document.getElementById('f-nome').value.trim();
+  const tel        = document.getElementById('f-tel').value.trim();
+  const nota       = document.getElementById('f-nota').value.trim();
+
+  if (!indicador || !consultor || !nome || !tel) {
+    toast('⚠️ Preencha todos os campos obrigatórios');
+    return;
+  }
+
+  const btn = document.getElementById('btn-enviar');
+  btn.textContent = 'Enviando…';
+  btn.disabled = true;
+
+  const payload = {
+    action: 'add',
+    id: Date.now().toString(),
+    indicador, consultor, nome, tel,
+    nota: nota || '',
+    status: 'new',
+    admin: '',
+    updated: new Date().toLocaleDateString('pt-BR')
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
+
+    document.getElementById('conf-consultor').textContent = consultor;
+    ['f-indicador','f-nome','f-tel','f-nota'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('f-consultor').value = '';
+
+    toast('✓ Indicação enviada!');
+    go('s-sucesso');
+  } catch (e) {
+    console.error('Erro ao enviar:', e);
+    toast('⚠️ Erro ao enviar. Tente novamente.');
+  } finally {
+    btn.textContent = 'Enviar indicação';
+    btn.disabled = false;
+  }
+}
+
+// ── Init ─────────────────────────────────────────
 function init() {
   const sel = document.getElementById('f-consultor');
   CONSULTORES.forEach(c => {
@@ -569,6 +670,7 @@ function init() {
     sel.appendChild(o);
   });
 }
+
 init();
 </script>
 </body>
