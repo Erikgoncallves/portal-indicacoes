@@ -1,8 +1,3 @@
-O problema é que a função `carregarDados()` está sendo chamada antes de você acessar a área de consultores. Vou corrigir o código para garantir que os dados sejam carregados corretamente após a autenticação.
-
-Aqui está o código corrigido:
-
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -71,11 +66,13 @@ Aqui está o código corrigido:
   #toast.show { display: block; }
   .loading { text-align: center; padding: 32px; color: #9ca3af; }
   .field-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
-  .steps { display: flex; margin-bottom: 8px; }
+  .steps { display: flex; margin-bottom: 8px; gap: 8px; }
   .step { flex: 1; text-align: center; }
   .step-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #e5e7eb; background: #fff; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 9px; }
   .step-dot.done { background: #1a56db; border-color: #1a56db; color: #fff; }
+  .step-dot.current { border-color: #1a56db; color: #1a56db; }
   .step-lbl { font-size: 10px; color: #9ca3af; }
+  .step-lbl.current { color: #1a56db; font-weight: 600; }
   
   /* Modal de senha */
   .modal {
@@ -237,22 +234,22 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzT2WHB7gVHqb6hPziIh
 // SENHA PARA ACESSO DOS CONSULTORES
 const SENHA_CONSULTORES = 'Cortina6';
 
+// Lista de consultores com suporte para nomes parciais (para compatibilidade)
 const CONSULTORES = [
-  { nome: 'Renato Benedetti', cor: '#dbeafe', tc: '#1e40af' },
-  { nome: 'Vagner Santos', cor: '#fce7f3', tc: '#9d174d' },
-  { nome: 'Fabricio Araujo', cor: '#d1fae5', tc: '#065f46' },
-  { nome: 'Arnaldo', cor: '#ede9fe', tc: '#5b21b6' },
-  { nome: 'Rodrigues Silva', cor: '#fef3c7', tc: '#92400e' },
-  { nome: 'Vlamir Santos', cor: '#e0f2fe', tc: '#0369a1' },
-  { nome: 'Erik Carvalho', cor: '#fee2e2', tc: '#991b1b' },
-  { nome: 'Cassio Machado', cor: '#fee2e2', tc: '#991b1b' }
+  { nome: 'Renato Benedetti', nomeBusca: ['Renato Benedetti', 'Renato Benedet', 'Renato'], cor: '#dbeafe', tc: '#1e40af' },
+  { nome: 'Vagner Santos', nomeBusca: ['Vagner Santos', 'Vagner'], cor: '#fce7f3', tc: '#9d174d' },
+  { nome: 'Fabricio Araujo', nomeBusca: ['Fabricio Araujo', 'Fabricio'], cor: '#d1fae5', tc: '#065f46' },
+  { nome: 'Arnaldo', nomeBusca: ['Arnaldo'], cor: '#ede9fe', tc: '#5b21b6' },
+  { nome: 'Rodrigues Silva', nomeBusca: ['Rodrigues Silva', 'Rodrigues'], cor: '#fef3c7', tc: '#92400e' },
+  { nome: 'Vlamir Santos', nomeBusca: ['Vlamir Santos', 'Vlamir'], cor: '#e0f2fe', tc: '#0369a1' },
+  { nome: 'Erik Carvalho', nomeBusca: ['Erik Carvalho', 'Erik'], cor: '#fee2e2', tc: '#991b1b' }
 ];
 
 let consultorAtivo = null;
 let filtroAtivo = 'todos';
 let editandoId = null;
-let indicacoes = [];
-let dadosCarregados = false;
+let todasIndicacoes = [];
+let indicacoesFiltradas = [];
 
 const statusMap = {
   new: { label: 'Nova', cls: 'badge-new', step: 0 },
@@ -299,101 +296,60 @@ function verificarSenha() {
   const senha = document.getElementById('senha-input').value;
   if (senha === SENHA_CONSULTORES) {
     fecharModalSenha();
-    // Limpar dados anteriores
     consultorAtivo = null;
-    indicacoes = [];
-    dadosCarregados = false;
-    // Ir para tela de seleção de consultor e carregar dados
     go('s-consultor-select');
-    carregarDados();
+    carregarTodasIndicacoes();
   } else {
     document.getElementById('erro-senha').classList.add('show');
   }
 }
 
-// Fechar modal com ESC
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     fecharModalSenha();
   }
 });
 
-// Funções de API
-async function fetchAPI(url) {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Erro na requisição');
-    return await response.json();
-  } catch (error) {
-    console.error('Erro fetchAPI:', error);
-    return { error: error.message };
+// Função para normalizar o nome do consultor (busca flexível)
+function normalizarNomeConsultor(nomePlanilha) {
+  if (!nomePlanilha) return '';
+  
+  for (const cons of CONSULTORES) {
+    if (cons.nomeBusca.some(busca => nomePlanilha.includes(busca) || busca.includes(nomePlanilha))) {
+      return cons.nome;
+    }
   }
+  return nomePlanilha;
 }
 
-async function postAPI(data) {
-  try {
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    return { success: true };
-  } catch (error) {
-    console.error('Erro postAPI:', error);
-    return { success: false };
-  }
-}
-
-// Carregar todas as indicações para contar por consultor
-async function carregarDados() {
+// Carregar todas as indicações
+async function carregarTodasIndicacoes() {
   const el = document.getElementById('cons-list');
   if (el) el.innerHTML = '<div class="loading">🔄 Carregando dados...</div>';
   
   try {
-    const data = await fetchAPI(SCRIPT_URL);
+    const response = await fetch(SCRIPT_URL);
+    const data = await response.json();
     
     if (data && !data.error) {
-      indicacoes = Array.isArray(data) ? data : [];
-      dadosCarregados = true;
+      todasIndicacoes = Array.isArray(data) ? data : [];
+      // Normalizar os nomes dos consultores nas indicações
+      todasIndicacoes = todasIndicacoes.map(ind => ({
+        ...ind,
+        consultorOriginal: ind.consultor,
+        consultor: normalizarNomeConsultor(ind.consultor)
+      }));
     } else {
-      indicacoes = [];
-      dadosCarregados = true;
+      todasIndicacoes = [];
       if (data?.error) toast('⚠️ ' + data.error);
     }
     
     renderConsultoresList();
   } catch (error) {
-    console.error('Erro carregarDados:', error);
+    console.error('Erro carregarTodasIndicacoes:', error);
     toast('⚠️ Erro ao carregar dados');
-    dadosCarregados = true;
+    todasIndicacoes = [];
     renderConsultoresList();
-  }
-}
-
-// Carregar indicações de um consultor específico
-async function carregarIndicacoesConsultor(consultor) {
-  const el = document.getElementById('lista-indicacoes');
-  if (el) el.innerHTML = '<div class="loading">🔄 Carregando suas indicações...</div>';
-  
-  try {
-    const data = await fetchAPI(SCRIPT_URL + '?consultor=' + encodeURIComponent(consultor));
-    
-    if (data && !data.error) {
-      indicacoes = Array.isArray(data) ? data : [];
-    } else {
-      indicacoes = [];
-      if (data?.error) toast('⚠️ ' + data.error);
-    }
-    
-    renderMetrics();
-    renderLista();
-  } catch (error) {
-    console.error('Erro carregarIndicacoesConsultor:', error);
-    toast('⚠️ Erro ao carregar suas indicações');
-    indicacoes = [];
-    renderMetrics();
-    renderLista();
   }
 }
 
@@ -401,19 +357,15 @@ function renderConsultoresList() {
   const el = document.getElementById('cons-list');
   if (!el) return;
   
-  if (!dadosCarregados) {
+  if (!todasIndicacoes) {
     el.innerHTML = '<div class="loading">Carregando...</div>';
-    return;
-  }
-  
-  if (!CONSULTORES.length) {
-    el.innerHTML = '<div class="loading">Nenhum consultor cadastrado</div>';
     return;
   }
   
   el.innerHTML = CONSULTORES.map(c => {
     const ini = c.nome.split(' ').slice(0,2).map(p=>p[0]).join('');
-    const count = indicacoes.filter(i => i.consultor === c.nome).length;
+    // Contar indicações para este consultor (considerando nomes normalizados)
+    const count = todasIndicacoes.filter(i => i.consultor === c.nome).length;
     return `<div class="cons-opt" onclick="selecionarConsultor('${c.nome.replace(/'/g, "\\'")}', this)">
       <div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini}</div>
       <div><strong>${c.nome}</strong><br><small>${count} indicaç${count === 1 ? 'ão' : 'ões'}</small></div>
@@ -436,21 +388,24 @@ async function acessarConsultor() {
   btn.textContent = 'Carregando...';
   btn.disabled = true;
   
-  await carregarIndicacoesConsultor(consultorAtivo);
+  // Filtrar indicações do consultor selecionado
+  indicacoesFiltradas = todasIndicacoes.filter(i => i.consultor === consultorAtivo);
   
   document.getElementById('painel-titulo').textContent = consultorAtivo;
-  document.getElementById('painel-sub').textContent = 'Suas indicações recebidas';
+  document.getElementById('painel-sub').textContent = `${indicacoesFiltradas.length} indicação${indicacoesFiltradas.length !== 1 ? 'ões' : ''} recebida${indicacoesFiltradas.length !== 1 ? 's' : ''}`;
   
   btn.textContent = textoOriginal;
   btn.disabled = false;
   
+  renderMetrics();
+  renderLista();
   go('s-painel');
 }
 
 function renderMetrics() {
-  const total = indicacoes.length;
-  const andamento = indicacoes.filter(i => ['new','contact','proposal'].includes(i.status)).length;
-  const fechados = indicacoes.filter(i => i.status === 'closed').length;
+  const total = indicacoesFiltradas.length;
+  const andamento = indicacoesFiltradas.filter(i => ['new','contact','proposal'].includes(i.status)).length;
+  const fechados = indicacoesFiltradas.filter(i => i.status === 'closed').length;
   
   const metricsEl = document.getElementById('painel-metrics');
   if (metricsEl) {
@@ -470,7 +425,7 @@ function filtrar(f, el) {
 }
 
 function renderLista() {
-  let items = indicacoes;
+  let items = indicacoesFiltradas;
   if (filtroAtivo !== 'todos') {
     items = items.filter(i => i.status === filtroAtivo);
   }
@@ -508,7 +463,7 @@ function abrirDetalhe(id) {
 }
 
 function renderDetalhe() {
-  const ind = indicacoes.find(i => i.id === editandoId);
+  const ind = indicacoesFiltradas.find(i => i.id === editandoId);
   if (!ind) return;
   
   const s = statusMap[ind.status] || statusMap.new;
@@ -556,7 +511,6 @@ function renderDetalhe() {
       <div class="form-group"><label>Telefone</label><input id="ed-tel" value="${escapeHtml(ind.tel)}"></div>
       <div class="form-group"><label>Status</label><select id="ed-status">${Object.entries(statusMap).map(([k,v])=>`<option value="${k}" ${ind.status===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
       <div class="form-group"><label>Observação</label><textarea id="ed-nota" rows="2">${escapeHtml(ind.nota || '')}</textarea></div>
-      <div class="form-group"><label>Administradora</label><input id="ed-admin" value="${escapeHtml(ind.admin || '')}" placeholder="Ex: Seguradora XYZ"></div>
       <div class="form-group"><label>Data atualização</label><input id="ed-data" value="${escapeHtml(ind.updated || '')}" placeholder="DD/MM/AAAA"></div>
     </div>
     <button class="btn btn-primary btn-full" onclick="salvarEdicao()">💾 Salvar alterações</button>
@@ -564,14 +518,13 @@ function renderDetalhe() {
 }
 
 async function salvarEdicao() {
-  const ind = indicacoes.find(i => i.id === editandoId);
+  const ind = indicacoesFiltradas.find(i => i.id === editandoId);
   if (!ind) return;
   
   ind.nome = document.getElementById('ed-nome').value;
   ind.tel = document.getElementById('ed-tel').value;
   ind.status = document.getElementById('ed-status').value;
   ind.nota = document.getElementById('ed-nota').value;
-  ind.admin = document.getElementById('ed-admin').value;
   ind.updated = document.getElementById('ed-data').value || new Date().toLocaleDateString('pt-BR');
   
   const btn = document.querySelector('#detalhe-content .btn-primary');
@@ -579,14 +532,23 @@ async function salvarEdicao() {
   btn.textContent = 'Salvando...';
   btn.disabled = true;
   
-  const result = await postAPI({ action: 'update', ...ind });
-  
-  if (result.success) {
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'update', ...ind, consultor: ind.consultorOriginal || ind.consultor })
+    });
+    
     toast('✓ Alterações salvas com sucesso!');
     renderLista();
     renderMetrics();
     renderDetalhe();
-  } else {
+    
+    // Recarregar dados para atualizar contagens
+    await carregarTodasIndicacoes();
+  } catch (error) {
+    console.error('Erro salvar:', error);
     toast('⚠️ Erro ao salvar. Tente novamente.');
   }
   
@@ -595,3 +557,76 @@ async function salvarEdicao() {
 }
 
 async function enviarIndicacao() {
+  const indicador = document.getElementById('f-indicador').value.trim();
+  const consultor = document.getElementById('f-consultor').value;
+  const nome = document.getElementById('f-nome').value.trim();
+  const tel = document.getElementById('f-tel').value.trim();
+  const nota = document.getElementById('f-nota').value.trim();
+  
+  if (!indicador || !consultor || !nome || !tel) {
+    toast('⚠️ Preencha todos os campos obrigatórios');
+    return;
+  }
+  
+  const btn = document.querySelector('#s-form .btn-primary');
+  const textoOriginal = btn.textContent;
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+  
+  const payload = {
+    action: 'add',
+    id: Date.now().toString(),
+    indicador,
+    consultor,
+    nome,
+    tel,
+    nota: nota || '',
+    status: 'new',
+    admin: '',
+    updated: new Date().toLocaleDateString('pt-BR')
+  };
+  
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    document.getElementById('conf-consultor').textContent = consultor;
+    document.getElementById('f-indicador').value = '';
+    document.getElementById('f-nome').value = '';
+    document.getElementById('f-tel').value = '';
+    document.getElementById('f-nota').value = '';
+    document.getElementById('f-consultor').value = '';
+    
+    toast('✓ Indicação enviada com sucesso!');
+    go('s-sucesso');
+    
+    // Recarregar dados
+    await carregarTodasIndicacoes();
+  } catch (error) {
+    console.error('Erro enviar:', error);
+    toast('⚠️ Erro ao enviar. Tente novamente.');
+  }
+  
+  btn.textContent = textoOriginal;
+  btn.disabled = false;
+}
+
+// Inicialização
+function init() {
+  const sel = document.getElementById('f-consultor');
+  CONSULTORES.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.nome;
+    o.textContent = c.nome;
+    sel.appendChild(o);
+  });
+}
+
+init();
+</script>
+</body>
+</html>
