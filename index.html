@@ -338,10 +338,6 @@
 // ═══════════════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ═══════════════════════════════════════════════════════
-<script>
-// ═══════════════════════════════════════════════════════
-// CONFIGURAÇÃO
-// ═══════════════════════════════════════════════════════
 const CONFIG = {
   scriptURL: 'https://script.google.com/macros/s/AKfycbxCuADGuaoSvdsXhWcVI97pVypSFQ0Akujfk28RSgoebKfsGhKx7uZShwkAy9PF9EKS/exec',
   consultores: [
@@ -351,7 +347,7 @@ const CONFIG = {
     { nome: 'Arnaldo',           cor: '#ede9fe', tc: '#5b21b6' },
     { nome: 'Rodrigues Silva',   cor: '#fef3c7', tc: '#92400e' },
     { nome: 'Vlamir Santos',     cor: '#e0f2fe', tc: '#0369a1' },
-    { nome: 'Erik Carvalho',     cor: '#fee2e2', tc: '#991b1b' },
+    { nome: 'Erik Carvalho',     cor: '#fee2e2', tc: '#991b1b' }
   ]
 };
 
@@ -366,7 +362,7 @@ const statusMap = {
   contact:  { label: 'Em contato',     cls: 'badge-contact',  step: 1 },
   proposal: { label: 'Proposta',       cls: 'badge-proposal', step: 2 },
   closed:   { label: 'Fechado',        cls: 'badge-closed',   step: 3 },
-  lost:     { label: 'Perdido',        cls: 'badge-lost',     step: -1 },
+  lost:     { label: 'Perdido',        cls: 'badge-lost',     step: -1 }
 };
 
 const steps = ['Contato','Levantamento','Proposta','Fechamento'];
@@ -384,7 +380,6 @@ function toast(msg, dur = 2500) {
   setTimeout(() => t.classList.remove('show'), dur);
 }
 
-// Carregar dados do servidor
 async function carregarDados() {
   try {
     const response = await fetch(CONFIG.scriptURL);
@@ -407,7 +402,6 @@ async function carregarDados() {
   }
 }
 
-// Carregar dados filtrados por consultor
 async function carregarDadosConsultor(consultor) {
   try {
     const url = `${CONFIG.scriptURL}?consultor=${encodeURIComponent(consultor)}`;
@@ -429,7 +423,6 @@ async function carregarDadosConsultor(consultor) {
 function init() {
   console.log('Inicializando aplicação...');
   
-  // Preencher select de consultores
   const sel = document.getElementById('f-consultor');
   if (sel) {
     CONFIG.consultores.forEach(c => {
@@ -440,17 +433,15 @@ function init() {
     });
   }
   
-  // Carregar dados iniciais
   carregarDados();
 }
 
-// ── Formulário de indicação ──
 async function enviarIndicacao() {
   const indicador = document.getElementById('f-indicador').value.trim();
   const consultor = document.getElementById('f-consultor').value;
-  const nome      = document.getElementById('f-nome').value.trim();
-  const tel       = document.getElementById('f-tel').value.trim();
-  const nota      = document.getElementById('f-nota').value.trim();
+  const nome = document.getElementById('f-nome').value.trim();
+  const tel = document.getElementById('f-tel').value.trim();
+  const nota = document.getElementById('f-nota').value.trim();
 
   if (!indicador || !consultor || !nome || !tel) {
     toast('⚠️ Preencha todos os campos obrigatórios'); 
@@ -484,19 +475,14 @@ async function enviarIndicacao() {
     const result = await response.json();
     
     if (result.success) {
-      // Adicionar localmente
       indicacoes.push(payload);
-      
       document.getElementById('conf-consultor').textContent = consultor;
       document.getElementById('conf-nome').textContent = nome;
-      
-      // Limpar formulário
       document.getElementById('f-indicador').value = '';
       document.getElementById('f-consultor').value = '';
       document.getElementById('f-nome').value = '';
       document.getElementById('f-tel').value = '';
       document.getElementById('f-nota').value = '';
-      
       renderConsultoresList();
       toast('✓ Indicação enviada com sucesso!');
       go('s-sucesso');
@@ -512,7 +498,6 @@ async function enviarIndicacao() {
   }
 }
 
-// ── Lista de consultores ──
 function renderConsultoresList() {
   const el = document.getElementById('cons-list');
   if (!el) return;
@@ -559,13 +544,11 @@ async function acessarConsultor() {
   go('s-painel');
 }
 
-// ── Métricas ──
 function renderMetrics() {
-  const mine = indicacoes;
   const counts = [
-    { val: mine.length, lbl: 'Total', color: '#1a56db' },
-    { val: mine.filter(i=>['new','contact','proposal'].includes(i.status)).length, lbl: 'Em andamento', color: '#c27803' },
-    { val: mine.filter(i=>i.status==='closed').length, lbl: 'Fechados', color: '#0e9f6e' },
+    { val: indicacoes.length, lbl: 'Total', color: '#1a56db' },
+    { val: indicacoes.filter(i=>['new','contact','proposal'].includes(i.status)).length, lbl: 'Em andamento', color: '#c27803' },
+    { val: indicacoes.filter(i=>i.status==='closed').length, lbl: 'Fechados', color: '#0e9f6e' }
   ];
   document.getElementById('painel-metrics').innerHTML = counts.map(m =>
     `<div class="metric">
@@ -575,7 +558,6 @@ function renderMetrics() {
   ).join('');
 }
 
-// ── Lista ──
 function filtrar(f, el) {
   filtroAtivo = f;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -701,11 +683,11 @@ async function salvarEdicao() {
   const ind = indicacoes.find(i => i.id === editandoId);
   if (!ind) return;
   
-  ind.nome    = document.getElementById('ed-nome').value;
-  ind.tel     = document.getElementById('ed-tel').value;
-  ind.status  = document.getElementById('ed-status').value;
-  ind.nota    = document.getElementById('ed-nota').value;
-  ind.admin   = document.getElementById('ed-admin').value;
+  ind.nome = document.getElementById('ed-nome').value;
+  ind.tel = document.getElementById('ed-tel').value;
+  ind.status = document.getElementById('ed-status').value;
+  ind.nota = document.getElementById('ed-nota').value;
+  ind.admin = document.getElementById('ed-admin').value;
   ind.updated = document.getElementById('ed-data').value || new Date().toLocaleDateString('pt-BR');
 
   const btn = document.getElementById('btn-salvar');
@@ -738,6 +720,7 @@ async function salvarEdicao() {
   }
 }
 
-// Inicializar
 init();
 </script>
+</body>
+</html>
