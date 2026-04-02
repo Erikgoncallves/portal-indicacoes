@@ -7,83 +7,83 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'DM Sans', sans-serif; background: #FEF9E6; color: #2D3748; }
+  body { font-family: 'DM Sans', sans-serif; background: #FFF9E8; color: #2D3748; }
   .screen { display: none; min-height: 100vh; }
   .screen.active { display: block; }
-  .topbar { background: #FFF9E8; border-bottom: 1px solid #E5D9B6; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .topbar { background: #FFF9E8; border-bottom: 1px solid #E8E0C0; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
   .logo { font-size: 20px; font-weight: 600; color: #2C5282; }
-  .logo em { color: #4299C1; font-style: normal; }
-  .mode-tag { font-size: 11px; background: #C4E0FA; color: #2C5282; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+  .logo em { color: #63B3ED; font-style: normal; }
+  .mode-tag { font-size: 11px; background: #BEE3F8; color: #2C5282; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
   .page { max-width: 520px; margin: 0 auto; padding: 32px 20px 60px; }
   .page-wide { max-width: 720px; margin: 0 auto; padding: 28px 20px 60px; }
   .page-title { font-size: 26px; font-weight: 600; margin-bottom: 6px; color: #2C5282; }
-  .page-sub { font-size: 14px; color: #7C8B9B; margin-bottom: 28px; }
-  .card { background: #FFFCF5; border: 1px solid #E5D9B6; border-radius: 16px; padding: 22px 24px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-  .card-title { font-size: 11px; font-weight: 600; color: #7C8B9B; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.5px; }
+  .page-sub { font-size: 14px; color: #9CA3AF; margin-bottom: 28px; }
+  .card { background: #FFFFFF; border: 1px solid #F0E8D0; border-radius: 16px; padding: 22px 24px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+  .card-title { font-size: 11px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.5px; }
   .form-group { margin-bottom: 18px; }
-  label { font-size: 13px; font-weight: 500; color: #5A6E82; display: block; margin-bottom: 7px; }
-  input, select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid #E5D9B6; border-radius: 10px; font-size: 14px; outline: none; background: #FFFFFF; color: #2D3748; transition: all 0.2s; }
-  input:focus, select:focus, textarea:focus { border-color: #4299C1; box-shadow: 0 0 0 3px rgba(66,153,193,0.1); }
+  label { font-size: 13px; font-weight: 500; color: #6B7280; display: block; margin-bottom: 7px; }
+  input, select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid #F0E8D0; border-radius: 10px; font-size: 14px; outline: none; background: #FFFFFF; color: #2D3748; transition: all 0.2s; }
+  input:focus, select:focus, textarea:focus { border-color: #63B3ED; box-shadow: 0 0 0 3px rgba(99,179,237,0.1); }
   .btn { padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; display: inline-block; text-align: center; transition: all 0.2s; }
-  .btn-primary { background: #4299C1; color: #fff; }
+  .btn-primary { background: #63B3ED; color: #fff; }
   .btn-primary:hover { background: #2C5282; transform: translateY(-1px); }
-  .btn-secondary { background: #FFFCF5; color: #5A6E82; border: 1.5px solid #E5D9B6; }
-  .btn-secondary:hover { background: #FEF9E6; border-color: #C4E0FA; }
+  .btn-secondary { background: #FFFFFF; color: #6B7280; border: 1.5px solid #F0E8D0; }
+  .btn-secondary:hover { background: #FFF9E8; border-color: #BEE3F8; }
   .btn-full { width: 100%; }
   .btn-sm { padding: 7px 14px; font-size: 12px; }
-  .back-btn { background: none; border: none; color: #4299C1; font-size: 13px; cursor: pointer; margin-bottom: 22px; display: inline-flex; align-items: center; gap: 5px; font-weight: 500; }
+  .back-btn { background: none; border: none; color: #63B3ED; font-size: 13px; cursor: pointer; margin-bottom: 22px; display: inline-flex; align-items: center; gap: 5px; font-weight: 500; }
   .back-btn:hover { color: #2C5282; }
   .switcher { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
-  .sw-card { background: #FFFCF5; border: 2px solid #E5D9B6; border-radius: 16px; padding: 22px 18px; cursor: pointer; text-align: center; transition: all 0.2s; }
-  .sw-card:hover { border-color: #C4E0FA; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .sw-card { background: #FFFFFF; border: 2px solid #F0E8D0; border-radius: 16px; padding: 22px 18px; cursor: pointer; text-align: center; transition: all 0.2s; }
+  .sw-card:hover { border-color: #BEE3F8; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
   .sw-icon { font-size: 32px; margin-bottom: 10px; }
   .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
   .badge-new { background: #FEF5D3; color: #C27803; }
-  .badge-contact { background: #C4E0FA; color: #2C5282; }
+  .badge-contact { background: #BEE3F8; color: #2C5282; }
   .badge-proposal { background: #E9D8FD; color: #6B46C1; }
   .badge-closed { background: #C6F6D5; color: #276749; }
   .badge-lost { background: #FEE2E2; color: #9B2C2C; }
   .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
-  .metric { background: #FFFCF5; border: 1px solid #E5D9B6; border-radius: 12px; padding: 16px; text-align: center; }
+  .metric { background: #FFFFFF; border: 1px solid #F0E8D0; border-radius: 12px; padding: 16px; text-align: center; }
   .metric-val { font-size: 28px; font-weight: 700; color: #2C5282; }
-  .metric-lbl { font-size: 12px; color: #7C8B9B; margin-top: 4px; }
+  .metric-lbl { font-size: 12px; color: #9CA3AF; margin-top: 4px; }
   .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-  .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1.5px solid #E5D9B6; background: #FFFCF5; cursor: pointer; transition: all 0.2s; }
-  .filter-btn.active { background: #4299C1; color: #fff; border-color: #4299C1; }
-  .filter-btn:hover:not(.active) { background: #C4E0FA; border-color: #C4E0FA; }
+  .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1.5px solid #F0E8D0; background: #FFFFFF; cursor: pointer; transition: all 0.2s; }
+  .filter-btn.active { background: #63B3ED; color: #fff; border-color: #63B3ED; }
+  .filter-btn:hover:not(.active) { background: #BEE3F8; border-color: #BEE3F8; }
   .ind-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid #F0E8D0; cursor: pointer; transition: background 0.2s; }
   .ind-item:last-child { border-bottom: none; }
   .ind-item:hover { background: #FFF9E8; }
   .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
   .cons-list { display: flex; flex-direction: column; gap: 10px; }
-  .cons-opt { background: #FFFCF5; border: 2px solid #E5D9B6; border-radius: 12px; padding: 14px 18px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: all 0.2s; }
-  .cons-opt:hover { border-color: #C4E0FA; transform: translateX(2px); }
-  .cons-opt.selected { border-color: #4299C1; background: #C4E0FA; }
+  .cons-opt { background: #FFFFFF; border: 2px solid #F0E8D0; border-radius: 12px; padding: 14px 18px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: all 0.2s; }
+  .cons-opt:hover { border-color: #BEE3F8; transform: translateX(2px); }
+  .cons-opt.selected { border-color: #63B3ED; background: #BEE3F8; }
   .cons-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
   .success-wrap { text-align: center; padding: 48px 24px; }
   .success-circle { width: 72px; height: 72px; border-radius: 50%; background: #C6F6D5; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
-  .home-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #FEF9E6; }
+  .home-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #FFF9E8; }
   .home-logo { font-size: 42px; font-weight: 600; text-align: center; color: #2C5282; }
-  .home-logo em { color: #4299C1; font-style: normal; }
+  .home-logo em { color: #63B3ED; font-style: normal; }
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #2D3748; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; z-index: 999; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
   #toast.show { display: block; animation: fadeInUp 0.3s ease; }
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateX(-50%) translateY(20px); }
     to { opacity: 1; transform: translateX(-50%) translateY(0); }
   }
-  .loading { text-align: center; padding: 40px; color: #7C8B9B; font-size: 14px; }
+  .loading { text-align: center; padding: 40px; color: #9CA3AF; font-size: 14px; }
   .field-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F0E8D0; gap: 12px; }
   .field-row:last-child { border-bottom: none; }
   .steps { display: flex; gap: 12px; margin-top: 8px; }
   .step { flex: 1; text-align: center; }
-  .step-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #E5D9B6; background: #FFFCF5; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
-  .step-dot.done { background: #4299C1; border-color: #4299C1; color: #fff; }
-  .step-dot.current { border-color: #4299C1; color: #4299C1; background: #C4E0FA; }
-  .step-lbl { font-size: 11px; color: #7C8B9B; }
+  .step-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #F0E8D0; background: #FFFFFF; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+  .step-dot.done { background: #63B3ED; border-color: #63B3ED; color: #fff; }
+  .step-dot.current { border-color: #63B3ED; color: #63B3ED; background: #BEE3F8; }
+  .step-lbl { font-size: 11px; color: #9CA3AF; }
   .step-lbl.current { color: #2C5282; font-weight: 600; }
   .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
   .modal.active { display: flex; }
-  .modal-content { background: #FFFCF5; border-radius: 24px; padding: 32px; max-width: 380px; width: 90%; text-align: center; border: 1px solid #E5D9B6; }
+  .modal-content { background: #FFFFFF; border-radius: 24px; padding: 32px; max-width: 380px; width: 90%; text-align: center; border: 1px solid #F0E8D0; }
   .modal-content h3 { color: #2C5282; margin-bottom: 12px; }
   .error-senha { color: #9B2C2C; font-size: 12px; margin-top: 12px; display: none; }
   .error-senha.show { display: block; }
@@ -97,11 +97,11 @@
 <div id="modal-senha" class="modal">
   <div class="modal-content">
     <h3>🔐 Acesso Restrito</h3>
-    <p style="color: #7C8B9B; margin-bottom: 20px;">Selecione seu nome e digite sua senha</p>
-    <select id="select-consultor-senha" style="width:100%; margin-bottom:16px; padding:10px; border:1.5px solid #E5D9B6; border-radius:10px;">
+    <p style="color: #9CA3AF; margin-bottom: 20px;">Selecione seu nome e digite sua senha</p>
+    <select id="select-consultor-senha" style="width:100%; margin-bottom:16px; padding:10px; border:1.5px solid #F0E8D0; border-radius:10px;">
       <option value="">Selecione...</option>
     </select>
-    <input type="password" id="senha-input" placeholder="Sua senha" style="width:100%; margin-bottom:16px; padding:10px; border:1.5px solid #E5D9B6; border-radius:10px;">
+    <input type="password" id="senha-input" placeholder="Sua senha" style="width:100%; margin-bottom:16px; padding:10px; border:1.5px solid #F0E8D0; border-radius:10px;">
     <button class="btn btn-primary btn-full" onclick="verificarSenha()">Acessar</button>
     <button class="btn btn-secondary btn-full" onclick="fecharModal()" style="margin-top:10px;">Cancelar</button>
     <div id="erro-senha" class="error-senha">❌ Senha incorreta</div>
@@ -112,7 +112,7 @@
   <div class="home-wrap">
     <div>
       <div class="home-logo">Portal de <em>Indicações</em></div>
-      <div style="text-align:center; margin:12px 0 48px; color:#7C8B9B;">Selecione como deseja acessar</div>
+      <div style="text-align:center; margin:12px 0 48px; color:#9CA3AF;">Selecione como deseja acessar</div>
       <div style="width:100%; max-width:400px;">
         <div class="switcher">
           <div class="sw-card" onclick="go('s-form')"><div class="sw-icon">🤝</div><div style="font-weight:600;">Quero indicar</div></div>
@@ -147,7 +147,7 @@
     <div class="success-wrap">
       <div class="success-circle">✓</div>
       <div class="page-title">Indicação enviada!</div>
-      <p style="margin:20px 0; color:#7C8B9B;">Consultor <strong id="conf-consultor" style="color:#2C5282;"></strong> receberá os dados</p>
+      <p style="margin:20px 0; color:#9CA3AF;">Consultor <strong id="conf-consultor" style="color:#2C5282;"></strong> receberá os dados</p>
       <button class="btn btn-primary" onclick="go('s-form')">Nova indicação</button>
       <button class="btn btn-secondary" onclick="go('s-home')" style="margin-top:12px;">Início</button>
     </div>
@@ -163,20 +163,32 @@
   </div>
 </div>
 
+<!-- TELA DE SELEÇÃO DE CONSULTOR (apenas para troca, SEM o botão Trocar) -->
 <div class="screen" id="s-consultor-select">
-  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><span class="mode-tag">Consultores</span></div>
+  <div class="topbar">
+    <div class="logo">Portal de <em>Indicações</em></div>
+    <span class="mode-tag">Consultores</span>
+  </div>
   <div class="page">
-    <button class="back-btn" onclick="go('s-home')">← Voltar</button>
-    <div class="page-title">Trocar consultor</div>
+    <button class="back-btn" onclick="go('s-home')">← Voltar ao início</button>
+    <div class="page-title">Selecione seu consultor</div>
+    <div class="page-sub">Escolha seu nome para acessar suas indicações</div>
     <div class="cons-list" id="cons-list"><div class="loading">Carregando...</div></div>
     <button class="btn btn-primary btn-full" id="btn-acessar" onclick="acessarConsultor()" style="display:none;">Acessar painel →</button>
   </div>
 </div>
 
+<!-- PAINEL DO CONSULTOR - SEM BOTÃO TROCAR -->
 <div class="screen" id="s-painel">
-  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><button class="btn btn-secondary btn-sm" onclick="go('s-consultor-select')">Trocar</button></div>
+  <div class="topbar">
+    <div class="logo">Portal de <em>Indicações</em></div>
+    <span class="mode-tag" id="painel-consultor-nome"></span>
+  </div>
   <div class="page-wide">
-    <div class="page-title" id="painel-titulo">Minhas indicações</div>
+    <div style="margin-bottom:24px;">
+      <div class="page-title" id="painel-titulo">Minhas indicações</div>
+      <div class="page-sub" id="painel-sub"></div>
+    </div>
     <div class="metrics" id="painel-metrics"></div>
     <div class="filter-row">
       <button class="filter-btn active" data-filter="todos" onclick="filtrar('todos',this)">Todas</button>
@@ -188,6 +200,9 @@
     </div>
     <div class="card" style="padding:0;">
       <div id="lista-indicacoes"><div class="loading">Carregando...</div></div>
+    </div>
+    <div style="margin-top: 24px; text-align: center;">
+      <button class="btn btn-secondary btn-sm" onclick="go('s-home')">Sair</button>
     </div>
   </div>
 </div>
@@ -204,12 +219,12 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDHCKiSlYqfn4oFGJYY4ImOMMO8w3fusaQZC4BnKz1UJ_RAM7shH0UqyzXkIQK9LegZA/exec';
 
 const CONSULTORES = [
-  { nome: 'Renato Benedetti', cor: '#C4E0FA', tc: '#2C5282', senha: 'Cortina1' },
+  { nome: 'Renato Benedetti', cor: '#BEE3F8', tc: '#2C5282', senha: 'Cortina1' },
   { nome: 'Vagner Santos', cor: '#FEF5D3', tc: '#C27803', senha: 'Cortina2' },
   { nome: 'Fabricio Araujo', cor: '#C6F6D5', tc: '#276749', senha: 'Cortina3' },
   { nome: 'Arnaldo', cor: '#E9D8FD', tc: '#6B46C1', senha: 'Cortina4' },
   { nome: 'Rodrigues Silva', cor: '#FEE2E2', tc: '#9B2C2C', senha: 'Cortina5' },
-  { nome: 'Vlamir Santos', cor: '#C4E0FA', tc: '#2C5282', senha: 'Cortina6' },
+  { nome: 'Vlamir Santos', cor: '#BEE3F8', tc: '#2C5282', senha: 'Cortina6' },
   { nome: 'Erik Carvalho', cor: '#FEF5D3', tc: '#C27803', senha: 'Cortina7' }
 ];
 
@@ -273,6 +288,7 @@ function verificarSenha() {
   if (c && senha === c.senha) {
     fecharModal();
     consultorAtivo = cons;
+    document.getElementById('painel-consultor-nome').textContent = cons;
     go('s-painel');
     carregarIndicacoesDoConsultor(cons);
   } else {
@@ -293,8 +309,8 @@ function carregarIndicacoesDoConsultor(nome) {
   jsonp(SCRIPT_URL + '?consultor=' + encodeURIComponent(nome), function(data) {
     if (!data.error) {
       indicacoesAtivas = Array.isArray(data) ? data : [];
-      document.getElementById('painel-titulo').textContent = nome;
-      document.getElementById('painel-sub').textContent = indicacoesAtivas.length + ' indicações';
+      document.getElementById('painel-titulo').textContent = 'Minhas indicações';
+      document.getElementById('painel-sub').textContent = indicacoesAtivas.length + ' indicação' + (indicacoesAtivas.length !== 1 ? 'ões' : '');
       filtroAtivo = 'todos';
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       const btnTodos = document.querySelector('.filter-btn[data-filter="todos"]');
@@ -310,7 +326,7 @@ function renderConsultoresList() {
   if (!el) return;
   el.innerHTML = CONSULTORES.map(c => {
     const count = todasIndicacoes.filter(i => i.consultor === c.nome).length;
-    return `<div class="cons-opt" onclick="selecionarConsultor('${c.nome}', this)"><div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini(c.nome)}</div><div><strong>${c.nome}</strong><br><small style="color:#7C8B9B;">${count} indicações</small></div></div>`;
+    return `<div class="cons-opt" onclick="selecionarConsultor('${c.nome}', this)"><div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini(c.nome)}</div><div><strong>${c.nome}</strong><br><small style="color:#9CA3AF;">${count} indicações</small></div></div>`;
   }).join('');
 }
 
@@ -323,6 +339,7 @@ function selecionarConsultor(nome, el) {
 
 function acessarConsultor() {
   if (consultorAtivo) {
+    document.getElementById('painel-consultor-nome').textContent = consultorAtivo;
     go('s-painel');
     carregarIndicacoesDoConsultor(consultorAtivo);
   }
@@ -352,13 +369,14 @@ function renderLista() {
   }
   const el = document.getElementById('lista-indicacoes');
   if (!items.length) { 
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:#7C8B9B;">Nenhuma indicação</div>'; 
+    const msg = filtroAtivo === 'todos' ? 'Nenhuma indicação recebida ainda' : 'Nenhuma indicação com este status';
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:#9CA3AF;">' + msg + '</div>'; 
     return; 
   }
   const c = CONSULTORES.find(x => x.nome === consultorAtivo) || CONSULTORES[0];
   el.innerHTML = items.map(ind => {
     const s = STATUS[ind.status] || STATUS.new;
-    return `<div class="ind-item" onclick="abrirDetalhe('${ind.id}')"><div style="display:flex;gap:12px;"><div class="avatar" style="background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><strong>${esc(ind.nome)}</strong><br><small style="color:#7C8B9B;">${esc(ind.tel)} · ${esc(ind.indicador)}</small></div></div><span class="badge ${s.cls}">${s.label}</span></div>`;
+    return `<div class="ind-item" onclick="abrirDetalhe('${ind.id}')"><div style="display:flex;gap:12px;"><div class="avatar" style="background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><strong>${esc(ind.nome)}</strong><br><small style="color:#9CA3AF;">${esc(ind.tel)} · ${esc(ind.indicador)}</small></div></div><span class="badge ${s.cls}">${s.label}</span></div>`;
   }).join('');
 }
 
@@ -377,9 +395,9 @@ function renderDetalhe(ind) {
     return `<div class="step"><div class="step-dot ${done?'done':curr?'current':''}">${done?'✓':i+1}</div><div class="step-lbl ${curr?'current':''}">${lbl}</div></div>`;
   }).join('');
   document.getElementById('detalhe-content').innerHTML = `
-    <div style="display:flex;gap:16px;margin-bottom:24px;"><div class="avatar" style="width:52px;height:52px;background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><div style="font-size:20px;font-weight:700;">${esc(ind.nome)}</div><div style="color:#7C8B9B; margin-top:4px;">Indicado por ${esc(ind.indicador)} · <span class="badge ${s.cls}">${s.label}</span></div></div></div>
+    <div style="display:flex;gap:16px;margin-bottom:24px;"><div class="avatar" style="width:52px;height:52px;background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><div style="font-size:20px;font-weight:700;">${esc(ind.nome)}</div><div style="color:#9CA3AF; margin-top:4px;">Indicado por ${esc(ind.indicador)} · <span class="badge ${s.cls}">${s.label}</span></div></div></div>
     <div class="card"><div class="card-title">Etapas</div><div class="steps">${stepsHTML}</div></div>
-    <div class="card"><div class="card-title">Dados</div><div class="field-row"><span style="color:#7C8B9B;">Telefone</span><strong>${esc(ind.tel)}</strong></div>${ind.nota ? `<div class="field-row"><span style="color:#7C8B9B;">Observação</span><span>${esc(ind.nota)}</span></div>` : ''}</div>
+    <div class="card"><div class="card-title">Dados</div><div class="field-row"><span style="color:#9CA3AF;">Telefone</span><strong>${esc(ind.tel)}</strong></div>${ind.nota ? `<div class="field-row"><span style="color:#9CA3AF;">Observação</span><span>${esc(ind.nota)}</span></div>` : ''}</div>
     <div class="card"><div class="card-title">Atualizar</div>
       <div class="form-group"><label>Nome</label><input id="ed-nome" value="${esc(ind.nome)}"></div>
       <div class="form-group"><label>Telefone</label><input id="ed-tel" value="${esc(ind.tel)}"></div>
@@ -447,7 +465,7 @@ function verificarUrl() {
       if (!ind) { el.innerHTML = '<div class="loading">Indicação não encontrada</div>'; return; }
       const s = STATUS[ind.status] || STATUS.new;
       const c = CONSULTORES.find(x => x.nome === ind.consultor) || CONSULTORES[0];
-      el.innerHTML = `<div class="card" style="text-align:center;"><div class="avatar" style="width:60px;height:60px;margin:0 auto 16px;background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div class="page-title">${esc(ind.nome)}</div><p style="color:#7C8B9B;">Indicado por ${esc(ind.indicador)}</p><div class="badge ${s.cls}" style="margin:16px auto 0;display:inline-block;">${s.label}</div></div><div class="card"><div class="card-title">Status atual</div><p>${s.desc}</p></div><div class="card"><div class="field-row"><span style="color:#7C8B9B;">Telefone</span><span>${esc(ind.tel)}</span></div><div class="field-row"><span style="color:#7C8B9B;">Consultor</span><span>${esc(ind.consultor)}</span></div></div>`;
+      el.innerHTML = `<div class="card" style="text-align:center;"><div class="avatar" style="width:60px;height:60px;margin:0 auto 16px;background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div class="page-title">${esc(ind.nome)}</div><p style="color:#9CA3AF;">Indicado por ${esc(ind.indicador)}</p><div class="badge ${s.cls}" style="margin:16px auto 0;display:inline-block;">${s.label}</div></div><div class="card"><div class="card-title">Status atual</div><p>${s.desc}</p></div><div class="card"><div class="field-row"><span style="color:#9CA3AF;">Telefone</span><span>${esc(ind.tel)}</span></div><div class="field-row"><span style="color:#9CA3AF;">Consultor</span><span>${esc(ind.consultor)}</span></div></div>`;
     });
   }
 }
