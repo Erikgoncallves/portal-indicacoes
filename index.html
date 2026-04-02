@@ -240,7 +240,11 @@
 // ════════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyp3FfacXscLcpCNun80Njb9ccUs_VWJ34kaHyTadPs1-tmnT_9kc82gFvHneZweCC22Q';
+<script>
+// ════════════════════════════════════════════════
+// CONFIGURAÇÃO
+// ════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbziWYgqoNf8eXqUrAYpX_oB-Y0HrP49ZmEwF6XIZn52f0LtaMesdstHD9-FBwDwUZ5QIA/exec';
 
 const CONSULTORES = [
   { nome: 'Renato Benedetti', cor: '#dbeafe', tc: '#1e40af', senha: 'Cortina1' },
@@ -330,6 +334,7 @@ function jsonpGet(url) {
 }
 
 async function postDados(payload) {
+  console.log('Enviando payload:', payload);
   await fetch(SCRIPT_URL, {
     method: 'POST',
     mode: 'no-cors',
@@ -466,7 +471,6 @@ async function carregarAcompanhamento(id) {
   }
 }
 
-// Verificar URL para acompanhamento
 function verificarUrlAcompanhamento() {
   const urlParams = new URLSearchParams(window.location.search);
   const acompanharId = urlParams.get('acompanhar');
@@ -596,6 +600,9 @@ async function salvarEdicao(id) {
   finally { btn.textContent = 'Salvar alterações'; btn.disabled = false; }
 }
 
+// ════════════════════════════════════════════════
+// ENVIAR INDICAÇÃO - CORRIGIDA
+// ════════════════════════════════════════════════
 async function enviarIndicacao() {
   const indicador = document.getElementById('f-indicador').value.trim();
   const email = document.getElementById('f-email').value.trim();
@@ -603,27 +610,69 @@ async function enviarIndicacao() {
   const nome = document.getElementById('f-nome').value.trim();
   const tel = document.getElementById('f-tel').value.trim();
   const nota = document.getElementById('f-nota').value.trim();
-  if (!indicador || !consultor || !nome || !tel) { toast('⚠️ Preencha todos os campos'); return; }
-  if (email && !email.includes('@')) { toast('⚠️ Digite um e-mail válido'); return; }
+  
+  if (!indicador || !consultor || !nome || !tel) {
+    toast('⚠️ Preencha todos os campos obrigatórios');
+    return;
+  }
+  
+  if (email && !email.includes('@')) {
+    toast('⚠️ Digite um e-mail válido');
+    return;
+  }
+  
   const btn = document.getElementById('btn-enviar');
   btn.textContent = 'Enviando…';
   btn.disabled = true;
+  
+  const payload = {
+    action: 'add',
+    id: Date.now().toString(),
+    indicador: indicador,
+    indicador_email: email,
+    consultor: consultor,
+    nome: nome,
+    tel: tel,
+    nota: nota || '',
+    status: 'new',
+    admin: '',
+    updated: new Date().toLocaleDateString('pt-BR')
+  };
+  
+  console.log('📤 Enviando:', payload);
+  
   try {
-    await postDados({
-      action: 'add', id: Date.now().toString(),
-      indicador, indicador_email: email, consultor, nome, tel, nota: nota || '',
-      status: 'new', admin: '', updated: new Date().toLocaleDateString('pt-BR')
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
     });
+    
     document.getElementById('conf-consultor').textContent = consultor;
     const emailInfo = document.getElementById('email-info');
-    if (email) emailInfo.innerHTML = `📧 Um e-mail foi enviado para <strong>${esc(email)}</strong> com o link de acompanhamento.`;
-    else emailInfo.innerHTML = `🔗 Você pode acompanhar a indicação pelo link que será enviado se fornecer um e-mail.`;
-    ['f-indicador','f-email','f-nome','f-tel','f-nota'].forEach(id => document.getElementById(id).value = '');
+    if (email) {
+      emailInfo.innerHTML = `📧 Um e-mail foi enviado para <strong>${esc(email)}</strong> com o link de acompanhamento.`;
+    } else {
+      emailInfo.innerHTML = `💡 Dica: Forneça um e-mail para receber atualizações da sua indicação.`;
+    }
+    
+    document.getElementById('f-indicador').value = '';
+    document.getElementById('f-email').value = '';
+    document.getElementById('f-nome').value = '';
+    document.getElementById('f-tel').value = '';
+    document.getElementById('f-nota').value = '';
     document.getElementById('f-consultor').value = '';
+    
     toast('✓ Indicação enviada!');
     go('s-sucesso');
-  } catch(e) { toast('⚠️ Erro'); }
-  finally { btn.textContent = 'Enviar indicação'; btn.disabled = false; }
+  } catch (e) {
+    console.error('❌ Erro:', e);
+    toast('⚠️ Erro ao enviar');
+  } finally {
+    btn.textContent = 'Enviar indicação';
+    btn.disabled = false;
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -631,14 +680,14 @@ async function enviarIndicacao() {
 // ════════════════════════════════════════════════
 (function init() {
   const sel = document.getElementById('f-consultor');
-  CONSULTORES.forEach(c => {
-    const o = document.createElement('option');
-    o.value = c.nome;
-    o.textContent = c.nome;
-    sel.appendChild(o);
-  });
+  if (sel) {
+    CONSULTORES.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.nome;
+      o.textContent = c.nome;
+      sel.appendChild(o);
+    });
+  }
   verificarUrlAcompanhamento();
 })();
 </script>
-</body>
-</html>
