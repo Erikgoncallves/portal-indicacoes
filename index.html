@@ -24,6 +24,7 @@
   label { font-size: 13px; font-weight: 500; color: #6B7280; display: block; margin-bottom: 7px; }
   input, select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid #F0E8D0; border-radius: 10px; font-size: 14px; outline: none; background: #FFFFFF; color: #2D3748; transition: all 0.2s; }
   input:focus, select:focus, textarea:focus { border-color: #63B3ED; box-shadow: 0 0 0 3px rgba(99,179,237,0.1); }
+  textarea { resize: vertical; min-height: 80px; font-family: 'DM Sans', sans-serif; }
   .btn { padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; display: inline-block; text-align: center; transition: all 0.2s; }
   .btn-primary { background: #63B3ED; color: #fff; }
   .btn-primary:hover { background: #2C5282; transform: translateY(-1px); }
@@ -131,11 +132,11 @@
     <div class="page-sub">Preencha os dados de quem você quer indicar</div>
     <div class="card">
       <div class="form-group"><label>Seu nome *</label><input type="text" id="f-indicador" placeholder="Seu nome completo"></div>
-      <div class="form-group"><label>Seu e-mail</label><input type="email" id="f-email" placeholder="para receber atualizações"></div>
+      <div class="form-group"><label>Seu e-mail</label><input type="email" id="f-email" placeholder="para receber atualizações"><small style="font-size:11px; color:#9CA3AF; display:block; margin-top:4px;">Receba o link de acompanhamento por e-mail</small></div>
       <div class="form-group"><label>Consultor *</label><select id="f-consultor"><option value="">Selecione...</option></select></div>
       <div class="form-group"><label>Nome do indicado *</label><input type="text" id="f-nome" placeholder="Nome completo"></div>
       <div class="form-group"><label>Telefone *</label><input type="tel" id="f-tel" placeholder="(11) 99999-9999"></div>
-      <div class="form-group"><label>Observação</label><textarea id="f-nota" rows="3" placeholder="Produto de interesse, contexto..."></textarea></div>
+      <div class="form-group"><label>Observação</label><textarea id="f-nota" rows="3" placeholder="Produto de interesse, contexto, informações relevantes..."></textarea></div>
     </div>
     <button class="btn btn-primary btn-full" onclick="enviarIndicacao()">Enviar indicação</button>
   </div>
@@ -148,6 +149,7 @@
       <div class="success-circle">✓</div>
       <div class="page-title">Indicação enviada!</div>
       <p style="margin:20px 0; color:#9CA3AF;">Consultor <strong id="conf-consultor" style="color:#2C5282;"></strong> receberá os dados</p>
+      <div id="email-info" style="margin-bottom: 20px; font-size: 13px; color: #63B3ED;"></div>
       <button class="btn btn-primary" onclick="go('s-form')">Nova indicação</button>
       <button class="btn btn-secondary" onclick="go('s-home')" style="margin-top:12px;">Início</button>
     </div>
@@ -163,7 +165,6 @@
   </div>
 </div>
 
-<!-- TELA DE SELEÇÃO DE CONSULTOR (apenas para troca, SEM o botão Trocar) -->
 <div class="screen" id="s-consultor-select">
   <div class="topbar">
     <div class="logo">Portal de <em>Indicações</em></div>
@@ -178,7 +179,6 @@
   </div>
 </div>
 
-<!-- PAINEL DO CONSULTOR - SEM BOTÃO TROCAR -->
 <div class="screen" id="s-painel">
   <div class="topbar">
     <div class="logo">Portal de <em>Indicações</em></div>
@@ -216,7 +216,7 @@
 </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYM8-4lPxEIl9Sn4bUstdV_GQf6E-Z8vfEOpN6RAdGLUsvBr-5pdOXZPD0mEnLJhw9Fg/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJQ98rSqjiGJimVw78WlaZvTlcXEXCBjMIw_hVGasSFYNLqYHuI6HkAlJL-aPk8Z7DPQ/exec';
 
 const CONSULTORES = [
   { nome: 'Renato Benedetti', cor: '#BEE3F8', tc: '#2C5282', senha: 'Cortina1' },
@@ -411,12 +411,13 @@ async function salvarEdicao(id) {
   const ind = indicacoesAtivas.find(i => String(i.id) === String(id));
   if (!ind) return;
   const statusAntes = ind.status;
+  const notaAntes = ind.nota;
   ind.nome = document.getElementById('ed-nome').value;
   ind.tel = document.getElementById('ed-tel').value;
   ind.status = document.getElementById('ed-status').value;
   ind.nota = document.getElementById('ed-nota').value;
   ind.updated = new Date().toLocaleDateString();
-  await postData({ action: 'update', ...ind, status_anterior: statusAntes });
+  await postData({ action: 'update', ...ind, status_anterior: statusAntes, nota_anterior: notaAntes });
   toast('✓ Salvo!');
   renderLista();
   renderMetrics();
@@ -430,24 +431,48 @@ async function enviarIndicacao() {
   const nome = document.getElementById('f-nome').value.trim();
   const tel = document.getElementById('f-tel').value.trim();
   const nota = document.getElementById('f-nota').value.trim();
-  if (!indicador || !consultor || !nome || !tel) { toast('Preencha todos os campos obrigatórios'); return; }
-  if (email && !email.includes('@')) { toast('Digite um e-mail válido'); return; }
+  
+  if (!indicador || !consultor || !nome || !tel) { 
+    toast('Preencha todos os campos obrigatórios'); 
+    return; 
+  }
+  if (email && !email.includes('@')) { 
+    toast('Digite um e-mail válido'); 
+    return; 
+  }
+  
   const btn = document.querySelector('#s-form .btn-primary');
   btn.textContent = 'Enviando...';
   btn.disabled = true;
+  
   await postData({
     action: 'add',
     id: Date.now().toString(),
-    indicador, indicador_email: email, consultor, nome, tel, nota: nota || '',
-    status: 'new', updated: new Date().toLocaleDateString()
+    indicador: indicador,
+    indicador_email: email,
+    consultor: consultor,
+    nome: nome,
+    tel: tel,
+    nota: nota,
+    status: 'new',
+    updated: new Date().toLocaleDateString()
   });
+  
   document.getElementById('conf-consultor').textContent = consultor;
+  const emailInfo = document.getElementById('email-info');
+  if (email) {
+    emailInfo.innerHTML = `📧 Um e-mail foi enviado para <strong>${esc(email)}</strong> com o link de acompanhamento.`;
+  } else {
+    emailInfo.innerHTML = `💡 Dica: Forneça um e-mail para receber atualizações da sua indicação.`;
+  }
+  
   document.getElementById('f-indicador').value = '';
   document.getElementById('f-email').value = '';
   document.getElementById('f-nome').value = '';
   document.getElementById('f-tel').value = '';
   document.getElementById('f-nota').value = '';
   document.getElementById('f-consultor').value = '';
+  
   toast('✓ Indicação enviada!');
   go('s-sucesso');
   btn.textContent = 'Enviar indicação';
@@ -465,7 +490,9 @@ function verificarUrl() {
       if (!ind) { el.innerHTML = '<div class="loading">Indicação não encontrada</div>'; return; }
       const s = STATUS[ind.status] || STATUS.new;
       const c = CONSULTORES.find(x => x.nome === ind.consultor) || CONSULTORES[0];
-      el.innerHTML = `<div class="card" style="text-align:center;"><div class="avatar" style="width:60px;height:60px;margin:0 auto 16px;background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div class="page-title">${esc(ind.nome)}</div><p style="color:#9CA3AF;">Indicado por ${esc(ind.indicador)}</p><div class="badge ${s.cls}" style="margin:16px auto 0;display:inline-block;">${s.label}</div></div><div class="card"><div class="card-title">Status atual</div><p>${s.desc}</p></div><div class="card"><div class="field-row"><span style="color:#9CA3AF;">Telefone</span><span>${esc(ind.tel)}</span></div><div class="field-row"><span style="color:#9CA3AF;">Consultor</span><span>${esc(ind.consultor)}</span></div></div>`;
+      el.innerHTML = `<div class="card" style="text-align:center;"><div class="avatar" style="width:60px;height:60px;margin:0 auto 16px;background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div class="page-title">${esc(ind.nome)}</div><p style="color:#9CA3AF;">Indicado por ${esc(ind.indicador)}</p><div class="badge ${s.cls}" style="margin:16px auto 0;display:inline-block;">${s.label}</div></div>
+        <div class="card"><div class="card-title">Status atual</div><p>${s.desc}</p></div>
+        <div class="card"><div class="card-title">Dados da indicação</div><div class="field-row"><span style="color:#9CA3AF;">Telefone</span><span>${esc(ind.tel)}</span></div><div class="field-row"><span style="color:#9CA3AF;">Consultor</span><span>${esc(ind.consultor)}</span></div>${ind.nota ? `<div class="field-row"><span style="color:#9CA3AF;">Observação</span><span>${esc(ind.nota)}</span></div>` : ''}</div>`;
     });
   }
 }
