@@ -78,7 +78,7 @@
   .step-lbl.current { color: #1a56db; font-weight: 600; }
   .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
   .modal.active { display: flex; }
-  .modal-content { background: #fff; border-radius: 24px; padding: 32px; max-width: 380px; width: 90%; text-align: center; }
+  .modal-content { background: #fff; border-radius: 24px; padding: 32px; max-width: 420px; width: 90%; text-align: center; }
   .modal-content h3 { margin-bottom: 12px; font-size: 18px; }
   .modal-content p { color: #6b7280; margin-bottom: 20px; font-size: 14px; }
   .error-msg { color: #c81e1e; font-size: 13px; margin-top: 12px; display: none; }
@@ -86,6 +86,8 @@
   .select-consultor-modal { margin: 16px 0; text-align: left; }
   .select-consultor-modal label { display: block; margin-bottom: 8px; font-weight: 500; }
   .select-consultor-modal select { width: 100%; padding: 10px; border-radius: 8px; border: 1.5px solid #e5e7eb; font-size: 14px; }
+  .tracking-status { background: #f9fafb; border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center; }
+  .tracking-status .status-badge { font-size: 24px; margin-bottom: 12px; display: block; }
   @media (max-width: 480px) { .metrics { grid-template-columns: repeat(2, 1fr); } .steps { gap: 6px; } }
 </style>
 </head>
@@ -93,23 +95,21 @@
 
 <div id="toast"></div>
 
-<!-- MODAL DE SENHA - AGORA COM SELEÇÃO DE CONSULTOR -->
+<!-- MODAL DE SENHA -->
 <div id="modal-senha" class="modal">
   <div class="modal-content">
     <h3>🔐 Acesso Restrito</h3>
     <p>Selecione seu nome e digite sua senha pessoal</p>
-    
     <div class="select-consultor-modal">
       <label>👤 Consultor</label>
       <select id="select-consultor-senha">
         <option value="">Selecione...</option>
       </select>
     </div>
-    
     <input type="password" id="senha-input" placeholder="Sua senha pessoal" style="margin-bottom:12px;">
     <button class="btn btn-primary btn-full" onclick="verificarSenhaConsultor()">Acessar</button>
     <button class="btn btn-secondary btn-full" onclick="fecharModal()" style="margin-top:10px;">Cancelar</button>
-    <div id="erro-senha" class="error-msg">❌ Senha incorreta. Tente novamente.</div>
+    <div id="erro-senha" class="error-msg">❌ Senha incorreta</div>
   </div>
 </div>
 
@@ -135,7 +135,7 @@
   </div>
 </div>
 
-<!-- FORMULÁRIO -->
+<!-- FORMULÁRIO COM CAMPO DE E-MAIL -->
 <div class="screen" id="s-form">
   <div class="topbar">
     <div class="logo">Portal de <em>Indicações</em></div>
@@ -147,6 +147,7 @@
     <div class="page-sub">Preencha os dados de quem você quer indicar</div>
     <div class="card">
       <div class="form-group"><label>Seu nome *</label><input type="text" id="f-indicador" placeholder="Seu nome completo"></div>
+      <div class="form-group"><label>Seu e-mail *</label><input type="email" id="f-email" placeholder="seu@email.com"><small style="font-size:11px;color:#9ca3af;display:block;margin-top:4px;">Receba atualizações sobre sua indicação</small></div>
       <div class="form-group"><label>Consultor *</label><select id="f-consultor"><option value="">Selecione...</option></select></div>
       <div class="form-group"><label>Nome do indicado *</label><input type="text" id="f-nome" placeholder="Nome completo"></div>
       <div class="form-group"><label>Telefone *</label><input type="tel" id="f-tel" placeholder="(11) 99999-9999"></div>
@@ -156,7 +157,7 @@
   </div>
 </div>
 
-<!-- SUCESSO -->
+<!-- SUCESSO COM LINK DE ACOMPANHAMENTO -->
 <div class="screen" id="s-sucesso">
   <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div></div>
   <div class="page">
@@ -164,7 +165,8 @@
       <div class="success-circle">✓</div>
       <div class="page-title" style="margin-bottom:12px;">Indicação enviada!</div>
       <p style="color:#6b7280;font-size:14px;line-height:1.7;margin-bottom:28px;">
-        O consultor <strong id="conf-consultor" style="color:#111827;"></strong> receberá os dados em breve.
+        O consultor <strong id="conf-consultor" style="color:#111827;"></strong> receberá os dados em breve.<br>
+        <span id="email-info" style="display:block;margin-top:12px;font-size:12px;"></span>
       </p>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
         <button class="btn btn-primary" onclick="go('s-form')">Nova indicação</button>
@@ -174,7 +176,17 @@
   </div>
 </div>
 
-<!-- SELECIONAR CONSULTOR (agora apenas para troca após login) -->
+<!-- PÁGINA DE ACOMPANHAMENTO PARA INDICADOR -->
+<div class="screen" id="s-acompanhar">
+  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><span class="mode-tag">Acompanhamento</span></div>
+  <div class="page">
+    <button class="back-btn" onclick="go('s-home')">← Voltar ao início</button>
+    <div class="page-title">Acompanhar indicação</div>
+    <div id="acompanhar-content"></div>
+  </div>
+</div>
+
+<!-- SELECIONAR CONSULTOR -->
 <div class="screen" id="s-consultor-select">
   <div class="topbar">
     <div class="logo">Portal de <em>Indicações</em></div>
@@ -226,20 +238,9 @@
 
 <script>
 // ════════════════════════════════════════════════
-// CONFIGURAÇÃO — senhas individuais por consultor
+// CONFIGURAÇÃO
 // ════════════════════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbziWYgqoNf8eXqUrAYpX_oB-Y0HrP49ZmEwF6XIZn52f0LtaMesdstHD9-FBwDwUZ5QIA/exec';
-
-// SENHAS INDIVIDUAIS POR CONSULTOR (na ordem da lista)
-const SENHAS_CONSULTORES = [
-  'Cortina1',  // Renato Benedetti
-  'Cortina2',  // Vagner Santos
-  'Cortina3',  // Fabricio Araujo
-  'Cortina4',  // Arnaldo
-  'Cortina5',  // Rodrigues Silva
-  'Cortina6',  // Vlamir Santos
-  'Cortina7'   // Erik Carvalho
-];
 
 const CONSULTORES = [
   { nome: 'Renato Benedetti', cor: '#dbeafe', tc: '#1e40af', senha: 'Cortina1' },
@@ -252,20 +253,19 @@ const CONSULTORES = [
 ];
 
 const STATUS = {
-  new:      { label: 'Nova',       cls: 'badge-new',      step: 0 },
-  contact:  { label: 'Em contato', cls: 'badge-contact',  step: 1 },
-  proposal: { label: 'Proposta',   cls: 'badge-proposal', step: 2 },
-  closed:   { label: 'Fechado',    cls: 'badge-closed',   step: 3 },
-  lost:     { label: 'Perdido',    cls: 'badge-lost',     step: -1 }
+  new:      { label: 'Nova',       cls: 'badge-new',      step: 0, emoji: '📌', desc: 'Aguardando contato do consultor' },
+  contact:  { label: 'Em contato', cls: 'badge-contact',  step: 1, emoji: '📞', desc: 'Consultor entrou em contato' },
+  proposal: { label: 'Proposta',   cls: 'badge-proposal', step: 2, emoji: '📄', desc: 'Proposta enviada' },
+  closed:   { label: 'Fechado',    cls: 'badge-closed',   step: 3, emoji: '✅', desc: 'Indicação concluída com sucesso!' },
+  lost:     { label: 'Perdido',    cls: 'badge-lost',     step: -1, emoji: '❌', desc: 'Infelizmente não foi possível concluir' }
 };
 const STEPS = ['Contato', 'Levantamento', 'Proposta', 'Fechamento'];
 
-// ── Estado ──────────────────────────────────────
 let consultorAtivo   = null;
 let filtroAtivo      = 'todos';
 let todasIndicacoes  = [];
 let indicacoesAtivas = [];
-let mapaIndicacoes   = new Map(); // id → objeto
+let mapaIndicacoes   = new Map();
 
 // ════════════════════════════════════════════════
 // UTILITÁRIOS
@@ -299,41 +299,36 @@ function corConsultor(nomeConsultor) {
 }
 
 // ════════════════════════════════════════════════
-// JSONP — única forma de GET sem CORS no Apps Script
+// JSONP
 // ════════════════════════════════════════════════
 function jsonpGet(url) {
   return new Promise((resolve, reject) => {
     const cbName = '_cb' + Date.now() + Math.random().toString(36).slice(2);
     let script;
-
     const cleanup = () => {
       delete window[cbName];
       if (script && script.parentNode) script.parentNode.removeChild(script);
     };
-
     const timer = setTimeout(() => {
       cleanup();
-      reject(new Error('Timeout — verifique se o Apps Script está publicado corretamente'));
+      reject(new Error('Timeout'));
     }, 15000);
-
     window[cbName] = (data) => {
       clearTimeout(timer);
       cleanup();
       resolve(data);
     };
-
     script = document.createElement('script');
     script.onerror = () => {
       clearTimeout(timer);
       cleanup();
-      reject(new Error('Erro ao carregar script — verifique a URL do Apps Script'));
+      reject(new Error('Erro'));
     };
     script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
     document.body.appendChild(script);
   });
 }
 
-// POST via no-cors
 async function postDados(payload) {
   await fetch(SCRIPT_URL, {
     method: 'POST',
@@ -344,10 +339,9 @@ async function postDados(payload) {
 }
 
 // ════════════════════════════════════════════════
-// MODAL DE SENHA COM SELEÇÃO DE CONSULTOR
+// MODAL DE SENHA
 // ════════════════════════════════════════════════
 function abrirModal() {
-  // Preencher o select com os consultores
   const select = document.getElementById('select-consultor-senha');
   select.innerHTML = '<option value="">Selecione...</option>';
   CONSULTORES.forEach(c => {
@@ -356,47 +350,31 @@ function abrirModal() {
     option.textContent = c.nome;
     select.appendChild(option);
   });
-  
   document.getElementById('modal-senha').classList.add('active');
   document.getElementById('senha-input').value = '';
   document.getElementById('erro-senha').classList.remove('show');
-  setTimeout(() => document.getElementById('select-consultor-senha').focus(), 100);
 }
 
 function fecharModal() {
   document.getElementById('modal-senha').classList.remove('active');
 }
 
-document.getElementById('senha-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') verificarSenhaConsultor();
-});
-
 function verificarSenhaConsultor() {
   const consultorSelecionado = document.getElementById('select-consultor-senha').value;
   const senhaDigitada = document.getElementById('senha-input').value;
-  
   if (!consultorSelecionado) {
     document.getElementById('erro-senha').textContent = '❌ Selecione um consultor';
     document.getElementById('erro-senha').classList.add('show');
     return;
   }
-  
-  // Buscar o consultor e verificar a senha
   const consultor = CONSULTORES.find(c => c.nome === consultorSelecionado);
-  
-  if (!consultor) {
-    document.getElementById('erro-senha').textContent = '❌ Consultor não encontrado';
-    document.getElementById('erro-senha').classList.add('show');
-    return;
-  }
-  
   if (senhaDigitada === consultor.senha) {
     fecharModal();
     consultorAtivo = consultorSelecionado;
     go('s-painel');
     carregarIndicacoesDoConsultor(consultorSelecionado);
   } else {
-    document.getElementById('erro-senha').textContent = '❌ Senha incorreta para este consultor';
+    document.getElementById('erro-senha').textContent = '❌ Senha incorreta';
     document.getElementById('erro-senha').classList.add('show');
   }
 }
@@ -405,30 +383,20 @@ function verificarSenhaConsultor() {
 // CARREGAR DADOS
 // ════════════════════════════════════════════════
 async function carregarIndicacoesDoConsultor(nomeConsultor) {
-  const btn = document.getElementById('btn-acessar');
-  if (btn) btn.disabled = true;
-  
   try {
     const dados = await jsonpGet(SCRIPT_URL + '?consultor=' + encodeURIComponent(nomeConsultor));
     indicacoesAtivas = Array.isArray(dados) ? dados : [];
     mapaIndicacoes = new Map(indicacoesAtivas.map(ind => [String(ind.id).trim(), ind]));
-
     document.getElementById('painel-titulo').textContent = nomeConsultor;
-    document.getElementById('painel-sub').textContent =
-      `${indicacoesAtivas.length} indicaç${indicacoesAtivas.length !== 1 ? 'ões' : 'ão'} recebida${indicacoesAtivas.length !== 1 ? 's' : ''}`;
-
+    document.getElementById('painel-sub').textContent = `${indicacoesAtivas.length} indicação${indicacoesAtivas.length !== 1 ? 'ões' : ''} recebida${indicacoesAtivas.length !== 1 ? 's' : ''}`;
     filtroAtivo = 'todos';
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     const primeiroBtn = document.querySelector('.filter-btn');
     if (primeiroBtn) primeiroBtn.classList.add('active');
-
     renderMetrics();
     renderLista();
   } catch (e) {
-    toast('⚠️ Erro ao carregar: ' + e.message);
-    console.error(e);
-  } finally {
-    if (btn) btn.disabled = false;
+    toast('⚠️ Erro ao carregar');
   }
 }
 
@@ -440,8 +408,7 @@ async function carregarTodas() {
     todasIndicacoes = Array.isArray(data) ? data : [];
     renderConsultoresList();
   } catch (e) {
-    if (el) el.innerHTML = `<div class="loading" style="color:#c81e1e;">⚠️ ${e.message}</div>`;
-    console.error(e);
+    if (el) el.innerHTML = `<div class="loading">⚠️ Erro</div>`;
   }
 }
 
@@ -451,25 +418,74 @@ async function carregarDoConsultor(nomeConsultor) {
 }
 
 // ════════════════════════════════════════════════
-// LISTA DE CONSULTORES (para troca)
+// ACOMPANHAMENTO POR LINK
+// ════════════════════════════════════════════════
+async function carregarAcompanhamento(id) {
+  const el = document.getElementById('acompanhar-content');
+  el.innerHTML = '<div class="loading">Carregando informações...</div>';
+  try {
+    const data = await jsonpGet(SCRIPT_URL);
+    const indicacoes = Array.isArray(data) ? data : [];
+    const indicacao = indicacoes.find(i => String(i.id) === String(id));
+    if (!indicacao) {
+      el.innerHTML = '<div class="card" style="text-align:center;"><div class="success-circle" style="background:#fee2e2;">⚠️</div><div class="page-title" style="margin-bottom:12px;">Indicação não encontrada</div><p>O link pode estar incorreto ou a indicação foi removida.</p></div>';
+      return;
+    }
+    const s = STATUS[indicacao.status] || STATUS.new;
+    const c = corConsultor(indicacao.consultor);
+    const stepsHTML = STEPS.map((lbl, i) => {
+      const done = s.step > i;
+      const curr = s.step === i;
+      return `<div class="step"><div class="step-dot ${done?'done':curr?'current':''}">${done?'✓':i+1}</div><div class="step-lbl ${curr?'current':''}">${lbl}</div></div>`;
+    }).join('');
+    el.innerHTML = `
+      <div class="card" style="text-align:center;margin-bottom:16px;">
+        <div class="success-circle" style="background:${c.cor};font-size:48px;">${s.emoji}</div>
+        <div class="page-title" style="margin-bottom:8px;">${esc(indicacao.nome)}</div>
+        <p style="color:#6b7280;">Indicado por <strong>${esc(indicacao.indicador)}</strong></p>
+        <div class="badge ${s.cls}" style="margin:12px auto 0;display:inline-block;">${s.label}</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Status atual</div>
+        <p style="font-size:14px;color:#374151;">${s.desc}</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Etapas do processo</div>
+        <div class="steps">${stepsHTML}</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Informações da indicação</div>
+        <div class="field-row"><span style="color:#9ca3af;">Telefone</span><span>${esc(indicacao.tel)}</span></div>
+        <div class="field-row"><span style="color:#9ca3af;">Consultor</span><span>${esc(indicacao.consultor)}</span></div>
+        ${indicacao.nota ? `<div class="field-row"><span style="color:#9ca3af;">Observação</span><span>${esc(indicacao.nota)}</span></div>` : ''}
+        <div class="field-row"><span style="color:#9ca3af;">Última atualização</span><span>${indicacao.updated || new Date().toLocaleDateString('pt-BR')}</span></div>
+      </div>
+    `;
+  } catch(e) {
+    el.innerHTML = '<div class="loading">Erro ao carregar dados</div>';
+  }
+}
+
+// Verificar URL para acompanhamento
+function verificarUrlAcompanhamento() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const acompanharId = urlParams.get('acompanhar');
+  if (acompanharId) {
+    go('s-acompanhar');
+    carregarAcompanhamento(acompanharId);
+  }
+}
+
+// ════════════════════════════════════════════════
+// PAINEL
 // ════════════════════════════════════════════════
 function renderConsultoresList() {
   const el = document.getElementById('cons-list');
   if (!el) return;
-  
   el.innerHTML = CONSULTORES.map(c => {
-    const count = todasIndicacoes.filter(i =>
-      i.consultor && i.consultor.trim() === c.nome
-    ).length;
-    return `<div class="cons-opt" data-nome="${esc(c.nome)}">
-      <div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini(c.nome)}</div>
-      <div>
-        <strong style="font-size:14px;">${esc(c.nome)}</strong><br>
-        <small style="color:#6b7280;">${count} indicaç${count === 1 ? 'ão' : 'ões'}</small>
-      </div>
-    </div>`;
+    const count = todasIndicacoes.filter(i => i.consultor && i.consultor.trim() === c.nome).length;
+    return `<div class="cons-opt" data-nome="${esc(c.nome)}"><div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini(c.nome)}</div><div><strong>${esc(c.nome)}</strong><br><small>${count} indicaç${count === 1 ? 'ão' : 'ões'}</small></div></div>`;
   }).join('');
-
   el.onclick = e => {
     const opt = e.target.closest('.cons-opt');
     if (!opt) return;
@@ -480,44 +496,31 @@ function renderConsultoresList() {
   };
 }
 
-// ════════════════════════════════════════════════
-// PAINEL DO CONSULTOR
-// ════════════════════════════════════════════════
 async function acessarConsultor() {
   if (!consultorAtivo) return;
   const btn = document.getElementById('btn-acessar');
   btn.textContent = 'Carregando…';
   btn.disabled = true;
-
   try {
     const dados = await carregarDoConsultor(consultorAtivo);
     indicacoesAtivas = dados;
     mapaIndicacoes = new Map(dados.map(ind => [String(ind.id).trim(), ind]));
-
     document.getElementById('painel-titulo').textContent = consultorAtivo;
-    document.getElementById('painel-sub').textContent =
-      `${dados.length} indicaç${dados.length !== 1 ? 'ões' : 'ão'} recebida${dados.length !== 1 ? 's' : ''}`;
-
+    document.getElementById('painel-sub').textContent = `${dados.length} indicação${dados.length !== 1 ? 'ões' : ''}`;
     filtroAtivo = 'todos';
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.filter-btn').classList.add('active');
-
     renderMetrics();
     renderLista();
     go('s-painel');
-  } catch (e) {
-    toast('⚠️ Erro ao carregar: ' + e.message);
-    console.error(e);
-  } finally {
-    btn.textContent = 'Acessar painel →';
-    btn.disabled = false;
-  }
+  } catch(e) { toast('⚠️ Erro'); }
+  finally { btn.textContent = 'Acessar painel →'; btn.disabled = false; }
 }
 
 function renderMetrics() {
-  const total     = indicacoesAtivas.length;
+  const total = indicacoesAtivas.length;
   const andamento = indicacoesAtivas.filter(i => ['new','contact','proposal'].includes(i.status)).length;
-  const fechados  = indicacoesAtivas.filter(i => i.status === 'closed').length;
+  const fechados = indicacoesAtivas.filter(i => i.status === 'closed').length;
   document.getElementById('painel-metrics').innerHTML = `
     <div class="metric"><div class="metric-val" style="color:#1a56db;">${total}</div><div class="metric-lbl">Total</div></div>
     <div class="metric"><div class="metric-val" style="color:#c27803;">${andamento}</div><div class="metric-lbl">Andamento</div></div>
@@ -532,43 +535,17 @@ function filtrar(f, el) {
 }
 
 function renderLista() {
-  const items = filtroAtivo === 'todos'
-    ? indicacoesAtivas
-    : indicacoesAtivas.filter(i => i.status === filtroAtivo);
-
+  const items = filtroAtivo === 'todos' ? indicacoesAtivas : indicacoesAtivas.filter(i => i.status === filtroAtivo);
   const el = document.getElementById('lista-indicacoes');
-
-  if (!items.length) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:#9ca3af;">Nenhuma indicação neste filtro</div>';
-    el.onclick = null;
-    return;
-  }
-
+  if (!items.length) { el.innerHTML = '<div style="padding:40px;text-align:center;color:#9ca3af;">Nenhuma indicação</div>'; el.onclick = null; return; }
   const c = corConsultor(consultorAtivo);
   el.innerHTML = items.map(ind => {
-    const s     = STATUS[ind.status] || STATUS.new;
-    const idStr = String(ind.id).trim();
-    return `<div class="ind-item" data-id="${esc(idStr)}">
-      <div style="display:flex;gap:12px;align-items:center;min-width:0;">
-        <div class="avatar" style="background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div>
-        <div style="min-width:0;">
-          <div style="font-weight:600;font-size:14px;">${esc(ind.nome)}</div>
-          <div style="font-size:12px;color:#6b7280;margin-top:2px;">${esc(ind.tel)} · por ${esc(ind.indicador || '—')}</div>
-        </div>
-      </div>
-      <span class="badge ${s.cls}" style="flex-shrink:0;">${s.label}</span>
-    </div>`;
+    const s = STATUS[ind.status] || STATUS.new;
+    return `<div class="ind-item" data-id="${String(ind.id).trim()}"><div style="display:flex;gap:12px;"><div class="avatar" style="background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><strong>${esc(ind.nome)}</strong><br><small>${esc(ind.tel)} · por ${esc(ind.indicador || '—')}</small></div></div><span class="badge ${s.cls}">${s.label}</span></div>`;
   }).join('');
-
-  el.onclick = e => {
-    const item = e.target.closest('.ind-item');
-    if (item) abrirDetalhe(item.dataset.id);
-  };
+  el.onclick = e => { const item = e.target.closest('.ind-item'); if(item) abrirDetalhe(item.dataset.id); };
 }
 
-// ════════════════════════════════════════════════
-// DETALHE / EDIÇÃO
-// ════════════════════════════════════════════════
 function abrirDetalhe(id) {
   const ind = mapaIndicacoes.get(String(id).trim());
   if (!ind) { toast('⚠️ Indicação não encontrada'); return; }
@@ -577,127 +554,76 @@ function abrirDetalhe(id) {
 }
 
 function renderDetalhe(ind) {
-  const s   = STATUS[ind.status] || STATUS.new;
-  const c   = corConsultor(ind.consultor);
-  const id  = String(ind.id).trim();
-
+  const s = STATUS[ind.status] || STATUS.new;
+  const c = corConsultor(ind.consultor);
   const stepsHTML = STEPS.map((lbl, i) => {
     const done = s.step > i, curr = s.step === i;
-    return `<div class="step">
-      <div class="step-dot ${done?'done':curr?'current':''}">${done?'✓':i+1}</div>
-      <div class="step-lbl ${curr?'current':''}">${lbl}</div>
-    </div>`;
+    return `<div class="step"><div class="step-dot ${done?'done':curr?'current':''}">${done?'✓':i+1}</div><div class="step-lbl ${curr?'current':''}">${lbl}</div></div>`;
   }).join('');
-
   document.getElementById('detalhe-content').innerHTML = `
-    <div style="display:flex;gap:16px;margin-bottom:24px;border-bottom:1px solid #e5e7eb;padding-bottom:20px;align-items:center;">
-      <div class="avatar" style="width:52px;height:52px;font-size:18px;flex-shrink:0;background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div>
-      <div>
-        <div style="font-size:20px;font-weight:700;">${esc(ind.nome)}</div>
-        <div style="margin-top:6px;font-size:13px;color:#6b7280;">
-          Indicado por ${esc(ind.indicador || '—')} · <span class="badge ${s.cls}">${s.label}</span>
-        </div>
-      </div>
-    </div>
-
+    <div style="display:flex;gap:16px;margin-bottom:24px;border-bottom:1px solid #e5e7eb;padding-bottom:20px;"><div class="avatar" style="width:52px;height:52px;background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><div style="font-size:20px;font-weight:700;">${esc(ind.nome)}</div><div>Indicado por ${esc(ind.indicador)} · <span class="badge ${s.cls}">${s.label}</span></div></div></div>
     ${ind.status !== 'lost' ? `<div class="card"><div class="card-title">Etapa da venda</div><div class="steps">${stepsHTML}</div></div>` : ''}
-
-    <div class="card">
-      <div class="card-title">Dados</div>
-      <div class="field-row"><span style="color:#9ca3af;">Telefone</span><strong>${esc(ind.tel)}</strong></div>
-      ${ind.nota ? `<div class="field-row"><span style="color:#9ca3af;">Observação</span><span style="text-align:right;max-width:60%;">${esc(ind.nota)}</span></div>` : ''}
-      ${ind.updated ? `<div class="field-row"><span style="color:#9ca3af;">Atualizado</span><span>${esc(ind.updated)}</span></div>` : ''}
-    </div>
-
-    <div class="card">
-      <div class="card-title">Atualizar</div>
+    <div class="card"><div class="card-title">Dados</div><div class="field-row"><span>Telefone</span><strong>${esc(ind.tel)}</strong></div>${ind.nota ? `<div class="field-row"><span>Observação</span><span>${esc(ind.nota)}</span></div>` : ''}</div>
+    <div class="card"><div class="card-title">Atualizar</div>
       <div class="form-group"><label>Nome</label><input id="ed-nome" value="${esc(ind.nome)}"></div>
       <div class="form-group"><label>Telefone</label><input id="ed-tel" value="${esc(ind.tel)}"></div>
-      <div class="form-group"><label>Status</label>
-        <select id="ed-status">
-          ${Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${ind.status===k?'selected':''}>${v.label}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group" style="margin-bottom:0;"><label>Observação</label><textarea id="ed-nota">${esc(ind.nota||'')}</textarea></div>
+      <div class="form-group"><label>Status</label><select id="ed-status">${Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${ind.status===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Observação</label><textarea id="ed-nota">${esc(ind.nota||'')}</textarea></div>
     </div>
-    <button class="btn btn-primary btn-full" id="btn-salvar" data-id="${esc(id)}">Salvar alterações</button>`;
-
-  document.getElementById('btn-salvar').addEventListener('click', function() {
-    salvarEdicao(this.dataset.id);
-  });
+    <button class="btn btn-primary btn-full" id="btn-salvar" data-id="${String(ind.id).trim()}">Salvar alterações</button>`;
+  document.getElementById('btn-salvar').addEventListener('click', () => salvarEdicao(String(ind.id).trim()));
 }
 
 async function salvarEdicao(id) {
   const ind = mapaIndicacoes.get(String(id).trim());
-  if (!ind) { toast('⚠️ Erro: indicação não encontrada'); return; }
-
-  ind.nome    = document.getElementById('ed-nome').value.trim();
-  ind.tel     = document.getElementById('ed-tel').value.trim();
-  ind.status  = document.getElementById('ed-status').value;
-  ind.nota    = document.getElementById('ed-nota').value.trim();
+  if (!ind) { toast('⚠️ Erro'); return; }
+  const statusAnterior = ind.status;
+  ind.nome = document.getElementById('ed-nome').value.trim();
+  ind.tel = document.getElementById('ed-tel').value.trim();
+  ind.status = document.getElementById('ed-status').value;
+  ind.nota = document.getElementById('ed-nota').value.trim();
   ind.updated = new Date().toLocaleDateString('pt-BR');
-
   const btn = document.getElementById('btn-salvar');
   btn.textContent = 'Salvando…';
   btn.disabled = true;
-
   try {
-    await postDados({ action: 'update', ...ind });
+    await postDados({ action: 'update', ...ind, status_anterior: statusAnterior });
     toast('✓ Salvo!');
     renderLista();
     renderMetrics();
     renderDetalhe(ind);
-  } catch (e) {
-    toast('⚠️ Erro ao salvar');
-    console.error(e);
-  } finally {
-    btn.textContent = 'Salvar alterações';
-    btn.disabled = false;
-  }
+  } catch(e) { toast('⚠️ Erro'); }
+  finally { btn.textContent = 'Salvar alterações'; btn.disabled = false; }
 }
 
-// ════════════════════════════════════════════════
-// ENVIAR INDICAÇÃO
-// ════════════════════════════════════════════════
 async function enviarIndicacao() {
   const indicador = document.getElementById('f-indicador').value.trim();
-  const consultor  = document.getElementById('f-consultor').value;
-  const nome       = document.getElementById('f-nome').value.trim();
-  const tel        = document.getElementById('f-tel').value.trim();
-  const nota       = document.getElementById('f-nota').value.trim();
-
-  if (!indicador || !consultor || !nome || !tel) {
-    toast('⚠️ Preencha todos os campos obrigatórios');
-    return;
-  }
-
+  const email = document.getElementById('f-email').value.trim();
+  const consultor = document.getElementById('f-consultor').value;
+  const nome = document.getElementById('f-nome').value.trim();
+  const tel = document.getElementById('f-tel').value.trim();
+  const nota = document.getElementById('f-nota').value.trim();
+  if (!indicador || !consultor || !nome || !tel) { toast('⚠️ Preencha todos os campos'); return; }
+  if (email && !email.includes('@')) { toast('⚠️ Digite um e-mail válido'); return; }
   const btn = document.getElementById('btn-enviar');
   btn.textContent = 'Enviando…';
   btn.disabled = true;
-
   try {
     await postDados({
-      action: 'add',
-      id: Date.now().toString(),
-      indicador, consultor, nome, tel,
-      nota: nota || '',
-      status: 'new',
-      admin: '',
-      updated: new Date().toLocaleDateString('pt-BR')
+      action: 'add', id: Date.now().toString(),
+      indicador, indicador_email: email, consultor, nome, tel, nota: nota || '',
+      status: 'new', admin: '', updated: new Date().toLocaleDateString('pt-BR')
     });
-
     document.getElementById('conf-consultor').textContent = consultor;
-    ['f-indicador','f-nome','f-tel','f-nota'].forEach(id => document.getElementById(id).value = '');
+    const emailInfo = document.getElementById('email-info');
+    if (email) emailInfo.innerHTML = `📧 Um e-mail foi enviado para <strong>${esc(email)}</strong> com o link de acompanhamento.`;
+    else emailInfo.innerHTML = `🔗 Você pode acompanhar a indicação pelo link que será enviado se fornecer um e-mail.`;
+    ['f-indicador','f-email','f-nome','f-tel','f-nota'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-consultor').value = '';
     toast('✓ Indicação enviada!');
     go('s-sucesso');
-  } catch (e) {
-    toast('⚠️ Erro ao enviar');
-    console.error(e);
-  } finally {
-    btn.textContent = 'Enviar indicação';
-    btn.disabled = false;
-  }
+  } catch(e) { toast('⚠️ Erro'); }
+  finally { btn.textContent = 'Enviar indicação'; btn.disabled = false; }
 }
 
 // ════════════════════════════════════════════════
@@ -711,6 +637,7 @@ async function enviarIndicacao() {
     o.textContent = c.nome;
     sel.appendChild(o);
   });
+  verificarUrlAcompanhamento();
 })();
 </script>
 </body>
