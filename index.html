@@ -4,40 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Portal de Indicações</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'DM Sans', sans-serif; background: #f9fafb; color: #111827; }
   .screen { display: none; min-height: 100vh; }
   .screen.active { display: block; }
   .topbar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
-  .logo { font-family: 'DM Serif Display', serif; font-size: 20px; }
+  .logo { font-size: 20px; font-weight: 600; }
   .logo em { color: #1a56db; font-style: normal; }
   .mode-tag { font-size: 11px; background: #e8f0fe; color: #1a56db; padding: 3px 10px; border-radius: 20px; }
   .page { max-width: 520px; margin: 0 auto; padding: 32px 20px 60px; }
   .page-wide { max-width: 720px; margin: 0 auto; padding: 28px 20px 60px; }
-  .page-title { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 6px; }
+  .page-title { font-size: 26px; font-weight: 600; margin-bottom: 6px; }
   .page-sub { font-size: 14px; color: #9ca3af; margin-bottom: 28px; }
   .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 22px 24px; margin-bottom: 16px; }
-  .card-title { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.5px; }
+  .card-title { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; margin-bottom: 16px; }
   .form-group { margin-bottom: 18px; }
   label { font-size: 13px; font-weight: 500; color: #4b5563; display: block; margin-bottom: 7px; }
-  input, select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; color: #111827; background: #fff; }
-  input:focus, select:focus, textarea:focus { border-color: #1a56db; box-shadow: 0 0 0 3px rgba(26,86,219,0.1); }
-  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  input, select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; outline: none; }
+  input:focus, select:focus, textarea:focus { border-color: #1a56db; }
+  .btn { padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; display: inline-block; text-align: center; }
   .btn-primary { background: #1a56db; color: #fff; }
   .btn-primary:hover { background: #1447b8; }
   .btn-secondary { background: #fff; color: #1f2937; border: 1.5px solid #e5e7eb; }
-  .btn-secondary:hover { background: #f9fafb; }
   .btn-full { width: 100%; }
   .btn-sm { padding: 7px 14px; font-size: 12px; }
-  .back-btn { background: none; border: none; color: #1a56db; font-size: 13px; cursor: pointer; margin-bottom: 22px; display: inline-flex; align-items: center; gap: 5px; font-weight: 500; font-family: 'DM Sans', sans-serif; }
+  .back-btn { background: none; border: none; color: #1a56db; font-size: 13px; cursor: pointer; margin-bottom: 22px; }
   .switcher { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
-  .sw-card { background: #fff; border: 2px solid #e5e7eb; border-radius: 16px; padding: 22px 18px; cursor: pointer; text-align: center; transition: all 0.2s; }
-  .sw-card:hover { border-color: #b3caf7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .sw-card { background: #fff; border: 2px solid #e5e7eb; border-radius: 16px; padding: 22px 18px; cursor: pointer; text-align: center; }
+  .sw-card:hover { border-color: #b3caf7; }
   .sw-icon { font-size: 32px; margin-bottom: 10px; }
-  .badge { display: inline-flex; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
   .badge-new { background: #fdf6b2; color: #c27803; }
   .badge-contact { background: #e8f0fe; color: #1a56db; }
   .badge-proposal { background: #edebfe; color: #6c2bd9; }
@@ -46,170 +44,127 @@
   .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
   .metric { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center; }
   .metric-val { font-size: 28px; font-weight: 700; }
-  .metric-lbl { font-size: 12px; color: #9ca3af; margin-top: 2px; }
   .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-  .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1.5px solid #e5e7eb; background: #fff; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; border: 1.5px solid #e5e7eb; background: #fff; cursor: pointer; }
   .filter-btn.active { background: #1a56db; color: #fff; border-color: #1a56db; }
-  .ind-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid #f3f4f6; cursor: pointer; transition: background 0.2s; gap: 12px; }
-  .ind-item:last-child { border-bottom: none; }
+  .ind-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid #f3f4f6; cursor: pointer; }
   .ind-item:hover { background: #f9fafb; }
-  .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
-  .cons-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-  .cons-opt { background: #fff; border: 2px solid #e5e7eb; border-radius: 12px; padding: 14px 18px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: all 0.2s; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
+  .cons-list { display: flex; flex-direction: column; gap: 10px; }
+  .cons-opt { background: #fff; border: 2px solid #e5e7eb; border-radius: 12px; padding: 14px 18px; cursor: pointer; display: flex; align-items: center; gap: 14px; }
   .cons-opt:hover { border-color: #b3caf7; }
   .cons-opt.selected { border-color: #1a56db; background: #e8f0fe; }
-  .cons-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
+  .cons-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
   .success-wrap { text-align: center; padding: 48px 24px; }
   .success-circle { width: 72px; height: 72px; border-radius: 50%; background: #def7ec; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
-  .home-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 20px; }
-  .home-logo { font-family: 'DM Serif Display', serif; font-size: 42px; text-align: center; }
+  .home-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .home-logo { font-size: 42px; font-weight: 600; text-align: center; }
   .home-logo em { color: #1a56db; font-style: normal; }
-  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #111827; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 999; transition: transform 0.3s; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-  #toast.show { transform: translateX(-50%) translateY(0); }
-  .loading { text-align: center; padding: 40px; color: #9ca3af; font-size: 14px; }
-  .field-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; gap: 12px; }
-  .field-row:last-child { border-bottom: none; }
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #111827; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; z-index: 999; display: none; }
+  #toast.show { display: block; }
+  .loading { text-align: center; padding: 40px; color: #9ca3af; }
+  .field-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f3f4f6; }
   .steps { display: flex; gap: 12px; margin-top: 8px; }
   .step { flex: 1; text-align: center; }
-  .step-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #e5e7eb; background: #fff; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+  .step-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #e5e7eb; background: #fff; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
   .step-dot.done { background: #1a56db; border-color: #1a56db; color: #fff; }
   .step-dot.current { border-color: #1a56db; color: #1a56db; background: #e8f0fe; }
   .step-lbl { font-size: 11px; color: #9ca3af; }
   .step-lbl.current { color: #1a56db; font-weight: 600; }
   .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
   .modal.active { display: flex; }
-  .modal-content { background: #fff; border-radius: 24px; padding: 32px; max-width: 420px; width: 90%; text-align: center; }
-  .modal-content h3 { margin-bottom: 12px; font-size: 18px; }
-  .modal-content p { color: #6b7280; margin-bottom: 20px; font-size: 14px; }
-  .error-msg { color: #c81e1e; font-size: 13px; margin-top: 12px; display: none; }
-  .error-msg.show { display: block; }
-  .select-consultor-modal { margin: 16px 0; text-align: left; }
-  .select-consultor-modal label { display: block; margin-bottom: 8px; font-weight: 500; }
-  .select-consultor-modal select { width: 100%; padding: 10px; border-radius: 8px; border: 1.5px solid #e5e7eb; font-size: 14px; }
-  @media (max-width: 480px) { .metrics { grid-template-columns: repeat(2, 1fr); } .steps { gap: 6px; } }
+  .modal-content { background: #fff; border-radius: 24px; padding: 32px; max-width: 380px; width: 90%; text-align: center; }
+  .error-senha { color: #c81e1e; font-size: 12px; margin-top: 12px; display: none; }
+  .error-senha.show { display: block; }
+  @media (max-width: 480px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
 <body>
 
 <div id="toast"></div>
 
-<!-- MODAL DE SENHA -->
 <div id="modal-senha" class="modal">
   <div class="modal-content">
     <h3>🔐 Acesso Restrito</h3>
-    <p>Selecione seu nome e digite sua senha pessoal</p>
-    <div class="select-consultor-modal">
-      <label>👤 Consultor</label>
-      <select id="select-consultor-senha">
-        <option value="">Selecione...</option>
-      </select>
-    </div>
-    <input type="password" id="senha-input" placeholder="Sua senha pessoal" style="margin-bottom:12px;">
-    <button class="btn btn-primary btn-full" onclick="verificarSenhaConsultor()">Acessar</button>
+    <p>Selecione seu nome e digite sua senha</p>
+    <select id="select-consultor-senha" style="width:100%; margin-bottom:16px; padding:10px;">
+      <option value="">Selecione...</option>
+    </select>
+    <input type="password" id="senha-input" placeholder="Sua senha" style="width:100%; margin-bottom:16px;">
+    <button class="btn btn-primary btn-full" onclick="verificarSenha()">Acessar</button>
     <button class="btn btn-secondary btn-full" onclick="fecharModal()" style="margin-top:10px;">Cancelar</button>
-    <div id="erro-senha" class="error-msg">❌ Senha incorreta</div>
+    <div id="erro-senha" class="error-senha">❌ Senha incorreta</div>
   </div>
 </div>
 
-<!-- HOME -->
 <div class="screen active" id="s-home">
   <div class="home-wrap">
-    <div class="home-logo">Portal de <em>Indicações</em></div>
-    <div style="margin:12px 0 48px;color:#9ca3af;font-size:14px;">Selecione como deseja acessar</div>
-    <div style="width:100%;max-width:400px;">
-      <div class="switcher">
-        <div class="sw-card" onclick="go('s-form')">
-          <div class="sw-icon">🤝</div>
-          <div style="font-weight:600;font-size:14px;">Quero indicar</div>
-          <div style="font-size:12px;color:#9ca3af;margin-top:4px;">Indique um conhecido</div>
-        </div>
-        <div class="sw-card" onclick="abrirModal()">
-          <div class="sw-icon">📊</div>
-          <div style="font-weight:600;font-size:14px;">Sou consultor</div>
-          <div style="font-size:12px;color:#9ca3af;margin-top:4px;">Gerencie indicações</div>
+    <div>
+      <div class="home-logo">Portal de <em>Indicações</em></div>
+      <div style="text-align:center; margin:12px 0 48px; color:#9ca3af;">Selecione como deseja acessar</div>
+      <div style="width:100%; max-width:400px;">
+        <div class="switcher">
+          <div class="sw-card" onclick="go('s-form')"><div class="sw-icon">🤝</div><div>Quero indicar</div></div>
+          <div class="sw-card" onclick="abrirModal()"><div class="sw-icon">📊</div><div>Sou consultor</div></div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- FORMULÁRIO -->
 <div class="screen" id="s-form">
-  <div class="topbar">
-    <div class="logo">Portal de <em>Indicações</em></div>
-    <span class="mode-tag">Indicar</span>
-  </div>
+  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><span class="mode-tag">Indicar</span></div>
   <div class="page">
     <button class="back-btn" onclick="go('s-home')">← Voltar</button>
     <div class="page-title">Nova indicação</div>
-    <div class="page-sub">Preencha os dados de quem você quer indicar</div>
     <div class="card">
-      <div class="form-group"><label>Seu nome *</label><input type="text" id="f-indicador" placeholder="Seu nome completo"></div>
-      <div class="form-group"><label>Seu e-mail *</label><input type="email" id="f-email" placeholder="seu@email.com"><small style="font-size:11px;color:#9ca3af;display:block;margin-top:4px;">Receba atualizações sobre sua indicação</small></div>
+      <div class="form-group"><label>Seu nome *</label><input type="text" id="f-indicador"></div>
+      <div class="form-group"><label>Seu e-mail</label><input type="email" id="f-email" placeholder="para receber atualizações"></div>
       <div class="form-group"><label>Consultor *</label><select id="f-consultor"><option value="">Selecione...</option></select></div>
-      <div class="form-group"><label>Nome do indicado *</label><input type="text" id="f-nome" placeholder="Nome completo"></div>
-      <div class="form-group"><label>Telefone *</label><input type="tel" id="f-tel" placeholder="(11) 99999-9999"></div>
-      <div class="form-group" style="margin-bottom:0;"><label>Observação</label><textarea id="f-nota" placeholder="Produto de interesse, contexto..."></textarea></div>
+      <div class="form-group"><label>Nome do indicado *</label><input type="text" id="f-nome"></div>
+      <div class="form-group"><label>Telefone *</label><input type="tel" id="f-tel"></div>
+      <div class="form-group"><label>Observação</label><textarea id="f-nota" rows="3"></textarea></div>
     </div>
-    <button class="btn btn-primary btn-full" id="btn-enviar" onclick="enviarIndicacao()">Enviar indicação</button>
+    <button class="btn btn-primary btn-full" onclick="enviarIndicacao()">Enviar indicação</button>
   </div>
 </div>
 
-<!-- SUCESSO -->
 <div class="screen" id="s-sucesso">
   <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div></div>
   <div class="page">
     <div class="success-wrap">
       <div class="success-circle">✓</div>
-      <div class="page-title" style="margin-bottom:12px;">Indicação enviada!</div>
-      <p style="color:#6b7280;font-size:14px;line-height:1.7;margin-bottom:28px;">
-        O consultor <strong id="conf-consultor" style="color:#111827;"></strong> receberá os dados em breve.<br>
-        <span id="email-info" style="display:block;margin-top:12px;font-size:12px;"></span>
-      </p>
-      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="go('s-form')">Nova indicação</button>
-        <button class="btn btn-secondary" onclick="go('s-home')">Início</button>
-      </div>
+      <div class="page-title">Indicação enviada!</div>
+      <p style="margin:20px 0;">Consultor <strong id="conf-consultor"></strong> receberá os dados</p>
+      <button class="btn btn-primary" onclick="go('s-form')">Nova indicação</button>
+      <button class="btn btn-secondary" onclick="go('s-home')">Início</button>
     </div>
   </div>
 </div>
 
-<!-- ACOMPANHAMENTO -->
 <div class="screen" id="s-acompanhar">
-  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><span class="mode-tag">Acompanhamento</span></div>
+  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><span class="mode-tag">Acompanhar</span></div>
   <div class="page">
-    <button class="back-btn" onclick="go('s-home')">← Voltar ao início</button>
+    <button class="back-btn" onclick="go('s-home')">← Voltar</button>
     <div class="page-title">Acompanhar indicação</div>
     <div id="acompanhar-content"></div>
   </div>
 </div>
 
-<!-- SELECIONAR CONSULTOR -->
 <div class="screen" id="s-consultor-select">
-  <div class="topbar">
-    <div class="logo">Portal de <em>Indicações</em></div>
-    <span class="mode-tag">Consultores</span>
-  </div>
+  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><span class="mode-tag">Consultores</span></div>
   <div class="page">
     <button class="back-btn" onclick="go('s-home')">← Voltar</button>
     <div class="page-title">Trocar consultor</div>
-    <div class="page-sub">Selecione outro consultor para visualizar</div>
     <div class="cons-list" id="cons-list"><div class="loading">Carregando...</div></div>
-    <button class="btn btn-primary btn-full" id="btn-acessar" onclick="acessarConsultor()" style="display:none;">Acessar painel →</button>
+    <button class="btn btn-primary btn-full" id="btn-acessar" onclick="acessarConsultor()" style="display:none;">Acessar →</button>
   </div>
 </div>
 
-<!-- PAINEL -->
 <div class="screen" id="s-painel">
-  <div class="topbar">
-    <div class="logo">Portal de <em>Indicações</em></div>
-    <button class="btn btn-secondary btn-sm" onclick="go('s-consultor-select')">Trocar</button>
-  </div>
+  <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><button class="btn btn-secondary btn-sm" onclick="go('s-consultor-select')">Trocar</button></div>
   <div class="page-wide">
-    <div style="margin-bottom:24px;">
-      <div class="page-title" id="painel-titulo">Minhas indicações</div>
-      <div class="page-sub" id="painel-sub"></div>
-    </div>
+    <div class="page-title" id="painel-titulo">Minhas indicações</div>
     <div class="metrics" id="painel-metrics"></div>
     <div class="filter-row">
       <button class="filter-btn active" onclick="filtrar('todos',this)">Todas</button>
@@ -219,41 +174,38 @@
       <button class="filter-btn" onclick="filtrar('closed',this)">Fechadas</button>
       <button class="filter-btn" onclick="filtrar('lost',this)">Perdidas</button>
     </div>
-    <div class="card" style="padding:0;">
-      <div id="lista-indicacoes"><div class="loading">Carregando...</div></div>
-    </div>
+    <div class="card" style="padding:0;"><div id="lista-indicacoes"></div></div>
   </div>
 </div>
 
-<!-- DETALHE -->
 <div class="screen" id="s-detalhe">
   <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div></div>
   <div class="page">
-    <button class="back-btn" onclick="go('s-painel')">← Indicações</button>
+    <button class="back-btn" onclick="go('s-painel')">← Voltar</button>
     <div id="detalhe-content"></div>
   </div>
 </div>
 
 <script>
-// CONFIGURAÇÃO
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxiRyhQ918pVbjywkuhOdSxxaEXfqU9ziIk2J1uF3fhTJV-FP6ZVCgZSotuk4sLwxp';
+// COLOQUE A URL QUE VOCÊ COPIU AQUI
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx31W3ppSrk4vfodxJS48M-e5EDsXlQtVhHvm4ixDyWkHgfhf7XdkT1k9XndSXNOZNrJQ/exec';
 
 const CONSULTORES = [
   { nome: 'Renato Benedetti', cor: '#dbeafe', tc: '#1e40af', senha: 'Cortina1' },
-  { nome: 'Vagner Santos',    cor: '#fce7f3', tc: '#9d174d', senha: 'Cortina2' },
-  { nome: 'Fabricio Araujo',  cor: '#d1fae5', tc: '#065f46', senha: 'Cortina3' },
-  { nome: 'Arnaldo',          cor: '#ede9fe', tc: '#5b21b6', senha: 'Cortina4' },
-  { nome: 'Rodrigues Silva',  cor: '#fef3c7', tc: '#92400e', senha: 'Cortina5' },
-  { nome: 'Vlamir Santos',    cor: '#e0f2fe', tc: '#0369a1', senha: 'Cortina6' },
-  { nome: 'Erik Carvalho',    cor: '#fee2e2', tc: '#991b1b', senha: 'Cortina7' }
+  { nome: 'Vagner Santos', cor: '#fce7f3', tc: '#9d174d', senha: 'Cortina2' },
+  { nome: 'Fabricio Araujo', cor: '#d1fae5', tc: '#065f46', senha: 'Cortina3' },
+  { nome: 'Arnaldo', cor: '#ede9fe', tc: '#5b21b6', senha: 'Cortina4' },
+  { nome: 'Rodrigues Silva', cor: '#fef3c7', tc: '#92400e', senha: 'Cortina5' },
+  { nome: 'Vlamir Santos', cor: '#e0f2fe', tc: '#0369a1', senha: 'Cortina6' },
+  { nome: 'Erik Carvalho', cor: '#fee2e2', tc: '#991b1b', senha: 'Cortina7' }
 ];
 
 const STATUS = {
-  new:      { label: 'Nova', cls: 'badge-new', step: 0, emoji: '📌', desc: 'Aguardando contato do consultor' },
-  contact:  { label: 'Em contato', cls: 'badge-contact', step: 1, emoji: '📞', desc: 'Consultor entrou em contato' },
-  proposal: { label: 'Proposta', cls: 'badge-proposal', step: 2, emoji: '📄', desc: 'Proposta enviada' },
-  closed:   { label: 'Fechado', cls: 'badge-closed', step: 3, emoji: '✅', desc: 'Indicação concluída!' },
-  lost:     { label: 'Perdido', cls: 'badge-lost', step: -1, emoji: '❌', desc: 'Não foi possível concluir' }
+  new: { label: 'Nova', cls: 'badge-new', step: 0 },
+  contact: { label: 'Em contato', cls: 'badge-contact', step: 1 },
+  proposal: { label: 'Proposta', cls: 'badge-proposal', step: 2 },
+  closed: { label: 'Fechado', cls: 'badge-closed', step: 3 },
+  lost: { label: 'Perdido', cls: 'badge-lost', step: -1 }
 };
 const STEPS = ['Contato', 'Levantamento', 'Proposta', 'Fechamento'];
 
@@ -261,7 +213,6 @@ let consultorAtivo = null;
 let filtroAtivo = 'todos';
 let todasIndicacoes = [];
 let indicacoesAtivas = [];
-let mapaIndicacoes = new Map();
 
 function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -276,184 +227,91 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-function esc(v) {
-  if (v == null) return '';
-  const d = document.createElement('div');
-  d.textContent = String(v);
-  return d.innerHTML;
+function esc(t) { if (!t) return ''; return String(t).replace(/[&<>]/g, function(m){return m==='&'?'&amp;':m==='<'?'&lt;':m==='>'?'&gt;':m;}); }
+
+function ini(n) { return (n || '?').split(' ').slice(0,2).map(p=>p[0]).join(''); }
+
+function jsonp(url, cb) {
+  const name = 'cb_' + Date.now();
+  window[name] = function(d) { delete window[name]; document.body.removeChild(s); cb(d); };
+  const s = document.createElement('script');
+  s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + name;
+  s.onerror = () => { delete window[name]; cb({ error: 'Erro' }); };
+  document.body.appendChild(s);
+  setTimeout(() => { if (window[name]) { delete window[name]; cb({ error: 'Timeout' }); } }, 10000);
 }
 
-function ini(nome) {
-  return (nome || '?').split(' ').slice(0, 2).map(p => p[0]).join('');
+function postData(data) {
+  return fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
 }
 
-function corConsultor(nomeConsultor) {
-  return CONSULTORES.find(c => c.nome === nomeConsultor) || { cor: '#e5e7eb', tc: '#374151' };
-}
-
-function jsonpGet(url) {
-  return new Promise((resolve, reject) => {
-    const cbName = '_cb' + Date.now() + Math.random().toString(36).slice(2);
-    let script;
-    const cleanup = () => {
-      delete window[cbName];
-      if (script && script.parentNode) script.parentNode.removeChild(script);
-    };
-    const timer = setTimeout(() => { cleanup(); reject(new Error('Timeout')); }, 15000);
-    window[cbName] = (data) => { clearTimeout(timer); cleanup(); resolve(data); };
-    script = document.createElement('script');
-    script.onerror = () => { clearTimeout(timer); cleanup(); reject(new Error('Erro')); };
-    script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
-    document.body.appendChild(script);
-  });
-}
-
-async function postDados(payload) {
-  console.log('📤 Enviando:', payload);
-  await fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(payload)
-  });
-}
-
+// Modal
 function abrirModal() {
-  const select = document.getElementById('select-consultor-senha');
-  select.innerHTML = '<option value="">Selecione...</option>';
-  CONSULTORES.forEach(c => {
-    const option = document.createElement('option');
-    option.value = c.nome;
-    option.textContent = c.nome;
-    select.appendChild(option);
-  });
+  const s = document.getElementById('select-consultor-senha');
+  s.innerHTML = '<option value="">Selecione...</option>';
+  CONSULTORES.forEach(c => { s.innerHTML += `<option value="${c.nome}">${c.nome}</option>`; });
   document.getElementById('modal-senha').classList.add('active');
   document.getElementById('senha-input').value = '';
   document.getElementById('erro-senha').classList.remove('show');
 }
-
-function fecharModal() {
-  document.getElementById('modal-senha').classList.remove('active');
-}
-
-function verificarSenhaConsultor() {
-  const consultorSelecionado = document.getElementById('select-consultor-senha').value;
-  const senhaDigitada = document.getElementById('senha-input').value;
-  if (!consultorSelecionado) {
-    document.getElementById('erro-senha').textContent = '❌ Selecione um consultor';
-    document.getElementById('erro-senha').classList.add('show');
-    return;
-  }
-  const consultor = CONSULTORES.find(c => c.nome === consultorSelecionado);
-  if (senhaDigitada === consultor.senha) {
+function fecharModal() { document.getElementById('modal-senha').classList.remove('active'); }
+function verificarSenha() {
+  const cons = document.getElementById('select-consultor-senha').value;
+  const senha = document.getElementById('senha-input').value;
+  const c = CONSULTORES.find(x => x.nome === cons);
+  if (c && senha === c.senha) {
     fecharModal();
-    consultorAtivo = consultorSelecionado;
+    consultorAtivo = cons;
     go('s-painel');
-    carregarIndicacoesDoConsultor(consultorSelecionado);
+    carregarIndicacoesDoConsultor(cons);
   } else {
-    document.getElementById('erro-senha').textContent = '❌ Senha incorreta';
     document.getElementById('erro-senha').classList.add('show');
   }
 }
 
-async function carregarIndicacoesDoConsultor(nomeConsultor) {
-  try {
-    const dados = await jsonpGet(SCRIPT_URL + '?consultor=' + encodeURIComponent(nomeConsultor));
-    indicacoesAtivas = Array.isArray(dados) ? dados : [];
-    mapaIndicacoes = new Map(indicacoesAtivas.map(ind => [String(ind.id).trim(), ind]));
-    document.getElementById('painel-titulo').textContent = nomeConsultor;
-    document.getElementById('painel-sub').textContent = `${indicacoesAtivas.length} indicação${indicacoesAtivas.length !== 1 ? 'ões' : ''}`;
-    filtroAtivo = 'todos';
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    const primeiroBtn = document.querySelector('.filter-btn');
-    if (primeiroBtn) primeiroBtn.classList.add('active');
-    renderMetrics();
-    renderLista();
-  } catch (e) { toast('⚠️ Erro ao carregar'); }
-}
-
-async function carregarTodas() {
+// Dados
+function carregarTodas() {
   const el = document.getElementById('cons-list');
   if (el) el.innerHTML = '<div class="loading">Carregando...</div>';
-  try {
-    const data = await jsonpGet(SCRIPT_URL);
-    todasIndicacoes = Array.isArray(data) ? data : [];
+  jsonp(SCRIPT_URL, function(data) {
+    if (!data.error) todasIndicacoes = Array.isArray(data) ? data : [];
     renderConsultoresList();
-  } catch (e) { if (el) el.innerHTML = `<div class="loading">⚠️ Erro</div>`; }
+  });
 }
 
-async function carregarDoConsultor(nomeConsultor) {
-  const data = await jsonpGet(SCRIPT_URL + '?consultor=' + encodeURIComponent(nomeConsultor));
-  return Array.isArray(data) ? data : [];
-}
-
-async function carregarAcompanhamento(id) {
-  const el = document.getElementById('acompanhar-content');
-  el.innerHTML = '<div class="loading">Carregando...</div>';
-  try {
-    const data = await jsonpGet(SCRIPT_URL);
-    const indicacoes = Array.isArray(data) ? data : [];
-    const indicacao = indicacoes.find(i => String(i.id) === String(id));
-    if (!indicacao) {
-      el.innerHTML = '<div class="card" style="text-align:center;"><div class="success-circle" style="background:#fee2e2;">⚠️</div><div class="page-title">Indicação não encontrada</div></div>';
-      return;
-    }
-    const s = STATUS[indicacao.status] || STATUS.new;
-    const c = corConsultor(indicacao.consultor);
-    const stepsHTML = STEPS.map((lbl, i) => {
-      const done = s.step > i, curr = s.step === i;
-      return `<div class="step"><div class="step-dot ${done?'done':curr?'current':''}">${done?'✓':i+1}</div><div class="step-lbl ${curr?'current':''}">${lbl}</div></div>`;
-    }).join('');
-    el.innerHTML = `
-      <div class="card" style="text-align:center;"><div class="success-circle" style="background:${c.cor};">${s.emoji}</div><div class="page-title">${esc(indicacao.nome)}</div><p>Indicado por <strong>${esc(indicacao.indicador)}</strong></p><div class="badge ${s.cls}">${s.label}</div></div>
-      <div class="card"><div class="card-title">Status</div><p>${s.desc}</p></div>
-      <div class="card"><div class="card-title">Etapas</div><div class="steps">${stepsHTML}</div></div>
-      <div class="card"><div class="card-title">Dados</div><div class="field-row"><span>Telefone</span><span>${esc(indicacao.tel)}</span></div><div class="field-row"><span>Consultor</span><span>${esc(indicacao.consultor)}</span></div></div>`;
-  } catch(e) { el.innerHTML = '<div class="loading">Erro</div>'; }
-}
-
-function verificarUrlAcompanhamento() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const acompanharId = urlParams.get('acompanhar');
-  if (acompanharId) { go('s-acompanhar'); carregarAcompanhamento(acompanharId); }
+function carregarIndicacoesDoConsultor(nome) {
+  jsonp(SCRIPT_URL + '?consultor=' + encodeURIComponent(nome), function(data) {
+    if (!data.error) {
+      indicacoesAtivas = Array.isArray(data) ? data : [];
+      document.getElementById('painel-titulo').textContent = nome;
+      document.getElementById('painel-sub').textContent = indicacoesAtivas.length + ' indicações';
+      renderMetrics();
+      renderLista();
+    } else { toast('Erro ao carregar'); }
+  });
 }
 
 function renderConsultoresList() {
   const el = document.getElementById('cons-list');
   if (!el) return;
   el.innerHTML = CONSULTORES.map(c => {
-    const count = todasIndicacoes.filter(i => i.consultor && i.consultor.trim() === c.nome).length;
-    return `<div class="cons-opt" data-nome="${esc(c.nome)}"><div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini(c.nome)}</div><div><strong>${esc(c.nome)}</strong><br><small>${count} indicaç${count === 1 ? 'ão' : 'ões'}</small></div></div>`;
+    const count = todasIndicacoes.filter(i => i.consultor === c.nome).length;
+    return `<div class="cons-opt" onclick="selecionarConsultor('${c.nome}', this)"><div class="cons-avatar" style="background:${c.cor};color:${c.tc};">${ini(c.nome)}</div><div><strong>${c.nome}</strong><br><small>${count} indicações</small></div></div>`;
   }).join('');
-  el.onclick = e => {
-    const opt = e.target.closest('.cons-opt');
-    if (!opt) return;
-    el.querySelectorAll('.cons-opt').forEach(o => o.classList.remove('selected'));
-    opt.classList.add('selected');
-    consultorAtivo = opt.dataset.nome;
-    document.getElementById('btn-acessar').style.display = 'flex';
-  };
 }
 
-async function acessarConsultor() {
-  if (!consultorAtivo) return;
-  const btn = document.getElementById('btn-acessar');
-  btn.textContent = 'Carregando…';
-  btn.disabled = true;
-  try {
-    const dados = await carregarDoConsultor(consultorAtivo);
-    indicacoesAtivas = dados;
-    mapaIndicacoes = new Map(dados.map(ind => [String(ind.id).trim(), ind]));
-    document.getElementById('painel-titulo').textContent = consultorAtivo;
-    document.getElementById('painel-sub').textContent = `${dados.length} indicação${dados.length !== 1 ? 'ões' : ''}`;
-    filtroAtivo = 'todos';
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector('.filter-btn').classList.add('active');
-    renderMetrics();
-    renderLista();
+function selecionarConsultor(nome, el) {
+  document.querySelectorAll('.cons-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  consultorAtivo = nome;
+  document.getElementById('btn-acessar').style.display = 'flex';
+}
+
+function acessarConsultor() {
+  if (consultorAtivo) {
     go('s-painel');
-  } catch(e) { toast('⚠️ Erro'); }
-  finally { btn.textContent = 'Acessar painel →'; btn.disabled = false; }
+    carregarIndicacoesDoConsultor(consultorAtivo);
+  }
 }
 
 function renderMetrics() {
@@ -461,9 +319,9 @@ function renderMetrics() {
   const andamento = indicacoesAtivas.filter(i => ['new','contact','proposal'].includes(i.status)).length;
   const fechados = indicacoesAtivas.filter(i => i.status === 'closed').length;
   document.getElementById('painel-metrics').innerHTML = `
-    <div class="metric"><div class="metric-val" style="color:#1a56db;">${total}</div><div class="metric-lbl">Total</div></div>
-    <div class="metric"><div class="metric-val" style="color:#c27803;">${andamento}</div><div class="metric-lbl">Andamento</div></div>
-    <div class="metric"><div class="metric-val" style="color:#0e9f6e;">${fechados}</div><div class="metric-lbl">Fechados</div></div>`;
+    <div class="metric"><div class="metric-val">${total}</div><div>Total</div></div>
+    <div class="metric"><div class="metric-val">${andamento}</div><div>Andamento</div></div>
+    <div class="metric"><div class="metric-val">${fechados}</div><div>Fechados</div></div>`;
 }
 
 function filtrar(f, el) {
@@ -474,65 +332,58 @@ function filtrar(f, el) {
 }
 
 function renderLista() {
-  const items = filtroAtivo === 'todos' ? indicacoesAtivas : indicacoesAtivas.filter(i => i.status === filtroAtivo);
+  let items = indicacoesAtivas;
+  if (filtroAtivo !== 'todos') items = items.filter(i => i.status === filtroAtivo);
   const el = document.getElementById('lista-indicacoes');
-  if (!items.length) { el.innerHTML = '<div style="padding:40px;text-align:center;color:#9ca3af;">Nenhuma indicação</div>'; el.onclick = null; return; }
-  const c = corConsultor(consultorAtivo);
+  if (!items.length) { el.innerHTML = '<div style="padding:40px;text-align:center;color:#9ca3af;">Nenhuma indicação</div>'; return; }
+  const c = CONSULTORES.find(x => x.nome === consultorAtivo) || CONSULTORES[0];
   el.innerHTML = items.map(ind => {
     const s = STATUS[ind.status] || STATUS.new;
-    return `<div class="ind-item" data-id="${String(ind.id).trim()}"><div style="display:flex;gap:12px;"><div class="avatar" style="background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><strong>${esc(ind.nome)}</strong><br><small>${esc(ind.tel)} · ${esc(ind.indicador || '—')}</small></div></div><span class="badge ${s.cls}">${s.label}</span></div>`;
+    return `<div class="ind-item" onclick="abrirDetalhe('${ind.id}')"><div style="display:flex;gap:12px;"><div class="avatar" style="background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><strong>${esc(ind.nome)}</strong><br><small>${esc(ind.tel)} · ${esc(ind.indicador)}</small></div></div><span class="badge ${s.cls}">${s.label}</span></div>`;
   }).join('');
-  el.onclick = e => { const item = e.target.closest('.ind-item'); if(item) abrirDetalhe(item.dataset.id); };
 }
 
 function abrirDetalhe(id) {
-  const ind = mapaIndicacoes.get(String(id).trim());
-  if (!ind) { toast('⚠️ Indicação não encontrada'); return; }
+  const ind = indicacoesAtivas.find(i => String(i.id) === String(id));
+  if (!ind) { toast('Não encontrada'); return; }
   renderDetalhe(ind);
   go('s-detalhe');
 }
 
 function renderDetalhe(ind) {
   const s = STATUS[ind.status] || STATUS.new;
-  const c = corConsultor(ind.consultor);
+  const c = CONSULTORES.find(x => x.nome === ind.consultor) || CONSULTORES[0];
   const stepsHTML = STEPS.map((lbl, i) => {
     const done = s.step > i, curr = s.step === i;
     return `<div class="step"><div class="step-dot ${done?'done':curr?'current':''}">${done?'✓':i+1}</div><div class="step-lbl ${curr?'current':''}">${lbl}</div></div>`;
   }).join('');
   document.getElementById('detalhe-content').innerHTML = `
-    <div style="display:flex;gap:16px;margin-bottom:24px;border-bottom:1px solid #e5e7eb;padding-bottom:20px;"><div class="avatar" style="width:52px;height:52px;background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><div style="font-size:20px;font-weight:700;">${esc(ind.nome)}</div><div>Indicado por ${esc(ind.indicador)} · <span class="badge ${s.cls}">${s.label}</span></div></div></div>
-    ${ind.status !== 'lost' ? `<div class="card"><div class="card-title">Etapa</div><div class="steps">${stepsHTML}</div></div>` : ''}
+    <div style="display:flex;gap:16px;margin-bottom:24px;"><div class="avatar" style="width:52px;height:52px;background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><div style="font-size:20px;font-weight:700;">${esc(ind.nome)}</div><div>Indicado por ${esc(ind.indicador)} · <span class="badge ${s.cls}">${s.label}</span></div></div></div>
+    <div class="card"><div class="card-title">Etapas</div><div class="steps">${stepsHTML}</div></div>
     <div class="card"><div class="card-title">Dados</div><div class="field-row"><span>Telefone</span><strong>${esc(ind.tel)}</strong></div>${ind.nota ? `<div class="field-row"><span>Observação</span><span>${esc(ind.nota)}</span></div>` : ''}</div>
     <div class="card"><div class="card-title">Atualizar</div>
       <div class="form-group"><label>Nome</label><input id="ed-nome" value="${esc(ind.nome)}"></div>
       <div class="form-group"><label>Telefone</label><input id="ed-tel" value="${esc(ind.tel)}"></div>
-      <div class="form-group"><label>Status</label><select id="ed-status">${Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${ind.status===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Status</label><select id="ed-status">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${ind.status===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
       <div class="form-group"><label>Observação</label><textarea id="ed-nota">${esc(ind.nota||'')}</textarea></div>
     </div>
-    <button class="btn btn-primary btn-full" id="btn-salvar" data-id="${String(ind.id).trim()}">Salvar</button>`;
-  document.getElementById('btn-salvar').addEventListener('click', () => salvarEdicao(String(ind.id).trim()));
+    <button class="btn btn-primary btn-full" onclick="salvarEdicao('${ind.id}')">Salvar</button>`;
 }
 
 async function salvarEdicao(id) {
-  const ind = mapaIndicacoes.get(String(id).trim());
+  const ind = indicacoesAtivas.find(i => String(i.id) === String(id));
   if (!ind) return;
-  const statusAnterior = ind.status;
-  ind.nome = document.getElementById('ed-nome').value.trim();
-  ind.tel = document.getElementById('ed-tel').value.trim();
+  const statusAntes = ind.status;
+  ind.nome = document.getElementById('ed-nome').value;
+  ind.tel = document.getElementById('ed-tel').value;
   ind.status = document.getElementById('ed-status').value;
-  ind.nota = document.getElementById('ed-nota').value.trim();
-  ind.updated = new Date().toLocaleDateString('pt-BR');
-  const btn = document.getElementById('btn-salvar');
-  btn.textContent = 'Salvando…';
-  btn.disabled = true;
-  try {
-    await postDados({ action: 'update', ...ind, status_anterior: statusAnterior });
-    toast('✓ Salvo!');
-    renderLista();
-    renderMetrics();
-    renderDetalhe(ind);
-  } catch(e) { toast('⚠️ Erro'); }
-  finally { btn.textContent = 'Salvar'; btn.disabled = false; }
+  ind.nota = document.getElementById('ed-nota').value;
+  ind.updated = new Date().toLocaleDateString();
+  await postData({ action: 'update', ...ind, status_anterior: statusAntes });
+  toast('✓ Salvo!');
+  renderLista();
+  renderMetrics();
+  renderDetalhe(ind);
 }
 
 async function enviarIndicacao() {
@@ -542,82 +393,51 @@ async function enviarIndicacao() {
   const nome = document.getElementById('f-nome').value.trim();
   const tel = document.getElementById('f-tel').value.trim();
   const nota = document.getElementById('f-nota').value.trim();
-  
-  if (!indicador || !consultor || !nome || !tel) {
-    toast('⚠️ Preencha todos os campos');
-    return;
-  }
-  if (email && !email.includes('@')) {
-    toast('⚠️ E-mail inválido');
-    return;
-  }
-  
-  const btn = document.getElementById('btn-enviar');
-  btn.textContent = 'Enviando…';
+  if (!indicador || !consultor || !nome || !tel) { toast('Preencha todos os campos'); return; }
+  const btn = document.querySelector('#s-form .btn-primary');
+  btn.textContent = 'Enviando...';
   btn.disabled = true;
-  
-  const payload = {
+  await postData({
     action: 'add',
     id: Date.now().toString(),
-    indicador: indicador,
-    indicador_email: email,
-    consultor: consultor,
-    nome: nome,
-    tel: tel,
-    nota: nota || '',
-    status: 'new',
-    admin: '',
-    updated: new Date().toLocaleDateString('pt-BR')
-  };
-  
-  console.log('📤 Enviando:', payload);
-  
-  try {
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
+    indicador, indicador_email: email, consultor, nome, tel, nota: nota || '',
+    status: 'new', updated: new Date().toLocaleDateString()
+  });
+  document.getElementById('conf-consultor').textContent = consultor;
+  document.getElementById('f-indicador').value = '';
+  document.getElementById('f-email').value = '';
+  document.getElementById('f-nome').value = '';
+  document.getElementById('f-tel').value = '';
+  document.getElementById('f-nota').value = '';
+  document.getElementById('f-consultor').value = '';
+  toast('✓ Enviada!');
+  go('s-sucesso');
+  btn.textContent = 'Enviar indicação';
+  btn.disabled = false;
+}
+
+function verificarUrl() {
+  const id = new URLSearchParams(location.search).get('acompanhar');
+  if (id) {
+    go('s-acompanhar');
+    jsonp(SCRIPT_URL, function(data) {
+      const ind = (Array.isArray(data) ? data : []).find(i => String(i.id) === String(id));
+      const el = document.getElementById('acompanhar-content');
+      if (!ind) { el.innerHTML = '<div class="loading">Indicação não encontrada</div>'; return; }
+      const s = STATUS[ind.status] || STATUS.new;
+      const c = CONSULTORES.find(x => x.nome === ind.consultor) || CONSULTORES[0];
+      el.innerHTML = `<div class="card" style="text-align:center;"><div class="avatar" style="width:60px;height:60px;margin:0 auto 16px;background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div class="page-title">${esc(ind.nome)}</div><p>Indicado por ${esc(ind.indicador)}</p><div class="badge ${s.cls}" style="margin:16px auto 0;display:inline-block;">${s.label}</div></div><div class="card"><div class="card-title">Status</div><p>${s.desc || 'Aguardando contato'}</p></div><div class="card"><div class="field-row"><span>Telefone</span><span>${esc(ind.tel)}</span></div><div class="field-row"><span>Consultor</span><span>${esc(ind.consultor)}</span></div></div>`;
     });
-    
-    document.getElementById('conf-consultor').textContent = consultor;
-    const emailInfo = document.getElementById('email-info');
-    if (email) {
-      emailInfo.innerHTML = `📧 E-mail enviado para <strong>${esc(email)}</strong> com o link de acompanhamento.`;
-    } else {
-      emailInfo.innerHTML = `💡 Forneça um e-mail para receber atualizações.`;
-    }
-    
-    document.getElementById('f-indicador').value = '';
-    document.getElementById('f-email').value = '';
-    document.getElementById('f-nome').value = '';
-    document.getElementById('f-tel').value = '';
-    document.getElementById('f-nota').value = '';
-    document.getElementById('f-consultor').value = '';
-    
-    toast('✓ Indicação enviada!');
-    go('s-sucesso');
-  } catch (e) {
-    console.error('❌ Erro:', e);
-    toast('⚠️ Erro ao enviar');
-  } finally {
-    btn.textContent = 'Enviar indicação';
-    btn.disabled = false;
   }
 }
 
-(function init() {
+function init() {
   const sel = document.getElementById('f-consultor');
-  if (sel) {
-    CONSULTORES.forEach(c => {
-      const o = document.createElement('option');
-      o.value = c.nome;
-      o.textContent = c.nome;
-      sel.appendChild(o);
-    });
-  }
-  verificarUrlAcompanhamento();
-})();
+  CONSULTORES.forEach(c => { sel.innerHTML += `<option value="${c.nome}">${c.nome}</option>`; });
+  carregarTodas();
+  verificarUrl();
+}
+init();
 </script>
 </body>
 </html>
