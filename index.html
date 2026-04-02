@@ -83,6 +83,9 @@
   .modal-content p { color: #6b7280; margin-bottom: 20px; font-size: 14px; }
   .error-msg { color: #c81e1e; font-size: 13px; margin-top: 12px; display: none; }
   .error-msg.show { display: block; }
+  .select-consultor-modal { margin: 16px 0; text-align: left; }
+  .select-consultor-modal label { display: block; margin-bottom: 8px; font-weight: 500; }
+  .select-consultor-modal select { width: 100%; padding: 10px; border-radius: 8px; border: 1.5px solid #e5e7eb; font-size: 14px; }
   @media (max-width: 480px) { .metrics { grid-template-columns: repeat(2, 1fr); } .steps { gap: 6px; } }
 </style>
 </head>
@@ -90,13 +93,21 @@
 
 <div id="toast"></div>
 
-<!-- MODAL DE SENHA -->
+<!-- MODAL DE SENHA - AGORA COM SELEÇÃO DE CONSULTOR -->
 <div id="modal-senha" class="modal">
   <div class="modal-content">
     <h3>🔐 Acesso Restrito</h3>
-    <p>Digite a senha para acessar a área de consultores</p>
-    <input type="password" id="senha-input" placeholder="Senha" style="margin-bottom:12px;">
-    <button class="btn btn-primary btn-full" onclick="verificarSenha()">Acessar</button>
+    <p>Selecione seu nome e digite sua senha pessoal</p>
+    
+    <div class="select-consultor-modal">
+      <label>👤 Consultor</label>
+      <select id="select-consultor-senha">
+        <option value="">Selecione...</option>
+      </select>
+    </div>
+    
+    <input type="password" id="senha-input" placeholder="Sua senha pessoal" style="margin-bottom:12px;">
+    <button class="btn btn-primary btn-full" onclick="verificarSenhaConsultor()">Acessar</button>
     <button class="btn btn-secondary btn-full" onclick="fecharModal()" style="margin-top:10px;">Cancelar</button>
     <div id="erro-senha" class="error-msg">❌ Senha incorreta. Tente novamente.</div>
   </div>
@@ -163,7 +174,7 @@
   </div>
 </div>
 
-<!-- SELECIONAR CONSULTOR -->
+<!-- SELECIONAR CONSULTOR (agora apenas para troca após login) -->
 <div class="screen" id="s-consultor-select">
   <div class="topbar">
     <div class="logo">Portal de <em>Indicações</em></div>
@@ -171,8 +182,8 @@
   </div>
   <div class="page">
     <button class="back-btn" onclick="go('s-home')">← Voltar</button>
-    <div class="page-title">Quem é você?</div>
-    <div class="page-sub">Selecione seu nome para ver suas indicações</div>
+    <div class="page-title">Trocar consultor</div>
+    <div class="page-sub">Selecione outro consultor para visualizar</div>
     <div class="cons-list" id="cons-list"><div class="loading">Carregando...</div></div>
     <button class="btn btn-primary btn-full" id="btn-acessar" onclick="acessarConsultor()" style="display:none;">Acessar painel →</button>
   </div>
@@ -215,19 +226,29 @@
 
 <script>
 // ════════════════════════════════════════════════
-// CONFIGURAÇÃO — ajuste apenas esta seção
+// CONFIGURAÇÃO — senhas individuais por consultor
 // ════════════════════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbziWYgqoNf8eXqUrAYpX_oB-Y0HrP49ZmEwF6XIZn52f0LtaMesdstHD9-FBwDwUZ5QIA/exec';
-const SENHA = 'Cortina6';
+
+// SENHAS INDIVIDUAIS POR CONSULTOR (na ordem da lista)
+const SENHAS_CONSULTORES = [
+  'Cortina1',  // Renato Benedetti
+  'Cortina2',  // Vagner Santos
+  'Cortina3',  // Fabricio Araujo
+  'Cortina4',  // Arnaldo
+  'Cortina5',  // Rodrigues Silva
+  'Cortina6',  // Vlamir Santos
+  'Cortina7'   // Erik Carvalho
+];
 
 const CONSULTORES = [
-  { nome: 'Renato Benedetti', cor: '#dbeafe', tc: '#1e40af' },
-  { nome: 'Vagner Santos',    cor: '#fce7f3', tc: '#9d174d' },
-  { nome: 'Fabricio Araujo', cor: '#d1fae5', tc: '#065f46' },
-  { nome: 'Arnaldo',         cor: '#ede9fe', tc: '#5b21b6' },
-  { nome: 'Rodrigues Silva', cor: '#fef3c7', tc: '#92400e' },
-  { nome: 'Vlamir Santos',   cor: '#e0f2fe', tc: '#0369a1' },
-  { nome: 'Erik Carvalho',   cor: '#fee2e2', tc: '#991b1b' }
+  { nome: 'Renato Benedetti', cor: '#dbeafe', tc: '#1e40af', senha: 'Cortina1' },
+  { nome: 'Vagner Santos',    cor: '#fce7f3', tc: '#9d174d', senha: 'Cortina2' },
+  { nome: 'Fabricio Araujo',  cor: '#d1fae5', tc: '#065f46', senha: 'Cortina3' },
+  { nome: 'Arnaldo',          cor: '#ede9fe', tc: '#5b21b6', senha: 'Cortina4' },
+  { nome: 'Rodrigues Silva',  cor: '#fef3c7', tc: '#92400e', senha: 'Cortina5' },
+  { nome: 'Vlamir Santos',    cor: '#e0f2fe', tc: '#0369a1', senha: 'Cortina6' },
+  { nome: 'Erik Carvalho',    cor: '#fee2e2', tc: '#991b1b', senha: 'Cortina7' }
 ];
 
 const STATUS = {
@@ -279,7 +300,6 @@ function corConsultor(nomeConsultor) {
 
 // ════════════════════════════════════════════════
 // JSONP — única forma de GET sem CORS no Apps Script
-// O Apps Script precisa suportar o parâmetro ?callback=xxx
 // ════════════════════════════════════════════════
 function jsonpGet(url) {
   return new Promise((resolve, reject) => {
@@ -313,7 +333,7 @@ function jsonpGet(url) {
   });
 }
 
-// POST via no-cors (não lemos a resposta, mas o Apps Script recebe)
+// POST via no-cors
 async function postDados(payload) {
   await fetch(SCRIPT_URL, {
     method: 'POST',
@@ -324,13 +344,23 @@ async function postDados(payload) {
 }
 
 // ════════════════════════════════════════════════
-// MODAL DE SENHA
+// MODAL DE SENHA COM SELEÇÃO DE CONSULTOR
 // ════════════════════════════════════════════════
 function abrirModal() {
+  // Preencher o select com os consultores
+  const select = document.getElementById('select-consultor-senha');
+  select.innerHTML = '<option value="">Selecione...</option>';
+  CONSULTORES.forEach(c => {
+    const option = document.createElement('option');
+    option.value = c.nome;
+    option.textContent = c.nome;
+    select.appendChild(option);
+  });
+  
   document.getElementById('modal-senha').classList.add('active');
   document.getElementById('senha-input').value = '';
   document.getElementById('erro-senha').classList.remove('show');
-  setTimeout(() => document.getElementById('senha-input').focus(), 100);
+  setTimeout(() => document.getElementById('select-consultor-senha').focus(), 100);
 }
 
 function fecharModal() {
@@ -338,15 +368,35 @@ function fecharModal() {
 }
 
 document.getElementById('senha-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') verificarSenha();
+  if (e.key === 'Enter') verificarSenhaConsultor();
 });
 
-function verificarSenha() {
-  if (document.getElementById('senha-input').value === SENHA) {
+function verificarSenhaConsultor() {
+  const consultorSelecionado = document.getElementById('select-consultor-senha').value;
+  const senhaDigitada = document.getElementById('senha-input').value;
+  
+  if (!consultorSelecionado) {
+    document.getElementById('erro-senha').textContent = '❌ Selecione um consultor';
+    document.getElementById('erro-senha').classList.add('show');
+    return;
+  }
+  
+  // Buscar o consultor e verificar a senha
+  const consultor = CONSULTORES.find(c => c.nome === consultorSelecionado);
+  
+  if (!consultor) {
+    document.getElementById('erro-senha').textContent = '❌ Consultor não encontrado';
+    document.getElementById('erro-senha').classList.add('show');
+    return;
+  }
+  
+  if (senhaDigitada === consultor.senha) {
     fecharModal();
-    go('s-consultor-select');
-    carregarTodas();
+    consultorAtivo = consultorSelecionado;
+    go('s-painel');
+    carregarIndicacoesDoConsultor(consultorSelecionado);
   } else {
+    document.getElementById('erro-senha').textContent = '❌ Senha incorreta para este consultor';
     document.getElementById('erro-senha').classList.add('show');
   }
 }
@@ -354,32 +404,59 @@ function verificarSenha() {
 // ════════════════════════════════════════════════
 // CARREGAR DADOS
 // ════════════════════════════════════════════════
+async function carregarIndicacoesDoConsultor(nomeConsultor) {
+  const btn = document.getElementById('btn-acessar');
+  if (btn) btn.disabled = true;
+  
+  try {
+    const dados = await jsonpGet(SCRIPT_URL + '?consultor=' + encodeURIComponent(nomeConsultor));
+    indicacoesAtivas = Array.isArray(dados) ? dados : [];
+    mapaIndicacoes = new Map(indicacoesAtivas.map(ind => [String(ind.id).trim(), ind]));
+
+    document.getElementById('painel-titulo').textContent = nomeConsultor;
+    document.getElementById('painel-sub').textContent =
+      `${indicacoesAtivas.length} indicaç${indicacoesAtivas.length !== 1 ? 'ões' : 'ão'} recebida${indicacoesAtivas.length !== 1 ? 's' : ''}`;
+
+    filtroAtivo = 'todos';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    const primeiroBtn = document.querySelector('.filter-btn');
+    if (primeiroBtn) primeiroBtn.classList.add('active');
+
+    renderMetrics();
+    renderLista();
+  } catch (e) {
+    toast('⚠️ Erro ao carregar: ' + e.message);
+    console.error(e);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 async function carregarTodas() {
   const el = document.getElementById('cons-list');
-  el.innerHTML = '<div class="loading">Carregando...</div>';
+  if (el) el.innerHTML = '<div class="loading">Carregando...</div>';
   try {
     const data = await jsonpGet(SCRIPT_URL);
     todasIndicacoes = Array.isArray(data) ? data : [];
     renderConsultoresList();
   } catch (e) {
-    el.innerHTML = `<div class="loading" style="color:#c81e1e;">⚠️ ${e.message}<br><br>
-      <small>Verifique se o Apps Script está publicado com acesso "Qualquer pessoa"<br>
-      e se o doGet() retorna JSONP quando há parâmetro callback.</small></div>`;
+    if (el) el.innerHTML = `<div class="loading" style="color:#c81e1e;">⚠️ ${e.message}</div>`;
     console.error(e);
   }
 }
 
 async function carregarDoConsultor(nomeConsultor) {
-  const url = SCRIPT_URL + '?consultor=' + encodeURIComponent(nomeConsultor);
-  const data = await jsonpGet(url);
+  const data = await jsonpGet(SCRIPT_URL + '?consultor=' + encodeURIComponent(nomeConsultor));
   return Array.isArray(data) ? data : [];
 }
 
 // ════════════════════════════════════════════════
-// LISTA DE CONSULTORES
+// LISTA DE CONSULTORES (para troca)
 // ════════════════════════════════════════════════
 function renderConsultoresList() {
   const el = document.getElementById('cons-list');
+  if (!el) return;
+  
   el.innerHTML = CONSULTORES.map(c => {
     const count = todasIndicacoes.filter(i =>
       i.consultor && i.consultor.trim() === c.nome
@@ -415,7 +492,7 @@ async function acessarConsultor() {
   try {
     const dados = await carregarDoConsultor(consultorAtivo);
     indicacoesAtivas = dados;
-    mapaIndicacoes   = new Map(dados.map(ind => [String(ind.id).trim(), ind]));
+    mapaIndicacoes = new Map(dados.map(ind => [String(ind.id).trim(), ind]));
 
     document.getElementById('painel-titulo').textContent = consultorAtivo;
     document.getElementById('painel-sub').textContent =
@@ -566,13 +643,14 @@ async function salvarEdicao(id) {
 
   try {
     await postDados({ action: 'update', ...ind });
-    toast('✓ Salvo! (pode demorar alguns segundos para refletir na planilha)');
+    toast('✓ Salvo!');
     renderLista();
     renderMetrics();
     renderDetalhe(ind);
   } catch (e) {
     toast('⚠️ Erro ao salvar');
     console.error(e);
+  } finally {
     btn.textContent = 'Salvar alterações';
     btn.disabled = false;
   }
