@@ -86,8 +86,6 @@
   .select-consultor-modal { margin: 16px 0; text-align: left; }
   .select-consultor-modal label { display: block; margin-bottom: 8px; font-weight: 500; }
   .select-consultor-modal select { width: 100%; padding: 10px; border-radius: 8px; border: 1.5px solid #e5e7eb; font-size: 14px; }
-  .tracking-status { background: #f9fafb; border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center; }
-  .tracking-status .status-badge { font-size: 24px; margin-bottom: 12px; display: block; }
   @media (max-width: 480px) { .metrics { grid-template-columns: repeat(2, 1fr); } .steps { gap: 6px; } }
 </style>
 </head>
@@ -135,7 +133,7 @@
   </div>
 </div>
 
-<!-- FORMULÁRIO COM CAMPO DE E-MAIL -->
+<!-- FORMULÁRIO -->
 <div class="screen" id="s-form">
   <div class="topbar">
     <div class="logo">Portal de <em>Indicações</em></div>
@@ -157,7 +155,7 @@
   </div>
 </div>
 
-<!-- SUCESSO COM LINK DE ACOMPANHAMENTO -->
+<!-- SUCESSO -->
 <div class="screen" id="s-sucesso">
   <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div></div>
   <div class="page">
@@ -176,7 +174,7 @@
   </div>
 </div>
 
-<!-- PÁGINA DE ACOMPANHAMENTO PARA INDICADOR -->
+<!-- ACOMPANHAMENTO -->
 <div class="screen" id="s-acompanhar">
   <div class="topbar"><div class="logo">Portal de <em>Indicações</em></div><span class="mode-tag">Acompanhamento</span></div>
   <div class="page">
@@ -237,14 +235,8 @@
 </div>
 
 <script>
-// ════════════════════════════════════════════════
 // CONFIGURAÇÃO
-// ════════════════════════════════════════════════
-<script>
-// ════════════════════════════════════════════════
-// CONFIGURAÇÃO
-// ════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwR7IiDpDR-HONFfL5UrTdtHFRJuYfQ6m0LTwQ0v3Pp2WyT63ZUod3Mp6MJ1XdMDhT25Q';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxiRyhQ918pVbjywkuhOdSxxaEXfqU9ziIk2J1uF3fhTJV-FP6ZVCgZSotuk4sLwxp';
 
 const CONSULTORES = [
   { nome: 'Renato Benedetti', cor: '#dbeafe', tc: '#1e40af', senha: 'Cortina1' },
@@ -257,23 +249,20 @@ const CONSULTORES = [
 ];
 
 const STATUS = {
-  new:      { label: 'Nova',       cls: 'badge-new',      step: 0, emoji: '📌', desc: 'Aguardando contato do consultor' },
-  contact:  { label: 'Em contato', cls: 'badge-contact',  step: 1, emoji: '📞', desc: 'Consultor entrou em contato' },
-  proposal: { label: 'Proposta',   cls: 'badge-proposal', step: 2, emoji: '📄', desc: 'Proposta enviada' },
-  closed:   { label: 'Fechado',    cls: 'badge-closed',   step: 3, emoji: '✅', desc: 'Indicação concluída com sucesso!' },
-  lost:     { label: 'Perdido',    cls: 'badge-lost',     step: -1, emoji: '❌', desc: 'Infelizmente não foi possível concluir' }
+  new:      { label: 'Nova', cls: 'badge-new', step: 0, emoji: '📌', desc: 'Aguardando contato do consultor' },
+  contact:  { label: 'Em contato', cls: 'badge-contact', step: 1, emoji: '📞', desc: 'Consultor entrou em contato' },
+  proposal: { label: 'Proposta', cls: 'badge-proposal', step: 2, emoji: '📄', desc: 'Proposta enviada' },
+  closed:   { label: 'Fechado', cls: 'badge-closed', step: 3, emoji: '✅', desc: 'Indicação concluída!' },
+  lost:     { label: 'Perdido', cls: 'badge-lost', step: -1, emoji: '❌', desc: 'Não foi possível concluir' }
 };
 const STEPS = ['Contato', 'Levantamento', 'Proposta', 'Fechamento'];
 
-let consultorAtivo   = null;
-let filtroAtivo      = 'todos';
-let todasIndicacoes  = [];
+let consultorAtivo = null;
+let filtroAtivo = 'todos';
+let todasIndicacoes = [];
 let indicacoesAtivas = [];
-let mapaIndicacoes   = new Map();
+let mapaIndicacoes = new Map();
 
-// ════════════════════════════════════════════════
-// UTILITÁRIOS
-// ════════════════════════════════════════════════
 function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -302,9 +291,6 @@ function corConsultor(nomeConsultor) {
   return CONSULTORES.find(c => c.nome === nomeConsultor) || { cor: '#e5e7eb', tc: '#374151' };
 }
 
-// ════════════════════════════════════════════════
-// JSONP
-// ════════════════════════════════════════════════
 function jsonpGet(url) {
   return new Promise((resolve, reject) => {
     const cbName = '_cb' + Date.now() + Math.random().toString(36).slice(2);
@@ -313,28 +299,17 @@ function jsonpGet(url) {
       delete window[cbName];
       if (script && script.parentNode) script.parentNode.removeChild(script);
     };
-    const timer = setTimeout(() => {
-      cleanup();
-      reject(new Error('Timeout'));
-    }, 15000);
-    window[cbName] = (data) => {
-      clearTimeout(timer);
-      cleanup();
-      resolve(data);
-    };
+    const timer = setTimeout(() => { cleanup(); reject(new Error('Timeout')); }, 15000);
+    window[cbName] = (data) => { clearTimeout(timer); cleanup(); resolve(data); };
     script = document.createElement('script');
-    script.onerror = () => {
-      clearTimeout(timer);
-      cleanup();
-      reject(new Error('Erro'));
-    };
+    script.onerror = () => { clearTimeout(timer); cleanup(); reject(new Error('Erro')); };
     script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
     document.body.appendChild(script);
   });
 }
 
 async function postDados(payload) {
-  console.log('Enviando payload:', payload);
+  console.log('📤 Enviando:', payload);
   await fetch(SCRIPT_URL, {
     method: 'POST',
     mode: 'no-cors',
@@ -343,9 +318,6 @@ async function postDados(payload) {
   });
 }
 
-// ════════════════════════════════════════════════
-// MODAL DE SENHA
-// ════════════════════════════════════════════════
 function abrirModal() {
   const select = document.getElementById('select-consultor-senha');
   select.innerHTML = '<option value="">Selecione...</option>';
@@ -384,25 +356,20 @@ function verificarSenhaConsultor() {
   }
 }
 
-// ════════════════════════════════════════════════
-// CARREGAR DADOS
-// ════════════════════════════════════════════════
 async function carregarIndicacoesDoConsultor(nomeConsultor) {
   try {
     const dados = await jsonpGet(SCRIPT_URL + '?consultor=' + encodeURIComponent(nomeConsultor));
     indicacoesAtivas = Array.isArray(dados) ? dados : [];
     mapaIndicacoes = new Map(indicacoesAtivas.map(ind => [String(ind.id).trim(), ind]));
     document.getElementById('painel-titulo').textContent = nomeConsultor;
-    document.getElementById('painel-sub').textContent = `${indicacoesAtivas.length} indicação${indicacoesAtivas.length !== 1 ? 'ões' : ''} recebida${indicacoesAtivas.length !== 1 ? 's' : ''}`;
+    document.getElementById('painel-sub').textContent = `${indicacoesAtivas.length} indicação${indicacoesAtivas.length !== 1 ? 'ões' : ''}`;
     filtroAtivo = 'todos';
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     const primeiroBtn = document.querySelector('.filter-btn');
     if (primeiroBtn) primeiroBtn.classList.add('active');
     renderMetrics();
     renderLista();
-  } catch (e) {
-    toast('⚠️ Erro ao carregar');
-  }
+  } catch (e) { toast('⚠️ Erro ao carregar'); }
 }
 
 async function carregarTodas() {
@@ -412,9 +379,7 @@ async function carregarTodas() {
     const data = await jsonpGet(SCRIPT_URL);
     todasIndicacoes = Array.isArray(data) ? data : [];
     renderConsultoresList();
-  } catch (e) {
-    if (el) el.innerHTML = `<div class="loading">⚠️ Erro</div>`;
-  }
+  } catch (e) { if (el) el.innerHTML = `<div class="loading">⚠️ Erro</div>`; }
 }
 
 async function carregarDoConsultor(nomeConsultor) {
@@ -422,67 +387,37 @@ async function carregarDoConsultor(nomeConsultor) {
   return Array.isArray(data) ? data : [];
 }
 
-// ════════════════════════════════════════════════
-// ACOMPANHAMENTO POR LINK
-// ════════════════════════════════════════════════
 async function carregarAcompanhamento(id) {
   const el = document.getElementById('acompanhar-content');
-  el.innerHTML = '<div class="loading">Carregando informações...</div>';
+  el.innerHTML = '<div class="loading">Carregando...</div>';
   try {
     const data = await jsonpGet(SCRIPT_URL);
     const indicacoes = Array.isArray(data) ? data : [];
     const indicacao = indicacoes.find(i => String(i.id) === String(id));
     if (!indicacao) {
-      el.innerHTML = '<div class="card" style="text-align:center;"><div class="success-circle" style="background:#fee2e2;">⚠️</div><div class="page-title" style="margin-bottom:12px;">Indicação não encontrada</div><p>O link pode estar incorreto ou a indicação foi removida.</p></div>';
+      el.innerHTML = '<div class="card" style="text-align:center;"><div class="success-circle" style="background:#fee2e2;">⚠️</div><div class="page-title">Indicação não encontrada</div></div>';
       return;
     }
     const s = STATUS[indicacao.status] || STATUS.new;
     const c = corConsultor(indicacao.consultor);
     const stepsHTML = STEPS.map((lbl, i) => {
-      const done = s.step > i;
-      const curr = s.step === i;
+      const done = s.step > i, curr = s.step === i;
       return `<div class="step"><div class="step-dot ${done?'done':curr?'current':''}">${done?'✓':i+1}</div><div class="step-lbl ${curr?'current':''}">${lbl}</div></div>`;
     }).join('');
     el.innerHTML = `
-      <div class="card" style="text-align:center;margin-bottom:16px;">
-        <div class="success-circle" style="background:${c.cor};font-size:48px;">${s.emoji}</div>
-        <div class="page-title" style="margin-bottom:8px;">${esc(indicacao.nome)}</div>
-        <p style="color:#6b7280;">Indicado por <strong>${esc(indicacao.indicador)}</strong></p>
-        <div class="badge ${s.cls}" style="margin:12px auto 0;display:inline-block;">${s.label}</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Status atual</div>
-        <p style="font-size:14px;color:#374151;">${s.desc}</p>
-      </div>
-      <div class="card">
-        <div class="card-title">Etapas do processo</div>
-        <div class="steps">${stepsHTML}</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Informações da indicação</div>
-        <div class="field-row"><span style="color:#9ca3af;">Telefone</span><span>${esc(indicacao.tel)}</span></div>
-        <div class="field-row"><span style="color:#9ca3af;">Consultor</span><span>${esc(indicacao.consultor)}</span></div>
-        ${indicacao.nota ? `<div class="field-row"><span style="color:#9ca3af;">Observação</span><span>${esc(indicacao.nota)}</span></div>` : ''}
-        <div class="field-row"><span style="color:#9ca3af;">Última atualização</span><span>${indicacao.updated || new Date().toLocaleDateString('pt-BR')}</span></div>
-      </div>
-    `;
-  } catch(e) {
-    el.innerHTML = '<div class="loading">Erro ao carregar dados</div>';
-  }
+      <div class="card" style="text-align:center;"><div class="success-circle" style="background:${c.cor};">${s.emoji}</div><div class="page-title">${esc(indicacao.nome)}</div><p>Indicado por <strong>${esc(indicacao.indicador)}</strong></p><div class="badge ${s.cls}">${s.label}</div></div>
+      <div class="card"><div class="card-title">Status</div><p>${s.desc}</p></div>
+      <div class="card"><div class="card-title">Etapas</div><div class="steps">${stepsHTML}</div></div>
+      <div class="card"><div class="card-title">Dados</div><div class="field-row"><span>Telefone</span><span>${esc(indicacao.tel)}</span></div><div class="field-row"><span>Consultor</span><span>${esc(indicacao.consultor)}</span></div></div>`;
+  } catch(e) { el.innerHTML = '<div class="loading">Erro</div>'; }
 }
 
 function verificarUrlAcompanhamento() {
   const urlParams = new URLSearchParams(window.location.search);
   const acompanharId = urlParams.get('acompanhar');
-  if (acompanharId) {
-    go('s-acompanhar');
-    carregarAcompanhamento(acompanharId);
-  }
+  if (acompanharId) { go('s-acompanhar'); carregarAcompanhamento(acompanharId); }
 }
 
-// ════════════════════════════════════════════════
-// PAINEL
-// ════════════════════════════════════════════════
 function renderConsultoresList() {
   const el = document.getElementById('cons-list');
   if (!el) return;
@@ -545,7 +480,7 @@ function renderLista() {
   const c = corConsultor(consultorAtivo);
   el.innerHTML = items.map(ind => {
     const s = STATUS[ind.status] || STATUS.new;
-    return `<div class="ind-item" data-id="${String(ind.id).trim()}"><div style="display:flex;gap:12px;"><div class="avatar" style="background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><strong>${esc(ind.nome)}</strong><br><small>${esc(ind.tel)} · por ${esc(ind.indicador || '—')}</small></div></div><span class="badge ${s.cls}">${s.label}</span></div>`;
+    return `<div class="ind-item" data-id="${String(ind.id).trim()}"><div style="display:flex;gap:12px;"><div class="avatar" style="background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><strong>${esc(ind.nome)}</strong><br><small>${esc(ind.tel)} · ${esc(ind.indicador || '—')}</small></div></div><span class="badge ${s.cls}">${s.label}</span></div>`;
   }).join('');
   el.onclick = e => { const item = e.target.closest('.ind-item'); if(item) abrirDetalhe(item.dataset.id); };
 }
@@ -566,7 +501,7 @@ function renderDetalhe(ind) {
   }).join('');
   document.getElementById('detalhe-content').innerHTML = `
     <div style="display:flex;gap:16px;margin-bottom:24px;border-bottom:1px solid #e5e7eb;padding-bottom:20px;"><div class="avatar" style="width:52px;height:52px;background:${c.cor};color:${c.tc};">${ini(ind.nome)}</div><div><div style="font-size:20px;font-weight:700;">${esc(ind.nome)}</div><div>Indicado por ${esc(ind.indicador)} · <span class="badge ${s.cls}">${s.label}</span></div></div></div>
-    ${ind.status !== 'lost' ? `<div class="card"><div class="card-title">Etapa da venda</div><div class="steps">${stepsHTML}</div></div>` : ''}
+    ${ind.status !== 'lost' ? `<div class="card"><div class="card-title">Etapa</div><div class="steps">${stepsHTML}</div></div>` : ''}
     <div class="card"><div class="card-title">Dados</div><div class="field-row"><span>Telefone</span><strong>${esc(ind.tel)}</strong></div>${ind.nota ? `<div class="field-row"><span>Observação</span><span>${esc(ind.nota)}</span></div>` : ''}</div>
     <div class="card"><div class="card-title">Atualizar</div>
       <div class="form-group"><label>Nome</label><input id="ed-nome" value="${esc(ind.nome)}"></div>
@@ -574,13 +509,13 @@ function renderDetalhe(ind) {
       <div class="form-group"><label>Status</label><select id="ed-status">${Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${ind.status===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
       <div class="form-group"><label>Observação</label><textarea id="ed-nota">${esc(ind.nota||'')}</textarea></div>
     </div>
-    <button class="btn btn-primary btn-full" id="btn-salvar" data-id="${String(ind.id).trim()}">Salvar alterações</button>`;
+    <button class="btn btn-primary btn-full" id="btn-salvar" data-id="${String(ind.id).trim()}">Salvar</button>`;
   document.getElementById('btn-salvar').addEventListener('click', () => salvarEdicao(String(ind.id).trim()));
 }
 
 async function salvarEdicao(id) {
   const ind = mapaIndicacoes.get(String(id).trim());
-  if (!ind) { toast('⚠️ Erro'); return; }
+  if (!ind) return;
   const statusAnterior = ind.status;
   ind.nome = document.getElementById('ed-nome').value.trim();
   ind.tel = document.getElementById('ed-tel').value.trim();
@@ -597,12 +532,9 @@ async function salvarEdicao(id) {
     renderMetrics();
     renderDetalhe(ind);
   } catch(e) { toast('⚠️ Erro'); }
-  finally { btn.textContent = 'Salvar alterações'; btn.disabled = false; }
+  finally { btn.textContent = 'Salvar'; btn.disabled = false; }
 }
 
-// ════════════════════════════════════════════════
-// ENVIAR INDICAÇÃO - CORRIGIDA
-// ════════════════════════════════════════════════
 async function enviarIndicacao() {
   const indicador = document.getElementById('f-indicador').value.trim();
   const email = document.getElementById('f-email').value.trim();
@@ -612,12 +544,11 @@ async function enviarIndicacao() {
   const nota = document.getElementById('f-nota').value.trim();
   
   if (!indicador || !consultor || !nome || !tel) {
-    toast('⚠️ Preencha todos os campos obrigatórios');
+    toast('⚠️ Preencha todos os campos');
     return;
   }
-  
   if (email && !email.includes('@')) {
-    toast('⚠️ Digite um e-mail válido');
+    toast('⚠️ E-mail inválido');
     return;
   }
   
@@ -652,9 +583,9 @@ async function enviarIndicacao() {
     document.getElementById('conf-consultor').textContent = consultor;
     const emailInfo = document.getElementById('email-info');
     if (email) {
-      emailInfo.innerHTML = `📧 Um e-mail foi enviado para <strong>${esc(email)}</strong> com o link de acompanhamento.`;
+      emailInfo.innerHTML = `📧 E-mail enviado para <strong>${esc(email)}</strong> com o link de acompanhamento.`;
     } else {
-      emailInfo.innerHTML = `💡 Dica: Forneça um e-mail para receber atualizações da sua indicação.`;
+      emailInfo.innerHTML = `💡 Forneça um e-mail para receber atualizações.`;
     }
     
     document.getElementById('f-indicador').value = '';
@@ -675,9 +606,6 @@ async function enviarIndicacao() {
   }
 }
 
-// ════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════
 (function init() {
   const sel = document.getElementById('f-consultor');
   if (sel) {
@@ -691,3 +619,5 @@ async function enviarIndicacao() {
   verificarUrlAcompanhamento();
 })();
 </script>
+</body>
+</html>
